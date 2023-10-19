@@ -23,4 +23,9 @@ PHP 8 update:
 	sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/.
 	sudo a2ensite 099-okovision.conf
 	sudo a2dissite 000-default
-	sudo service apache2 reload	
+	sudo service apache2 reload
+
+	sudo crontab -e
+#SELECT NANO IF ASKED
+	*/20 * * * * cd /var/www/okovision; /usr/bin/php -f cron.php
+#This last command will retrieve data from the okofen every 20 minutes and update the welcome page.
