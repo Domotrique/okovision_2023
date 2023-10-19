@@ -67,6 +67,7 @@ You can double check that you have the same options here as well (in fact you do
 ## CHECK CONNECTION
 
 Now if you go check the following webpage ```http://YOUR_BOILER_IP_ADDRESS/logfiles/pelletronic/```, you should see something like this:
+
 ![image](https://github.com/Domotrique/okovision_2023/assets/148430940/3b6a26d9-4499-43f6-8505-53ded15d6c5b)
 
 If you see this page, you've done the hardest part!
@@ -79,4 +80,4 @@ Now, I invite you to check the very well explained documentation from @stawen [h
 
 ## AND NOW?
 
-If you see something not working as expected, please create an issue and I will try to have a look as soon as possible.
+If you see something not working as expected, please [create an issue](https://github.com/Domotrique/okovision_2023/issues/new/choose) and I will try to have a look as soon as possible.
