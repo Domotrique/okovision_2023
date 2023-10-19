@@ -109,6 +109,9 @@ class okofen extends connectDb
         $old_status = 0;
         $start_cycle = 0;
         $nbColCsv = count($capteurs);
+		$colDebug2 = false;
+		$colDebug5 = false;
+		$colVal = 0;
 
         $insert = 'INSERT IGNORE INTO oko_historique_full SET ';
         while (!feof($file)) {
@@ -146,9 +149,24 @@ class okofen extends connectDb
                     //creation de la requette sql pour les capteurs
                     //on commence à la deuxieme colonne de la ligne du csv
                     for ($i = 2; $i <= $nbColCsv; ++$i) {
+						$tmpval = $this->cvtDec($colCsv[$i]);
+						if ($i == 2 && $tmpval == 0) $colDebug2 = true;
+						//We detect if there was an init bug giving 0 degrees value
+						if ($i == 5 && $tmpval == 0 && $colDebug2 = true) {
+							$colDebug5 = true;
+							$colDebug2 = false;
+							break;
+						}
                         $query .= ', col_'.$capteurs[$i]['column_oko'].'='.$this->cvtDec($colCsv[$i]);
                     }
-
+					
+					//We detected a 0 temperature bug so we ignore this line
+					if ($colDebug5) {
+						$this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Skipping bugged line: '.$jour.' - '.$heure);
+						$colDebug5 = false;
+						continue;
+					} else $colDebug2 = false;
+					
                     $query .= ';';
                     //execution de la requette representant l'ensemble d'un ligne du csv
                     $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
