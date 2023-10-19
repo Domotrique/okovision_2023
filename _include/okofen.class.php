@@ -239,9 +239,9 @@ class okofen extends connectDb
     public function getAvailableBoilerDataFiles()
     {
         $rh = fopen('http://'.CHAUDIERE.URL, 'rb');
-        while (!feof($rh)) {
-            $dirData = fread($rh, 4096);
-        }
+
+        $dirData = stream_get_contents($rh);
+
         fclose($rh);
 
         $matches = [];
