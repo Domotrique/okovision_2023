@@ -27,5 +27,5 @@ PHP 8 update:
 
 	sudo crontab -e
 #SELECT NANO IF ASKED
-	*/20 * * * * cd /var/www/okovision; /usr/bin/php -f cron.php
-#This last command will retrieve data from the okofen every 20 minutes and update the welcome page.
+	22 */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php
+#This last command will retrieve data from the okofen every 2 hours, 22 minutes past the hour (this is 10 min after the CSV is generated on the Okofen) and update the welcome page.
