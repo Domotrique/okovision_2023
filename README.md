@@ -41,7 +41,7 @@ sudo service apache2 reload
 
 Select NANO if asked and add the following line at the end of the file.
 
-```22 */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php```
+```* */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php```
 
 This last command will retrieve data from the okofen every 2 hours, 22 minutes past the hour (this is 10 min after the CSV is generated on the Okofen) and update the welcome page.
 You can then hit **CTRL+X** then **Y** and then **ENTER** key.
