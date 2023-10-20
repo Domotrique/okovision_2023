@@ -6,27 +6,7 @@
 /* global lang, Highcharts, $ */
 $(document).ready(function() {
 	var loader = true;
-	/**
-	 * Synchronize zooming through the setExtremes event handler.
-	 */
-	function syncExtremes(e) {
-		Highcharts.each(Highcharts.charts, function(c) {
-			if (c !== e.currentTarget.chart && c) {
-				if (c.xAxis[0].setExtremes) { // It is null while updating
-					c.xAxis[0].setExtremes(e.min, e.max);
-					//c.showResetZoom();
-				}
-
-			}
-		});
-
-		if (e.trigger !== 'undefined' && e.trigger == "zoom") {
-			//console.log('max: '+e.max+' min: '+e.min);
-			refreshIndicateur(e.min, e.max);
-		}
-
-	}
-
+	
 	function yAxisMin(c) {
 		if (c) {
 			if (c.yAxis[0].dataMin < 0) {
@@ -72,9 +52,14 @@ $(document).ready(function() {
 			title: {
 				text: lang.graphic.hour
 			},
+			//To sync zoom between graphs
 			events: {
-				setExtremes: syncExtremes
-			},
+				afterSetExtremes: function(event) {
+					Highcharts.charts.forEach(chart => {
+						chart.xAxis[0].setExtremes(event.min, event.max);
+					})
+				}
+			}
 		},
 		yAxis: [{
 			title: {
