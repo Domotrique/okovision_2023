@@ -6,7 +6,7 @@
 /* global lang, Highcharts, $ */
 $(document).ready(function() {
 	var loader = true;
-	
+
 	function yAxisMin(c) {
 		if (c) {
 			if (c.yAxis[0].dataMin < 0) {
@@ -36,6 +36,66 @@ $(document).ready(function() {
 		y: 0,
 		showInLegend: false
 	};
+	
+	['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
+		if ($(document.getElementById('container-graphs')).length) {
+			document.getElementById('container-graphs').addEventListener(
+				eventType,
+				function (e) {
+					var chart,
+					point,
+					i,
+					event;
+
+					for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+						chart = Highcharts.charts[i];
+						// Find coordinates within the chart
+						event = chart.pointer.normalize(e);
+						// Get the hovered point
+						const points = _.reduce(chart.series, (points, series, seriesInx) => {
+							const point = series.searchPoint(event, true);
+							if (point)
+							points.push(point);
+							return points;
+						}, []);
+
+						_.each(chart.series, series => {
+							_.each(series.points, point => {
+								point.setState();
+							});
+						});
+
+						_.each(points, point => {
+							point.setState('hover'); // show hover marker
+						});
+
+						if (!_.isEmpty(points))
+							chart.tooltip.refresh(points);
+					}
+				}
+			);
+		}
+	});
+	
+	['mouseout'].forEach(function (eventType) {
+		if ($(document.getElementById('container-graphs')).length) {
+			document.getElementById('container-graphs').addEventListener(
+				eventType,
+				function (e) {
+					var i, chart;
+						for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+							chart = Highcharts.charts[i];
+							chart.tooltip.hide();
+							_.each(chart.series, series => {
+								_.each(series.points, point => {
+									point.setState();
+							});
+						});
+					}
+				}
+			);
+		}
+	});
 
 	Highcharts.setOptions({
 		chart: {
@@ -45,6 +105,7 @@ $(document).ready(function() {
 			panKey: 'shift'
 		},
 		xAxis: {
+			crosshair: true,
 			type: 'datetime',
 			labels: {
 				rotation: -45,
@@ -52,7 +113,6 @@ $(document).ready(function() {
 			title: {
 				text: lang.graphic.hour
 			},
-			//To sync zoom between graphs
 			events: {
 				afterSetExtremes: function(event) {
 					Highcharts.charts.forEach(chart => {
@@ -82,8 +142,10 @@ $(document).ready(function() {
 		},
 		tooltip: {
 			shared: true,
-			crosshairs: true,
-			followPointer: true,
+			followPointer: false,
+			followTouchMove: false,
+			backgroundColor: 'none',
+			shadow: false,
 			formatter: function(tooltip) {
 				var items = this.points || splat(this);
 
@@ -94,11 +156,28 @@ $(document).ready(function() {
 				items.reverse();
 
 				return tooltip.defaultFormatter.call(this, tooltip);
+			},
+			positioner: function () {
+				return {
+					// right aligned
+					x: this.chart.chartWidth - this.label.width,
+					y: 10 // align to title
+				};
+			},
+			style: {
+				fontSize: '12px'
 			}
 		}
 
 
 	});
+	
+	Highcharts.Point.prototype.highlight = function (event) {
+		event = this.series.chart.pointer.normalize(event);
+		this.onMouseOver(); // Show the hover marker
+		this.series.chart.tooltip.refresh(this); // Show the tooltip
+		this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
+	};
 
 
 	function grapheWithTime(data, where, titre) {
