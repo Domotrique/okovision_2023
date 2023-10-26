@@ -153,6 +153,11 @@ $(document).ready(function() {
 						max: 50,
 						opposite: true
 					}],
+					tooltip: {
+						style: {
+							fontSize: '12px'
+						}
+					},
 					plotOptions: {
 						line: {
 							marker: {
