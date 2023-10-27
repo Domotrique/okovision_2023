@@ -33,7 +33,7 @@ if (!file_exists('config.php')) {
 			<span class="glyphicon glyphicon-arrow-up"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.tcmax'); ?> <span id="tcmax" class="label label-success">00,0 °C</span> &nbsp;&nbsp;
 			<span class="glyphicon glyphicon-arrow-down"></span> <?php echo session::getInstance()->getLabel('lang.text.page.label.tcmin'); ?> <span id="tcmin" class="label label-warning">00,0 °C</span>
 		</div>
-		<div class="container-graphe">
+		<div class="container-graphe" id="container-graphs">
 		</div>
 
 <?php

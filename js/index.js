@@ -37,6 +37,7 @@ $(document).ready(function() {
 		showInLegend: false
 	};
 	
+    //We sync the tooltip position and display on all graphs
 	['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
 		if ($(document.getElementById('container-graphs')).length) {
 			document.getElementById('container-graphs').addEventListener(
@@ -48,50 +49,56 @@ $(document).ready(function() {
 					event;
 
 					for (i = 0; i < Highcharts.charts.length; i = i + 1) {
-						chart = Highcharts.charts[i];
-						// Find coordinates within the chart
-						event = chart.pointer.normalize(e);
-						// Get the hovered point
-						const points = _.reduce(chart.series, (points, series, seriesInx) => {
-							const point = series.searchPoint(event, true);
-							if (point)
-							points.push(point);
-							return points;
-						}, []);
+					    chart = Highcharts.charts[i];
+					    if (chart) {
+					        // Find coordinates within the chart
+					        event = chart.pointer.normalize(e);
+					        // Get the hovered point
+					        const points = _.reduce(chart.series, (points, series, seriesInx) => {
+					            const point = series.searchPoint(event, true);
+					            if (point)
+					                points.push(point);
+					            return points;
+					        }, []);
 
-						_.each(chart.series, series => {
-							_.each(series.points, point => {
-								point.setState();
-							});
-						});
+					        _.each(chart.series, series => {
+					            _.each(series.points, point => {
+					                point.setState();
+					            });
+					        });
 
-						_.each(points, point => {
-							point.setState('hover'); // show hover marker
-						});
+					        _.each(points, point => {
+					            point.setState('hover'); // show hover marker
+					        });
 
-						if (!_.isEmpty(points))
-							chart.tooltip.refresh(points);
+					        if (!_.isEmpty(points))
+					            chart.tooltip.refresh(points);
+					    }
 					}
 				}
 			);
 		}
 	});
 	
+    //Hide Tooltip when mouse gets out of the graph
 	['mouseout'].forEach(function (eventType) {
 		if ($(document.getElementById('container-graphs')).length) {
 			document.getElementById('container-graphs').addEventListener(
 				eventType,
 				function (e) {
 					var i, chart;
-						for (i = 0; i < Highcharts.charts.length; i = i + 1) {
-							chart = Highcharts.charts[i];
-							chart.tooltip.hide();
-							_.each(chart.series, series => {
-								_.each(series.points, point => {
-									point.setState();
-							});
-						});
-					}
+					for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+						chart = Highcharts.charts[i];
+						if (chart) {
+						    chart.tooltip.hide();
+						    _.each(chart.series, series => {
+						        _.each(series.points, point => {
+						            point.setState();
+						        });
+
+						    });
+						}
+                    }
 				}
 			);
 		}
@@ -102,7 +109,13 @@ $(document).ready(function() {
 			type: 'spline',
 			zoomType: 'x',
 			panning: true,
-			panKey: 'shift'
+			panKey: 'shift',
+            //Place the reset button on the left
+		    resetZoomButton: {
+	            position: {
+	                    align: 'left',
+	                    }
+	        }
 		},
 		xAxis: {
 			crosshair: true,
@@ -114,9 +127,12 @@ $(document).ready(function() {
 				text: lang.graphic.hour
 			},
 			events: {
-				afterSetExtremes: function(event) {
-					Highcharts.charts.forEach(chart => {
-						chart.xAxis[0].setExtremes(event.min, event.max);
+                //Sync zoom between all graphs
+			    afterSetExtremes: function (event) {
+			        Highcharts.charts.forEach(chart => {
+			            if (chart) {
+			                chart.xAxis[0].setExtremes(event.min, event.max);
+			            }
 					})
 				}
 			}
@@ -141,7 +157,7 @@ $(document).ready(function() {
 			}
 		},
 		tooltip: {
-			shared: true,
+			shared: true,   //All values in one block
 			followPointer: false,
 			followTouchMove: false,
 			backgroundColor: 'none',

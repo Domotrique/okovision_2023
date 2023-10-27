@@ -52,3 +52,7 @@ php.ini
 .c9/
 
 
+Okovision_2023.sln
+Okovision_2023.phpproj
+.vs/Okovision_2023/v14/.suo
+.vs/config/applicationhost.config
