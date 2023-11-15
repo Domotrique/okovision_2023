@@ -157,7 +157,7 @@ class realTime extends connectDb
 
         foreach ($sensor as $boiler => $param) {
             $resultat .= '{ "name": "'.$param['name'].'",';
-            $data = '['.substr($r['CAPPL:LOCAL.L_fernwartung_datum_zeit_sek']->value, 0, -7).'000,'.$r[$boiler]->value * $param['coeff'].']';
+            $data = '['.substr($r['CAPPL:LOCAL.L_fernwartung_datum_zeit_sek']->value, 0, -7).'000,'.(int)$r[$boiler]->value * (int)$param['coeff'].']';
             $resultat .= '"data": '.$data.'},';
         }
 
