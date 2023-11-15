@@ -585,7 +585,8 @@ class administration extends connectDb
         $r['newVersion'] = false;
         $r['information'] = '';
 
-        $this->addOkoStat();
+        //Remove agent for now
+        //$this->addOkoStat();
 
         $update = new AutoUpdate();
         $update->setCurrentVersion($this->getCurrentVersion());
