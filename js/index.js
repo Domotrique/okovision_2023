@@ -131,7 +131,9 @@ $(document).ready(function() {
 			    afterSetExtremes: function (event) {
 			        Highcharts.charts.forEach(chart => {
 			            if (chart) {
-			                chart.xAxis[0].setExtremes(event.min, event.max);
+			                if ( chart.xAxis.length > 0) {
+			                    chart.xAxis[0].setExtremes(event.min, event.max);
+			                }
 			            }
 					})
 				}
