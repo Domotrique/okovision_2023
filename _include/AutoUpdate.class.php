@@ -31,6 +31,11 @@ class AutoUpdate extends connectDb
     const ERROR_VERSION_CHECK = 20;
 
     /**
+     * Could not backup the old install.
+     */
+    const ERROR_BACKUP = 25;
+
+    /**
      * Temp directory does not exist or is not writable.
      */
     const ERROR_TEMP_DIR = 30;
@@ -79,7 +84,8 @@ class AutoUpdate extends connectDb
      *
      * @var string
      */
-    protected $_updateUrl = 'http://okovision.dronek.com';
+    protected $_updateUrl = 'https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install';
+    //protected $_updateUrl = 'http://salm.ovh';
     /**
      * Version filename on the server.
      *
@@ -141,6 +147,8 @@ class AutoUpdate extends connectDb
      * @var string
      */
     private $_branch = '';
+
+    private bool $zipContact = false;
 
     /**
      * Create new instance.
@@ -363,7 +371,8 @@ class AutoUpdate extends connectDb
      *                  int: Status code (i.e. AutoUpdate::NO_UPDATE_AVAILABLE)
      */
     public function checkUpdate()
-    {
+    {   
+        //$this->_createBackup(); //FOR DEBUG
         $this->log->debug('Checking for a new update...');
 
         // Reset previous updates
@@ -383,6 +392,15 @@ class AutoUpdate extends connectDb
         $this->log->debug(sprintf('Get new updates from %s', $updateFile));
 
         // Read update file from update server
+        /*$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://raw.githubusercontent.com/octocat/Spoon-Knife/master/index.html');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($ch);
+        curl_close($ch);
+
+        echo $data;*/
+
         $update = @file_get_contents($updateFile);
         if (false === $update) {
             $this->log->info(sprintf('Could not download update file "%s"!', $updateFile));
@@ -535,6 +553,14 @@ class AutoUpdate extends connectDb
                 $this->log->debug(sprintf('Latest update downloaded to "%s"', $updateFile));
             } else {
                 $this->log->info(sprintf('Latest update already downloaded to "%s"', $updateFile));
+            }
+
+            //Backup old Install
+
+            if (!$this->_createBackup()) {
+                $this->log->error('Could not Backup the previous install!');
+
+                return self::ERROR_BACKUP;
             }
 
             // Install update
@@ -745,6 +771,8 @@ class AutoUpdate extends connectDb
             return self::ERROR_SIMULATE;
         }
 
+
+
         clearstatcache();
 
         // Check if zip file could be opened
@@ -891,5 +919,69 @@ class AutoUpdate extends connectDb
         }
 
         return rmdir($dir);
+    }
+
+    private function _createBackup()
+    {
+        // Get real path for our folder
+        $dir = str_replace('\\', '/', getcwd())."/";
+        $zip_file = "_BACKUP.zip";
+
+        if (file_exists($zip_file)) {
+            rename($zip_file, "../".date("Ymd").$zip_file);
+        }
+
+        $zip = new ZipArchive;
+        if ($zip -> open($zip_file, ZipArchive::CREATE) === TRUE)
+        {
+            $this->addFolderToZip($dir,$zip);
+
+            $zip->close();
+
+            if (file_exists($zip_file)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    }
+
+    // Function to recursively add a directory,
+    // sub-directories and files to a zip archive
+    function addFolderToZip($dir, $zipArchive){
+        if( basename($dir) != "okovision_2023") {
+            $zipContact = true;
+        }
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                /*if (str_contains($dir, "okovision_2023")) {
+                    $zipArchive->addEmptyDir("okovision_2023");
+                } else {*/
+                    //Add the directory
+                    if (!$zipContact) {
+                        $zipArchive->addEmptyDir(basename($dir));
+                    } else {
+                        $zipArchive->addEmptyDir($dir);
+                    }
+               // }
+
+                // Loop through all the files
+                while (($file = readdir($dh)) !== false) {
+                    //If it's a folder, run the function again!
+                    if (!is_file($dir . $file)) {
+                        // Skip parent and root directories
+                        if( ($file !== ".") && ($file !== "..")){
+                            $this->addFolderToZip($dir . $file . "/", $zipArchive);
+                        }
+                    } else {
+                        // Add the files
+                        $zipArchive->addFile($dir . $file);
+
+                    }
+                }
+            }
+        }
+        return 0;
     }
 }
