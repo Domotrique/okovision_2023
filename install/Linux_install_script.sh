@@ -21,3 +21,12 @@ sudo a2ensite 099-okovision.conf
 sudo a2dissite 000-default
 sudo service apache2 reload
 
+sudo crontab -l > crontab_new
+if grep -R "okovision" "crontab_new" > 0
+then
+    echo "Crontab Ready"
+else
+    sudo echo "* */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
+	sudo crontab crontab_new
+	sudo rm crontab_new
+fi
