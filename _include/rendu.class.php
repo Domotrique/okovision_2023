@@ -136,7 +136,11 @@ class rendu extends connectDb
 
         $result = $this->query($q);
 
-        return $result->fetch_object();
+        if (!$result) {
+            return false;
+        } else {
+            return $result->fetch_object();
+        }
     }
 
     /**

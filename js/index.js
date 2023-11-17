@@ -5,7 +5,13 @@
  ******************************************************/
 /* global lang, Highcharts, $ */
 $(document).ready(function() {
-	var loader = true;
+    var loader = true;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const product = urlParams.get('setup')
+    if (product == "1") {
+        $("#login-modal").modal('show');
+    }
 
 	function yAxisMin(c) {
 		if (c) {
@@ -397,11 +403,11 @@ $(document).ready(function() {
 	});
 
 	$("#date_encours").change(function() {
-		if ($.validateDate($('#date_encours').val())) {
+	    if ($.validateDate($('#date_encours').val())) {
 			refreshAllGraphe();
 		}
-		else {
-			$.errorDate();
+	    else {
+	        $.errorDate();
 		}
 
 	});
@@ -449,7 +455,12 @@ $(document).ready(function() {
 			                        </div>');
 		});
 
-		refreshAllGraphe();
+		if (product == "1") {
+		    $.growlFirstSetup();
+		} else {
+		    refreshAllGraphe();
+		}
+		
 
 	})
 	.error(function() {

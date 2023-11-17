@@ -4,7 +4,7 @@
  * Utilisation commerciale interdite sans mon accord
  ******************************************************/
 /* global lang, Highcharts, sessionToken, $ */
-$(document).ready(function() {
+$(document).ready(function () {
 
 	$(".tip").tooltip({
     	placement: "right",
@@ -56,6 +56,21 @@ $(document).ready(function() {
 			z_index: 9999,
 			type: 'warning'
 		});
+	};
+
+	$.growlFirstSetup = function () {
+	    $.notify({
+	        icon: 'glyphicon glyphicon-exclamation-sign',
+	        message: lang.text.firstSetup,
+	    }, {
+	        z_index: 9999,
+	        type: 'warning',
+	        placement: {
+	            from: "top",
+	            align: "right"
+	        },
+            delay: 120000
+	    });
 	};
 	
 	$.api = function(mode, cmd, tab, typeSync) {
@@ -145,7 +160,7 @@ $(document).ready(function() {
 		}
 		
 	});
-	
+
 	$("#btlogout").click(function(){
 		
 		$.api('GET', 'admin.logout',{},false).done(function(json) {

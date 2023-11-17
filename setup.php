@@ -56,7 +56,7 @@
         } // flush multi_queries
 
         // init de la table des dates de reference
-        $start_day = mktime(0, 0, 0, 9, 1, 2014); //1er septembre 2014
+        $start_day = mktime(0, 0, 0, 9, 1, 2023); //1er septembre 2023
         $stop_day = mktime(0, 0, 0, 9, 1, 2037); //justqu'au 1er septembre 2037, on verra en 2037 si j'utilise encore l'app.
         $nb_day = ($stop_day - $start_day) / 86400;
         $query = 'INSERT INTO oko_dateref (jour) VALUES ';

@@ -12,5 +12,3 @@
 	
 	<script src="_langs/<?php echo session::getInstance()->getLang(); ?>.text.js"></script>
 	<script src="js/custom.js"></script> 
-	
-

