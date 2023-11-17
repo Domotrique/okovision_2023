@@ -13,7 +13,7 @@ cd /var/www/
 sudo wget https://github.com/domotrique/okovision_2023/archive/master.zip
 sudo unzip -q master.zip
 [ -d "okovision" ] && mv okovision/ "$(date +"%y-%m-%d")_okovision"
-sudo mv okovision-master okovision
+sudo mv okovision_2023-master okovision
 sudo rm master.zip
 sudo chown www-data:www-data -R okovision/
 sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/.
