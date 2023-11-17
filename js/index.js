@@ -269,8 +269,10 @@ $(document).ready(function() {
 			};
 		}
 
-		$.api('GET', 'rendu.getIndicByDay', request).done(function(json) {
-
+		$.api('GET', 'rendu.getIndicByDay', request).done(function (json) {
+		    if (json.tcExtMax == null && json.tcExtMin == null) {
+		        $.growlFirstSetup();
+		    }
 			$("#tcmax").text($.DecSepa(json.tcExtMax + " °C"));
 			$("#tcmin").text($.DecSepa(json.tcExtMin + " °C"));
 			$("#consoPellet").text($.DecSepa(((json.consoPellet === null) ? 0.0 : json.consoPellet) + " Kg"));

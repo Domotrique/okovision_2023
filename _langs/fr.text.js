@@ -71,7 +71,7 @@ var lang = {
         eventPelletsdetails: "{0} kg, {1}€ ({2}€/T)",
         eventBagDetails: "{0} kg, {1}€ ({2}€/15Kg)",
         eventmaintenanceDetails: "{0}€",
-        firstSetup: 'Veuillez vous connecter puis allez paramétrer votre installation',
+        firstSetup: "Aucune valeur n'est remontée par votre chaudière. Vérifiez que vous avez bien tout paramétré",
         addGraphe: "Création d'un nouveau graphique",
         updateGraphe: 'Modification de',
         deleteGraphe: 'Confirmez-vous la suppresion de',
