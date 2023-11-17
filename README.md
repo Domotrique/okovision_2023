@@ -16,9 +16,9 @@ I will try explain you how to connect and have the tool ready to run with my set
 ## INSTALL SCRIPT FOR LINUX
 
 ```
-sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install/Linux_install_script.sh
-sudo chmod +x Linux_install_script.sh
-sudo ./Linux_install_script.sh
+sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install/Okovision_2023_for_Linux.sh
+sudo chmod +x Okovision_2023_for_Linux.sh
+sudo ./Okovision_2023_for_Linux.sh && rm -y Okovision_2023_for_Linux.sh
 ```
 
 ## OR MANUAL INSTALL STEPS ON LINUX
@@ -37,7 +37,7 @@ sudo apt-get -y install php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8
 cd /var/www/
 sudo wget https://github.com/domotrique/okovision_2023/archive/master.zip
 sudo unzip master.zip
-sudo mv okovision-master/ okovision/
+sudo mv okovision_2023-master/ okovision/
 sudo rm master.zip
 sudo chown www-data:www-data -R okovision/
 sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/.
