@@ -13,7 +13,15 @@ I will try explain you how to connect and have the tool ready to run with my set
 
 ![okofen](https://github.com/Domotrique/okovision_2023/assets/148430940/0b602cf1-83f3-4a7b-b27e-791ff7c21e08)
 
-## INSTALL STEPS ON LINUX
+## INSTALL SCRIPT FOR LINUX
+
+```
+sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install/Linux_install_script.sh
+sudo chmod +x Linux_install_script.sh
+sudo ./Linux_install_script.sh
+```
+
+## OR MANUAL INSTALL STEPS ON LINUX
 
 ```
 sudo apt-get -y install mariadb-server
@@ -49,7 +57,7 @@ You can then hit **CTRL+X** then **Y** and then **ENTER** key.
 ## OKOFEN BOILER SETUP
 
 You obviously need to have your boiler connected to your network (mine is connected via the network card in the door).
-<img src="https://user-images.githubusercontent.com/148430940/276640137-60296231-e49c-4efd-8bd3-1d302871470c.jpg" width="400">
+![276640137-60296231-e49c-4efd-8bd3-1d302871470c](https://github.com/Domotrique/okovision_2023/assets/148430940/bbd273f4-d8ef-453b-9be8-d5895ee06e49)
 
 Then enable check what is your boiler IP in the Main Menu --> Generalities --> IP Config. My IP is 192.168.1.97.
 
@@ -57,12 +65,12 @@ Then enable check what is your boiler IP in the Main Menu --> Generalities --> I
 
 You can also check your login and password for the Okofen app if you need to pilot your system from outside home by going down in the IP Config menu.
 
-<img src="https://user-images.githubusercontent.com/148430940/276642949-db8c907f-f5f6-452b-96af-23df09ab5c51.jpg" width="400">
+![276642949-db8c907f-f5f6-452b-96af-23df09ab5c51](https://github.com/Domotrique/okovision_2023/assets/148430940/9f51dd77-7566-4a95-b899-fa7010410d5b)
 
 You can double check that you have the same options here as well (in fact you don't need JSON active normally):
+![276643580-279b40c7-6585-45ed-a2b1-e9b5d2ba6230](https://github.com/Domotrique/okovision_2023/assets/148430940/2946dfe0-20eb-4003-908d-2360412e8ed4)
 
-<img src="https://user-images.githubusercontent.com/148430940/276643580-279b40c7-6585-45ed-a2b1-e9b5d2ba6230.jpg" width="400">
-<img src="https://user-images.githubusercontent.com/148430940/276643781-d7bb6539-c6a2-42d1-b7f8-f0d45cd3d881.jpg" width="400">
+![276643781-d7bb6539-c6a2-42d1-b7f8-f0d45cd3d881](https://github.com/Domotrique/okovision_2023/assets/148430940/ef646c97-2b97-405b-a5bd-a50477f71ca1)
 
 ## CHECK CONNECTION
 
@@ -76,7 +84,9 @@ If you see this page, you've done the hardest part!
 
 ## OKOVISION SETUP
 
-Now, I invite you to check the very well explained documentation from @stawen [here](https://okovision.dronek.com/documentation/configuration/setup/)
+You can now open a web browser and go to your server address, which is probably http://localhost:80
+
+Next, I invite you to check the very well explained documentation from @stawen [here](https://okovision.dronek.com/documentation/configuration/setup/)
 
 ## AND NOW?
 
