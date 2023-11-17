@@ -39,10 +39,10 @@ class administration extends connectDb
             // It worked
             $r['response'] = true;
             $r['url'] = 'http://'.$address.URL;
+            @fclose($fp);
         } else {
             $r['response'] = false;
         }
-        @fclose($fp);
 
         $this->sendResponse($r);
     }

@@ -6,14 +6,14 @@ sudo apt-get -y install apache2
 sudo systemctl enable apache2
 
 sudo apt update
-sudo apt-get -y install php8.2 php8.2-cli php8.2-common
-sudo apt-get -y install php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8.2-gd php8.2-mbstring php8.2-intl php8.2-zip
+sudo apt-get -y install php8.2 php8.2-cli php8.2-common || apt-get -y install php php-cli php-common
+sudo apt-get -y install php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8.2-gd php8.2-mbstring php8.2-intl php8.2-zip || apt-get -y install php-mysql php-mbstring php-xml php-curl php-gd php-mbstring php-intl php-zip
 
 cd /var/www/
 sudo wget https://github.com/domotrique/okovision_2023/archive/master.zip
-sudo unzip master.zip
-[ -d "/path/to/dir" ] && mv okovision/ "$(date +"%y-%m-%d")_okovision"
-sudo mv okovision-master/ okovision/
+sudo unzip -q master.zip
+[ -d "okovision" ] && mv okovision/ "$(date +"%y-%m-%d")_okovision"
+sudo mv okovision-master okovision
 sudo rm master.zip
 sudo chown www-data:www-data -R okovision/
 sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/.
@@ -28,5 +28,5 @@ then
 else
     sudo echo "* */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
 	sudo crontab crontab_new
-	sudo rm crontab_new
 fi
+sudo rm crontab_new

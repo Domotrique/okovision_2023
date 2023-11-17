@@ -442,20 +442,19 @@ $(document).ready(function() {
 		}
 	});
 	
-	$.api('GET', 'rendu.getGraphe').done(function(json) {
-
-			$.each(json.data, function(key, val) {
-				$('.container-graphe').append('<div class="page-header"> \
-			                       			<div class="graphique" id="' + val.id + '" data-graphename="' + val.name + '" style="width:100%; height:400px;"></div> \
-			                        	</div>');
-			});
-
-			refreshAllGraphe();
-
-		})
-		.error(function() {
-			$.growlErreur(lang.error.getGraphe);
+    $.api('GET', 'rendu.getGraphe').done(function(json) {
+		$.each(json.data, function(key, val) {
+			$('.container-graphe').append('<div class="page-header"> \
+			                       		<div class="graphique" id="' + val.id + '" data-graphename="' + val.name + '" style="width:100%; height:400px;"></div> \
+			                        </div>');
 		});
+
+		refreshAllGraphe();
+
+	})
+	.error(function() {
+		$.growlErreur(lang.error.getGraphe);
+	});
 
 
 	setTimeout(function() {

@@ -161,9 +161,9 @@
 					
 					<!-- Text input-->
 					<div class="form-group">
-					  <label class="col-md-4 control-label" for="db_adress">Address (*) :</label>  
+					  <label class="col-md-4 control-label" for="db_adress">MySQL Server Address (*) :</label>  
 					  <div class="col-md-3">
-					  <input id="db_adress" name="db_adress" type="text" placeholder="ex : localhost, 192.168.xxx.xxx" class="form-control input-md" required="">
+					  <input id="db_adress" name="db_adress" type="text" value="localhost" class="form-control input-md" required="">
 					  <span class="help-block"></span>  
 					  </div>
 					</div>
@@ -172,7 +172,7 @@
 					<div class="form-group">
 					  <label class="col-md-4 control-label" for="db_adress">Name (*) :</label>  
 					  <div class="col-md-3">
-					  <input id="db_schema" name="db_schema" type="text" placeholder="ex : okovision" class="form-control input-md" required="">
+					  <input id="db_schema" name="db_schema" type="text" value="okovision" class="form-control input-md" required="">
 					  <span class="help-block"></span>  
 					  </div>
 					</div>
@@ -180,7 +180,7 @@
 						<label class="col-md-4 control-label" for="createDb">Create database :</label>  
 					  	<div class="col-md-3 checkbox">
 					    <label>
-					      <input id="createDb" type="checkbox"> don't checked if database already exist
+					      <input id="createDb" type="checkbox"> (don't check if database already exist)
 					    </label>
 					
 					  </div>
@@ -188,17 +188,17 @@
 					
 					<!-- Text input-->
 					<div class="form-group">
-					  <label class="col-md-4 control-label" for="db_user">User (*) :</label>  
+					  <label class="col-md-4 control-label" for="db_user">MySQL User (*) :</label>  
 					  <div class="col-md-3">
-					  <input id="db_user" name="db_user" type="text" placeholder="ex: root" class="form-control input-md" required="">
+					  <input id="db_user" name="db_user" type="text" value="okouser" class="form-control input-md" required="">
 					  </div>
 					</div>
 					
 					<!-- Text input-->
 					<div class="form-group">
-					  <label class="col-md-4 control-label" for="db_password">Password (*) :</label>  
+					  <label class="col-md-4 control-label" for="db_password">MySQL Password (*) :</label>  
 					  <div class="col-md-3">
-					  <input id="db_password" name="db_password" type="text" placeholder="ex : toor" class="form-control input-md" required="">
+					  <input id="db_password" name="db_password" type="text" value="okopass" class="form-control input-md" required="">
 					  </div>
 					</div>
 					
@@ -250,7 +250,7 @@
 					  <label class="col-md-4 control-label" for="param_tcref">Reference °C :</label>  
 					  <div class="col-md-3">
 					  <input id="param_tcref" name="param_tcref" type="text" placeholder="ex : 20" class="form-control input-md" required="" value="20">
-					  <span class="help-block">If you have 2 setpoints, reduced to 19°C and comfort at 21°C, you average -&gt; 20°C. It's for DJU calculation</span>  
+					  <span class="help-block">If you have 2 setpoints, Reduced at 19°C and Comfort at 21°C, your average is -&gt; 20°C (DJU calculation)</span>  
 					  </div>
 					</div>
 					
