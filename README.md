@@ -88,6 +88,11 @@ You can now open a web browser and go to your server address, which is probably 
 
 Next, I invite you to check the very well explained documentation from @stawen [here](https://okovision.dronek.com/documentation/configuration/setup/)
 
+## DEFAULT LOGIN and PWD
+
+* For MySQL : okouser | okopass
+* For Okovision 2023 : admin | okouser
+
 ## AND NOW?
 
 If you see something not working as expected, please [create an issue](https://github.com/Domotrique/okovision_2023/issues/new/choose) and I will try to have a look as soon as possible.
