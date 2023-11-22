@@ -5,7 +5,7 @@ This project is a fork from [Stawen's Okovision](https://github.com/stawen/okovi
 <http://okovision.dronek.com>
 
 I wanted to update a function that would not work in PHP8 on Raspberry Pi. Making the cron not getting back the proper info from the boiler.
-I ended up also fixing other bugs, and will maybe add more in the future.*
+I ended up also fixing other bugs, and will maybe add more in the future.
 
 This project is made for Okofen firmware V2 & V3 with HTTP connection.
 
