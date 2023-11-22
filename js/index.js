@@ -270,7 +270,7 @@ $(document).ready(function() {
 		}
 
 		$.api('GET', 'rendu.getIndicByDay', request).done(function (json) {
-		    if (json.tcExtMax == null && json.tcExtMin == null) {
+		    if (json.tcExtMax == null && json.tcExtMin == null) { //There are no values yet
 		        $.growlFirstSetup();
 		    }
 			$("#tcmax").text($.DecSepa(json.tcExtMax + " °C"));

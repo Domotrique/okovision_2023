@@ -30,4 +30,4 @@ else
 	sudo crontab crontab_new
 fi
 sudo rm crontab_new
-gnome-www-browser localhost
+Echo "Install done! Please open localhost in your web browser."

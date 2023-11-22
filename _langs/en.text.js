@@ -71,7 +71,7 @@ var lang = {
         eventPelletsdetails: "{0} kg, {1}€ ({2}€/T)",
         eventBagDetails: "{0} kg, {1}€ ({2}€/15Kg)",
         eventmaintenanceDetails: "{0}€",
-        firstSetup: 'No values are available from your boiler yet. Check your installation parameters',
+        firstSetup: 'No values are available from your boiler yet. Check your installation parameters (Matrix CSV reading)',
         addGraphe: "Create new chart",
         updateGraphe: 'Modidy',
         deleteGraphe: 'Do you confirm deletion of ',
