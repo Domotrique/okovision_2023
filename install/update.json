@@ -11,7 +11,7 @@
     },
     "1.11.4": {
         "url": "https://github.com/Domotrique/okovision_2023/archive/1.11.4.zip",
-        "date": "16/11/2023",
+        "date": "24/11/2023",
         "changelog": "<ul><li>Reactivate auto update functionality by redirecting to this repository</li><li>Updates Highstock to latest version.</li><li>Fix mobile scrolling bug onto graphs.</li><li>Fix a bug preventing some data to be displayed in real time mode.</li><li>Made install easier with new script for Linux and filling in some standard info in the setup (database path and login)</li></ul>"
     }
 }
