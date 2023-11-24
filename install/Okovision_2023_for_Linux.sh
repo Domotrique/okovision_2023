@@ -26,7 +26,7 @@ if grep -R "okovision" "crontab_new" > 0
 then
     echo "Crontab Ready"
 else
-    sudo echo "* */2 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
+    sudo echo "22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
 	sudo crontab crontab_new
 fi
 sudo rm crontab_new
