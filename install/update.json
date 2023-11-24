@@ -9,7 +9,7 @@
         "date": "27/10/2023",
         "changelog": "<ul><li>Update with PHP 8 Compatibility, including install steps for Linux (Raspbian 12)</li><li>Add Bug fix for 0 degres issue when Boiler gets turned off.</li></ul>"
     },
-    "1.11.3.3": {
+    "1.11.4": {
         "url": "https://github.com/Domotrique/okovision_2023/archive/1.11.3.zip",
         "date": "16/11/2023",
         "changelog": "<ul><li>Reactivate auto update functionality by redirecting to this repository</li><li>Updates Highstock to latest version.</li><li>Fix mobile scrolling bug onto graphs.</li><li>Fix a bug preventing some data to be displayed in real time mode.</li><li>Made install easier with new script for Linux and filling in some standard info in the setup (database path and login)</li></ul>"
