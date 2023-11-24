@@ -555,12 +555,12 @@ class AutoUpdate extends connectDb
             }
 
             //Backup old Install
-
-            if (!$this->_createBackup()) {
+            //Not working yet
+            /*if (!$this->_createBackup()) {
                 $this->log->error('Could not Backup the previous install!');
 
                 return self::ERROR_BACKUP;
-            }
+            }*/
 
             // Install update
             $result = $this->_install($updateFile, $simulateInstall, $update['version']);
