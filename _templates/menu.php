@@ -148,7 +148,7 @@
                 <form id="formChangePass" class="form">
                     <p><label for="inputPass" class="sr-only">Mot de passe</label>
                     <input type="password" id="inputPass" class="form-control" placeholder="Mot de passe" required autofocus>
-                    <label for="inputPassConfirme" class="sr-only">Confirmation</label>
+                    <label for="inputPassConfirm" class="sr-only">Confirmation</label>
                     <input type="password" id="inputPassConfirm" class="form-control" placeholder="Confirmation" required></p>
                     <p><button class="btn btn-lg btn-primary btn-block"id="btChangePass">Changer</button></p>
                     <br/>
