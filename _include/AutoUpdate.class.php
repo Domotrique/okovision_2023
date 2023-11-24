@@ -85,7 +85,6 @@ class AutoUpdate extends connectDb
      * @var string
      */
     protected $_updateUrl = 'https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install';
-    //protected $_updateUrl = 'http://salm.ovh';
     /**
      * Version filename on the server.
      *
