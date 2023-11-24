@@ -15,6 +15,7 @@ I will try explain you how to connect and have the tool ready to run with my set
 
 ## INSTALL SCRIPT FOR LINUX
 
+Be careful, if you already have a web server, this might break it.
 ```
 sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install/Okovision_2023_for_Linux.sh && sudo chmod +x Okovision_2023_for_Linux.sh && sudo ./Okovision_2023_for_Linux.sh && sudo rm -f Okovision_2023_for_Linux.sh
 ```
