@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: 'mariadb:latest'
+    container_name: oko-mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MARIADB_USER: ${MYSQL_USER}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - '3306:3306'
+    volumes:
+      - oko-mariadb:/var/lib/mysql/
+
+  php:
+    container_name: oko-php
+    build: docker/php
+    volumes:
+      - oko-apache:/var/log/apache2/
+      - ${PWD}:/var/www/html/
+    ports:
+      - '8080:80'
+    depends_on:
+      - mariadb
+
+volumes:
+  oko-mariadb:
+  oko-apache:
