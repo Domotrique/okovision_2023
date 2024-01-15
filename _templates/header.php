@@ -14,7 +14,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>OkoVision</title>
+    <title>OkoVision 2023</title>
     <script type="text/javascript">
             var sessionToken = "<?php echo session::getInstance()->getVar('sid'); ?>";		
    </script>

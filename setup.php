@@ -5,6 +5,7 @@
      * Auteur : Stawen Dronek
      * Utilisation commerciale interdite sans mon accord.
      */
+	
     function is_ajax()
     {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' == strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);

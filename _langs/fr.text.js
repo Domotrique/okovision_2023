@@ -56,6 +56,7 @@ var lang = {
         applyConfigboiler: 'Configuration appliquée sur la chaudière'
     },
     text:{
+        newDump: "Confirmez-vous la création d'une nouvelle sauvegarde de l'historique ?",
         seeFileOnboiler: 'Visualiser les fichiers sur la chaudière',
         addSeason: "Ajout d'une saison",
         updateSeason: 'Modification saison',
@@ -90,8 +91,8 @@ var lang = {
         months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
         shortMonths: [ "Jan" , "Fev" , "Mar" , "Avr" , "Mai" , "Juin" , "Juil" , "Aout" , "Sep" , "Oct" , "Nov" , "Dec"],
         weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-        day: 'jour',
-        month: 'mois',
+        day: 'Jour',
+        month: 'Mois',
         hour: 'Heures',
         tc: 'T°C',
         kgAndDju: 'Kg et DJU',

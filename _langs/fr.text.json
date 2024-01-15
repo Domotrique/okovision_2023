@@ -14,6 +14,7 @@
     "lang.text.menu.admin.information": "Paramètres",
     "lang.text.menu.admin.season": "Saisons",
     "lang.text.menu.admin.matrix": "Matrice de lecture du CSV",
+    "lang.text.menu.admin.sqldump": "Import / Export de la Base SQL",
     "lang.text.menu.about": "A propos",
     "lang.text.menu.logout": "Déconnexion",
     "lang.text.menu.password": "Mon Compte",
@@ -67,8 +68,9 @@
     "lang.text.page.season.modal.end": "Date de début :",
     "lang.text.modal.cancel": "Annuler",
     "lang.text.modal.confirm": "Confirmer",
-    "lang.text.page.matrix": "Votre installation Okofen est spécifique. Le format du fichier CSV quelle produit est unique. Vous devez alors \"apprendre\" à okovision comment lire ce fichier. <p><lu><li>HK(n): Circuit Chauffage<\/li><li>KT: Température Chaudière <\/li> <li> WW(n): Circuit Eau Chaude sanitaire <\/li> <li> SK(n): Circuit Solaire ECS <\/li> <li> PE(n): Chaudiere N° n <\/li> <li> PU(n): Ballon Tampon N° n <\/li> </lu> </p>",
-                	
+    "lang.text.page.matrix": "Votre installation Okofen est spécifique. Le format du fichier CSV produit est unique. Vous devez alors \"apprendre\" à okovision comment lire ce fichier. <p><lu><li>HK(n): Circuit Chauffage<\/li><li>KT: Température Chaudière <\/li> <li> WW(n): Circuit Eau Chaude sanitaire <\/li> <li> SK(n): Circuit Solaire ECS <\/li> <li> PE(n): Chaudiere N° n <\/li> <li> PU(n): Ballon Tampon N° n <\/li> </lu> </p>",
+    "lang.text.page.sqldump": "Ici vous pouvez faire un backup ou récupérer une ancienne version de votre historique Okovision.",
+    
     "lang.text.menu.admin.events": "Gestion des événements de silo et cendrier",
     "lang.text.page.events": "En saisissant les différents événements de maintenance (remplissage du silo, maintenance de la chaudière, vidage du cendrier, ...), Okovision sera capable de vous avertir des prochaines échéances.",
     "lang.text.page.events.add": "Ajouter un évenement",
@@ -94,9 +96,9 @@
     "lang.text.page.matrix.name": "Nom Okovision",
     "lang.text.page.matrix.rt": "Temps Réel",
     "lang.text.page.matrix.modal.title": "Modification de la matrice",
-    "lang.text.page.matrix.modal.text": "Etes-vous sûrs de vouloir modifier la structure de la matrice de lecture des fichiers CSV de votre chaudière ?<br \/><br \/>Cette modification ne vous fera pas perde vos données. Vous aurez les nouvelles colonnes dans les capteurs disponibles<br\/><br\/>Par contre, si dans le nouveau fichier csv que vous allez fournir, il y a des colonnes en moins, ils seront conservées pour ne pas perde de données.",
+    "lang.text.page.matrix.modal.text": "Etes-vous sûr de vouloir modifier la structure de la matrice de lecture des fichiers CSV de votre chaudière ?<br \/><br \/>Cette modification ne vous fera pas perde vos données. Vous aurez les nouvelles colonnes dans les capteurs disponibles<br\/><br\/>Par contre, si dans le nouveau fichier csv que vous allez fournir, il y a des colonnes en moins, ils seront conservées pour ne pas perde de données.",
     "lang.text.page.matrix.delete.modal.title": "Suppression de la matrice",
-    "lang.text.page.matrix.delete.modal.text": "Etes-vous sûrs de vouloir supprimer la matrice ?<br \/><br \/>Cela va supprimer toutes les données journalière, mais les synthèses (historique) seront conservées<br \/><br \/><strong>Vous devrez refaire un import d'un fichier CSV pour initialiser la matrice. Sinon, plus rien ne marchera !</strong>",
+    "lang.text.page.matrix.delete.modal.text": "Etes-vous sûr de vouloir supprimer la matrice ?<br \/><br \/>Cela va supprimer toutes les données journalières, mais les synthèses (historique) seront conservées<br \/><br \/><strong>Vous devrez refaire un import d'un fichier CSV pour initialiser la matrice. Sinon, plus rien ne marchera !</strong>",
     
     "lang.text.page.repport.title": "Nom des graphiques journaliers :",
     "lang.text.page.repport.add": "Ajouter",
@@ -156,13 +158,16 @@
     "lang.text.page.rt.table.title.desc": "Description",
     "lang.text.page.rt.deleteConfig": "Etes-vous sûrs de supprimer cette configuration ?",
     
+    "lang.text.page.sqldump.generate": "Exporter la base",
+    "lang.text.page.sqldump.title": "Nom de l'export",
+    "lang.text.page.sqldump.date": "Date d'export",
+    
     "lang.text.graphe.label.tcmax": "T°C Extérieure (Max)",
     "lang.text.graphe.label.tcmin": "T°C Extérieure (Min)",
     "lang.text.graphe.label.conso": "Pellets (Kg)",
     "lang.text.graphe.label.conso.ecs": "ECS (Kg)",
     "lang.text.graphe.label.dju": "DJU",
     "lang.text.graphe.label.nbcycle": "NB Cycles",
-    
    
     "lang.capteur.CAPPL:FA[0].L_mittlere_laufzeit": "Temps moyen du brûleur",
     "lang.capteur.CAPPL:FA[0].L_brennerstarts": "Nb démarrage brûleur",

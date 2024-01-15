@@ -107,12 +107,13 @@ $(document).ready(function() {
 					},
 					title: {
 						text: titre_histo
-					} /*,
+					},
 					legend: {
-						align: 'right',
-						verticalAlign: 'middle',
-						layout: 'vertical'
-					}*/,
+						itemStyle: {
+							fontWeight: 'bold',
+							fontSize: '14px'
+						}
+					},
 					xAxis: {
 						categories: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
 							'11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
@@ -122,11 +123,29 @@ $(document).ready(function() {
 						max: 30,
 						title: {
 							text: lang.graphic.day,
+							style: {
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '10px',
+							}
 						}
 					},
 					yAxis: [{
 						title: {
-							text: lang.graphic.tc
+							text: lang.graphic.tc,
+							style: {
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
+							}
 						},
 						min: -5,
 						max: 40
@@ -135,7 +154,14 @@ $(document).ready(function() {
 						title: {
 							text: lang.graphic.kgAndDju,
 							style: {
-								color: Highcharts.getOptions().colors[4]
+								color: Highcharts.getOptions().colors[4],
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
 							}
 						},
 						min: 0,
@@ -146,7 +172,14 @@ $(document).ready(function() {
 						title: {
 							text: lang.graphic.nbCycle,
 							style: {
-								color: "#ECB962"
+								color: "#ECB962",
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
 							}
 						},
 						min: 0,
@@ -175,10 +208,11 @@ $(document).ready(function() {
 					var bottom = chart.plotHeight - 20;
 
 					$.each(chart.series[4].data, function(i, data) {
-
-						data.dataLabel.attr({
-							y: bottom
-						});
+						if (data.dataLabel) {
+							data.dataLabel.attr({
+								y: bottom
+							});
+						}
 					});
 
 				});
@@ -348,24 +382,43 @@ $(document).ready(function() {
 					},
 					title: {
 						text: lang.graphic.seasonSummary + " " + $('#saison option:selected').text()
-					}/*,
+					},
 					legend: {
-						align: 'right',
-						verticalAlign: 'middle',
-						layout: 'vertical'
-					}*/,
+						itemStyle: {
+							fontWeight: 'bold',
+							fontSize: '14px'
+						}
+					},
 					xAxis: {
 						type: 'datetime',
 						dateTimeLabelFormats: {
 							month: '%B'
 						},
 						title: {
-							text: lang.graphic.month,
+						    text: lang.graphic.month,
+                            style: {
+                                fontSize: '14px',
+                                fontWeight: 'bold'
+						    }
+						},
+						labels: {
+						    style: {
+						        fontSize: '10px'
+						    }
 						}
 					},
 					yAxis: [{
 						title: {
-							text: lang.graphic.tc
+							text: lang.graphic.tc,
+							style: {
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
+							}
 						},
 						//	min : -5 ,	max : 40 
 					}, {
@@ -373,7 +426,14 @@ $(document).ready(function() {
 						title: {
 							text: lang.graphic.kgAndDju,
 							style: {
-								color: Highcharts.getOptions().colors[4]
+								color: Highcharts.getOptions().colors[4],
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
 							}
 						},
 						//min : 0 ,	max : 120,
@@ -383,12 +443,24 @@ $(document).ready(function() {
 						title: {
 							text: lang.graphic.nbCycle,
 							style: {
-								color: "#ECB962"
+								color: "#ECB962",
+								fontSize: '14px',
+								fontWeight: 'bold'
+							}
+						},
+						labels: {
+							style: {
+								fontSize: '12px'
 							}
 						},
 						//	min : 0 ,	max : 50,
 						opposite: true
 					}],
+					tooltip: {
+					    style: {
+					        fontSize: '12px'
+					    }
+					},
 					plotOptions: {
 						line: {
 							marker: {
@@ -406,10 +478,11 @@ $(document).ready(function() {
 					var bottom = chart.plotHeight - 20;
 
 					$.each(chart.series[4].data, function(i, data) {
-
-						data.dataLabel.attr({
-							y: bottom
-						});
+						if (data.dataLabel) {
+							data.dataLabel.attr({
+								y: bottom
+							});
+						}
 					});
 
 				});

@@ -15,6 +15,7 @@
     "lang.text.menu.admin.season": "Seasons",
     "lang.text.menu.admin.events": "Storage tank and ashtray management",
     "lang.text.menu.admin.matrix": "Matrix - CSV reading",
+    "lang.text.menu.admin.sqldump": "Import / Export SQL Base",
     "lang.text.menu.about": "About",
     "lang.text.menu.logout": "Logout",
     "lang.text.menu.password": "My account",
@@ -70,6 +71,7 @@
     "lang.text.modal.confirm": "Confirm",
 
     "lang.text.page.matrix": "Your Okofen installation is specific. The CSV file format is unique by boiler. You must \"learn\" to Okovision to read this file. <p><lu><li>HK(n): Heating circuit<\/li><li>KT: Boiler temperature <\/li> <li> WW(n): Domestic hot water circuit <\/li> <li> SK(n): Solar Circuit Domestic hot water <\/li> <li> PE(n): N°(n) Boiler  <\/li> <li> PU(n): N°(n) Buffer tank<\/li> </lu> </p>",
+    "lang.text.page.sqlDump": "You can export or import a backup of your Okovision historic here.",    
     "lang.text.page.events": "By specifying the various maintenance events (Storage tank filling, Boiler maintenance, ashtray emptying , etc.), Okovision will be able to notify you of upcoming deadlines.",
     "lang.text.page.events.add": "Add an event",
     "lang.text.page.events.title": "Event",
@@ -155,6 +157,10 @@
     "lang.text.page.rt.table.title.date": "Date",
     "lang.text.page.rt.table.title.desc": "Description",
     "lang.text.page.rt.deleteConfig": "Are you sur to delete this setting ?",
+    
+    "lang.text.page.sqldump.generate": "Export the base",
+    "lang.text.page.sqldump.title": "Export title",
+    "lang.text.page.sqldump.date": "Export date",
     
     "lang.text.graphe.label.tcmax": "T°C Outside (Max)",
     "lang.text.graphe.label.tcmin": "T°C Outside (Min)",

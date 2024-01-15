@@ -137,7 +137,7 @@ $(document).ready(function () {
 			weekdays: lang.graphic.weekdays
 		},
 		credits: {
-			enabled: true,
+			enabled: false,
 			text: 'OkoVision',
 			href: 'http://okovision.dronek.com'
 		}

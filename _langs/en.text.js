@@ -56,6 +56,7 @@ var lang = {
         applyConfigboiler: 'Configuration applied to the boiler'
     },
     text:{
+        newDump: "Do you confirm the creation of a new history backup?",
         seeFileOnboiler: 'View Boiler files',
         addSeason: "Add Season",
         updateSeason: 'Modify season',
@@ -90,8 +91,8 @@ var lang = {
         months: [ "January","February","March","April","May","June","July","August","September","October","November","December" ],
         shortMonths: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
         weekdays: [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ],
-        day: 'day',
-        month: 'month',
+        day: 'Day',
+        month: 'Month',
         hour: 'Hour',
         tc: 'T°C',
         kgAndDju: 'Kg and DJU',
