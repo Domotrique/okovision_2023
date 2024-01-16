@@ -956,6 +956,134 @@ class administration extends connectDb
     }
 
     /**
+     * Get the SQL path for dump.
+     *
+     * 
+     *
+     * @return path
+     */
+    private function getSqlPath()
+    {
+        $q = "SHOW VARIABLES LIKE 'basedir';";
+
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+
+        $result = $this->query($q);
+
+        $r = $result->fetch_object();
+
+        return $r->Value;
+    }
+
+    public function getDumps()
+    {
+        $r = [];
+        $dir = "dumps";
+        $id = 1;
+
+        $files = scandir($dir);
+
+        if ($files) {
+            $r['response'] = true;
+            $tmp=[];
+
+            foreach ($files as $dumpfile) {
+                if (pathinfo($dumpfile, PATHINFO_EXTENSION)=="sql") {
+                    $file_creation_date = filectime($dir . DIRECTORY_SEPARATOR . $dumpfile);
+                    $dumpdate = date('d/m/Y - H:i', $file_creation_date);
+
+                    $arr = array(
+                        'id' => $id,
+                        'dumpname' => $dumpfile,
+                        'date' => $dumpdate
+                    );
+
+                    array_push($tmp, $arr);
+                    $id ++;
+                }
+            }
+            $r['data'] = $tmp;
+        } else {
+            $r['response'] = false;
+        }
+
+        $this->sendResponse($r);
+    }
+
+	function newDump($name)
+    {
+        $r = [];
+        define('DS', DIRECTORY_SEPARATOR);
+
+        $database = BDD_SCHEMA;
+        $user = BDD_USER;
+        $pass = BDD_PASS;
+        $host = BDD_IP;
+        $dir = dirname(__DIR__) . DS . "dumps" . DS . $name . ".sql";
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $mysqldump = '"' . $this->getSqlPath() . 'bin\mysqldump.exe"';
+        } else {
+            //$mysqldump = $mysqldump . '"';
+        }
+
+        exec("{$mysqldump} --user={$user} --password={$pass} --host={$host} {$database} --result-file={$dir} 2>&1", $output, $result);
+		
+        if(count($output) > 1){
+            $r['response'] = false;
+        } else {
+            $r['response'] = true;
+        }
+		
+        $this->sendResponse($r);
+    }
+
+    public function deleteDump($d)
+    {
+        $r = [];
+        $dumpFile = "dumps" . DIRECTORY_SEPARATOR . $d['idDump'];
+
+        if (unlink($dumpFile)) {
+            $r['response'] = true;
+        } else {
+            $r['response'] = false;
+        }
+
+        $this->sendResponse($r);
+    }
+
+    public function dumpExist($d)
+    {
+        $r = [];
+        $dumpFile = "dumps" . DIRECTORY_SEPARATOR . $d;
+
+        if (file_exists($dumpFile)) {
+            $r['response'] = true;
+        } else {
+            $r['response'] = false;
+        }
+        
+        $this->sendResponse($r);
+    }
+
+    public function updateDump($d)
+    {
+        $r = [];
+        $dumpFile = "dumps" . DIRECTORY_SEPARATOR . $d['newDumpName'] . ".sql";
+        $prevDump = "dumps" . DIRECTORY_SEPARATOR . $d['idDump'];
+
+        $r['response'] = false;
+
+        if (!file_exists($dumpFile)) {
+            if(rename($prevDump, $dumpFile)) {
+                $r['response'] = true;
+            }
+        }
+        
+        $this->sendResponse($r);
+    }
+
+    /**
      * Function set current version in version.json.
      *
      * @param string (x.y.z)

@@ -79,6 +79,7 @@
                             <li><a href="adminSeason.php"><?php echo session::getInstance()->getLabel('lang.text.menu.admin.season'); ?></a></li>
                             <li><a href="adminEvents.php"><?php echo session::getInstance()->getLabel('lang.text.menu.admin.events'); ?></a></li>
                             <li><a href="adminMatrix.php"><?php echo session::getInstance()->getLabel('lang.text.menu.admin.matrix'); ?></a></li>
+                            <li><a href="sqlDump.php"><?php echo session::getInstance()->getLabel('lang.text.menu.admin.sqldump'); ?></a></li>
                     <li class="divider"></li>
                     
                         <li><a href="about.php"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.menu.about'); ?></a></li>
@@ -128,7 +129,7 @@
                         <p><label for="inputUser" class="sr-only">Identifiant</label>
                         <input type="text" id="inputUser" class="form-control" placeholder="Identifiant" required autofocus>
                         <label for="inputPassword" class="sr-only">Mot de passe</label>
-                        <input type="password" id="inputPassword" class="form-control" placeholder="Mot de passe" required></p>
+                        <input type="password" id="inputPassword" autocomplete="on" class="form-control" placeholder="Mot de passe" required></p>
                         <p><button class="btn btn-lg btn-primary btn-block"id="btlogin">Login</button></p>
                         <br/>
                     </form>
@@ -147,9 +148,9 @@
             <div class="modal-body">
                 <form id="formChangePass" class="form">
                     <p><label for="inputPass" class="sr-only">Mot de passe</label>
-                    <input type="password" id="inputPass" class="form-control" placeholder="Mot de passe" required autofocus>
+                    <input type="password" id="inputPass" autocomplete="on" class="form-control" placeholder="Mot de passe" required autofocus>
                     <label for="inputPassConfirm" class="sr-only">Confirmation</label>
-                    <input type="password" id="inputPassConfirm" class="form-control" placeholder="Confirmation" required></p>
+                    <input type="password" id="inputPassConfirm" autocomplete="on" class="form-control" placeholder="Confirmation" required></p>
                     <p><button class="btn btn-lg btn-primary btn-block"id="btChangePass">Changer</button></p>
                     <br/>
                 </form>

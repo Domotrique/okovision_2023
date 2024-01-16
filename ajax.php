@@ -164,6 +164,26 @@ if (is_ajax() && is_valid()) {
                             $a->changePassword($_POST['pass']);
 
                             break;
+                        case 'getDumps':
+                            $a->getDumps();
+
+                            break;
+                        case 'deleteDump':
+                            $a->deleteDump($_POST);
+
+                            break;
+                        case 'dumpExist':
+                            $a->dumpExist($_GET['name']);
+
+                            break;
+                        case 'newDump':
+                            $a->newDump($_GET['name']);
+
+                            break;
+                        case 'updateDump':
+                            $a->updateDump($_POST);
+
+                        break;
                     }
 
                     break;

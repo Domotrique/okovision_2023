@@ -158,9 +158,21 @@ if (is_ajax() && is_valid()) {
                             }
 
                             break;
+                        case 'getProgramMode':
+                            if (isset($_GET['way'])) {
+                                $rt->getProgramMode($_GET['way']);
+                            }
+
+                            break;
                         case 'setBoilerMode':
                             if (isset($_GET['mode'], $_GET['way'])) {
                                 $rt->setBoilerMode($_GET['mode']);
+
+                                break;
+                            }
+                        case 'setProgramMode':
+                            if (isset($_GET['mode'], $_GET['way'])) {
+                                $rt->setProgramMode($_GET['mode']);
 
                                 break;
                             }

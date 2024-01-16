@@ -319,7 +319,50 @@ class realTime extends connectDb
         $this->sendResponse(json_encode($json));
     }
 
+    public function getProgramMode($way = 1)
+    {
+        $json['response'] = false;
+
+        // le numéro du circuit ou de la zone commence à 0
+        // zone 1 = 0
+        $hk = $way - 1;
+
+        $sensor = ["CAPPL:LOCAL.hk[{$hk}].aktives_zeitprogramm", // Programme horaire en cours
+        ];
+
+        $r = $this->getOkoValue($sensor);
+
+        if (!empty($r)) {
+            $tmp = [];
+
+            foreach ($sensor as $key) {
+                $tmp[$key] = trim($r[$key]->value.' '.$r[$key]->unitText);
+            }
+            $json['data'] = $tmp;
+            $json['response'] = true;
+        }
+
+        $this->sendResponse(json_encode($json));
+    }
+
     public function setBoilerMode($mode = 0, $way = 1)
+    {
+        // The Time program number starts at 0
+        //Time 1 = 0
+        //$mode=0
+
+        $hk = $way - 1;
+        $o = new okofen();
+        $o->applyConfiguration(
+            [
+                "CAPPL:LOCAL.hk[{$hk}].betriebsart[1]" => $mode,
+            ]
+        );
+
+        $this->sendResponse($o->getResponseBoiler());
+    }
+
+    public function setProgramMode($mode = 0, $way = 1)
     {
         // le numéro du circuit ou de la zone commence à 0
         // zone 1 = 0
@@ -327,7 +370,7 @@ class realTime extends connectDb
         $o = new okofen();
         $o->applyConfiguration(
             [
-                "CAPPL:LOCAL.hk[{$hk}].betriebsart[1]" => $mode,
+                "CAPPL:LOCAL.hk[{$hk}].aktives_zeitprogramm" => $mode,
             ]
         );
 

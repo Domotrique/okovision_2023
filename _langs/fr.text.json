@@ -158,9 +158,11 @@
     "lang.text.page.rt.table.title.desc": "Description",
     "lang.text.page.rt.deleteConfig": "Etes-vous sûrs de supprimer cette configuration ?",
     
-    "lang.text.page.sqldump.generate": "Exporter la base",
+    "lang.text.page.sqldump.generate": "Générer une sauvegarde",
+    "lang.text.page.sqldump.import": "Importer une sauvegarde",
     "lang.text.page.sqldump.title": "Nom de l'export",
     "lang.text.page.sqldump.date": "Date d'export",
+    "lang.text.page.sqldump.modal.name": "Titre de la sauvegarde",
     
     "lang.text.graphe.label.tcmax": "T°C Extérieure (Max)",
     "lang.text.graphe.label.tcmin": "T°C Extérieure (Min)",

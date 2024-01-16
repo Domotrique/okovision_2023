@@ -42,7 +42,11 @@ var lang = {
         commentConfigBoiler: 'La description ne doit pas être vide',
         saveBoilerConfig: 'Impossible de sauvegarder la configuration',
         deleteBoilerConfig: 'Suppression impossible',
-        deleteMatrix : "Echec lors de la suppression de la matrice"
+        deleteMatrix : "Echec lors de la suppression de la matrice",
+        deleteDump: 'Erreur lors de la suppression de la sauvegarde',
+        createDump: 'Erreur lors de la création de la sauvegarde',
+        dump: 'Nom de Sauvegarde incorrect',
+        dumpExists: 'Une sauvegarde existe déjà à ce nom'
     },
     valid:{
         communication: 'Communication établie',
@@ -83,7 +87,12 @@ var lang = {
         estimationReliability: "Estimation basée sur l'historique des consommations. Fiabilité : {0}%",
         no_silo_size: 'Pour connaître le statut de remplissage de votre silo, veuillez renseigner sa contenance <a href="adminParam.php">dans les informations générales</a>',
         no_fill_date_for_silo: 'Pour connaître l\'état de votre stock de pellet, veuillez renseigner <a href="adminEvents.php">les informations du dernier remplissage</a>',
-        updateAvailable: 'Une nouvelle version est disponible, cliquez ici'
+        updateAvailable: 'Une nouvelle version est disponible, cliquez ici',
+        updateDump: 'Modification de la sauvegarde',
+        deleteDump: 'Confirmez-vous la suppression de la sauvegarde',
+        downloadDump: "Télécharger",
+        renameDump: "Renommer",
+        deleteDumpTitle: "Supprimer"
     },
     graphic:{
         thousandsSep: ' ',
