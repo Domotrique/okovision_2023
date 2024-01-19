@@ -73,6 +73,9 @@ DEFINE('EXTENTION','.csv');
 DEFINE('CSVFILE',CONTEXT.'/_tmp/import.csv');
 DEFINE('LOGFILE',CONTEXT.'/_logs/okovision.log');
 
+//Backup folder
+DEFINE('DUMP_FOLDER',CONTEXT.'/dumps');
+
 //PARAMETRE BDD
 DEFINE('CSV_DECIMAL',',');
 DEFINE('CSV_SEPARATEUR',';');

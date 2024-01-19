@@ -1083,6 +1083,22 @@ class administration extends connectDb
         $this->sendResponse($r);
     }
 
+    public function uploadDump($s, $f)
+    {
+        $upload_handler = new UploadHandler();
+
+        $dumpFile = $f['files']['name'][0];
+        $opt = $upload_handler->getOption();
+        $rep = $opt['upload_dir'];
+
+        if (file_exists(DUMP_FOLDER . '/' . $dumpFile)) {
+            unlink(DUMP_FOLDER . '/' . $dumpFile);
+        }
+        
+        copy($rep.$dumpFile, DUMP_FOLDER .'/'.$dumpFile);
+        unlink($rep.$dumpFile);
+    }
+
     /**
      * Function set current version in version.json.
      *

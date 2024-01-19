@@ -159,7 +159,7 @@
     "lang.text.page.rt.deleteConfig": "Are you sur to delete this setting ?",
     
     "lang.text.page.sqldump.generate": "Generate a Backup",
-    "lang.text.page.sqldump.import": "Import a Backup",
+    "lang.text.page.sqldump.import": "Import a .sql Backup (50MB max)",
     "lang.text.page.sqldump.title": "Export title",
     "lang.text.page.sqldump.date": "Export date",
     "lang.text.page.sqldump.modal.name": "Backup Title",

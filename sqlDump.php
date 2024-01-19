@@ -19,12 +19,15 @@
 	<?php echo session::getInstance()->getLabel('lang.text.page.sqldump') ?>
     
 	<br/><br/>
-	<button type="button" class="btn btn-xs btn-default" id="openModalSqldump" data-toggle="modal" data-target="#modal_sqldump">
+	<button type="button" class="btn btn-xs btn-success" id="openModalSqldump" data-toggle="modal" data-target="#modal_sqldump">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.sqldump.generate') ?>
     </button>
-	<button type="button" class="btn btn-xs btn-default" id="importSqldump">
-        <span class="glyphicon glyphicon-import" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.sqldump.import') ?>
-    </button>
+    <span class="btn btn-xs btn-default fileinput-button">
+        <i class="glyphicon glyphicon-import"></i>
+        <span id="btup"><?php echo session::getInstance()->getLabel('lang.text.page.sqldump.import') ?></span>
+        <!-- The file input field used as target for the file upload widget -->
+        <input id="fileupload" type="file" name="files[]">
+    </span>
 
     <table id="availableDumps" class="table table-hover">
         <thead>
@@ -94,6 +97,7 @@
 <?php
 include(__DIR__ . '/_templates/footer.php');
 ?>
+    <script src="js/jquery/jquery.fileupload.js"></script>
 	<script src="js/sqlDump.js"></script>
     </body>
 </html>

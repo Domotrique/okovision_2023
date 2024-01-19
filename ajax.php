@@ -184,6 +184,10 @@ if (is_ajax() && is_valid()) {
                             $a->updateDump($_POST);
 
                         break;
+                        case 'uploadDump':
+                            $a->uploadDump($_POST, $_FILES);
+
+                        break;
                     }
 
                     break;

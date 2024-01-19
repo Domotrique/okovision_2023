@@ -83,8 +83,6 @@ $(document).ready(function() {
 							else {
 								$.growlErreur(lang.error.update);
 							}
-
-
 						});
 					}
 					else {
@@ -166,6 +164,25 @@ $(document).ready(function() {
 			$(this).find('#dumpId').val(dumpName);
 		});
 	}
+
+	$('#fileupload').fileupload({
+
+		url: 'ajax.php?sid=' + sessionToken + '&type=admin&action=uploadDump',
+		dataType: 'json',
+		autoUpload: true,
+		acceptFileTypes: /(\.|\/)(sql)$/i,
+		maxFileSize: 50000000,
+		done: function(e, data) {
+			setTimeout(function() {
+				refreshDumps();
+			}, 1000);
+		},
+		fail: function(e, data) {
+			data.errorThrown
+    		data.textStatus;
+    		data.jqXHR;
+		},
+	});
 
 	$("body").on("click", ".btn", function() {
 
