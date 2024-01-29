@@ -48,6 +48,10 @@ var lang = {
         dump: 'Incorrect Backup Name',
         dumpExists: 'A backup with this name already exists'
     },
+    warning:{
+        drop: 'This backup will reset your history to this previous version! (new data will be deleted) Please remove the DROP lines from sql file.',
+        insert: 'This backup will generate duplicates. (change INSERT to REPLACE).'
+    },
     valid:{
         communication: 'Communication established',
         maj: 'Update successfully completed',
@@ -90,9 +94,11 @@ var lang = {
         updateAvailable: 'A new version is available ! go to About page !',
         updateDump: 'Modify Backup',
         deleteDump: 'Do you confirm the backup delete',
+        importDump: 'Do you confirm the backup import',
         downloadDump: "Download",
         renameDump: "Rename",
-        deleteDumpTitle: "Delete"
+        deleteDumpTitle: "Delete",
+        importDumpTitle: "Import into historic"
     },
     graphic:{
         thousandsSep: ' ',

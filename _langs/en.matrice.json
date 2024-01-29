@@ -196,7 +196,7 @@
     },
     "PE1 KT_SOLL[°C]": {
         "name": "OKO [1] - Boiler T°C SET",
-        "type": "",
+        "type": "error_check_1",
 		"boiler": "CAPPL:FA[0].L_kesseltemperatur_soll_anzeige"
     },
     "PE1 FRT Ist[°C]": {
@@ -246,7 +246,7 @@
     },
     "PE1 Unterdruck Soll[EH]": {
         "name": "Negative Draft Set (Pa)",
-        "type": "",
+        "type": "error_check_2",
 		"boiler": "CAPPL:FA[0].unterdruck_sollwert"
     },
     "PE1 Status": {

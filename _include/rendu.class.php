@@ -75,6 +75,7 @@ class rendu extends connectDb
         }
 
         $c = $this->getConsoByday($jour, $timeStart, $timeEnd);
+
         $c_ecs = $this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater');
         $min = $this->getTcMinByDay($jour, $timeStart, $timeEnd);
         $max = $this->getTcMaxByDay($jour, $timeStart, $timeEnd);
@@ -83,7 +84,7 @@ class rendu extends connectDb
             json_encode(
                 [
                     'consoPellet' => $c->consoPellet,
-                    'consoPelletHotwater' => $c_ecs->consoPellet,
+                    'consoPelletHotwater' => $c_ecs["consoPellet"],
                     'tcExtMax' => $max->tcExtMax,
                     'tcExtMin' => $min->tcExtMin,
                 ],
@@ -406,16 +407,21 @@ class rendu extends connectDb
         $categorie = [session::getInstance()->getLabel('lang.text.graphe.label.tcmax') => 'tc_ext_max',
             session::getInstance()->getLabel('lang.text.graphe.label.tcmin') => 'tc_ext_min',
             session::getInstance()->getLabel('lang.text.graphe.label.conso') => 'conso_kg',
-            // session::getInstance()->getLabel('lang.text.graphe.label.conso.ecs') => 'conso_ecs_kg',
+            //'Date' => 'jour',
             session::getInstance()->getLabel('lang.text.graphe.label.dju') => 'dju',
             session::getInstance()->getLabel('lang.text.graphe.label.nbcycle') => 'nb_cycle',
         ];
-
+        
+        /*$where = 'FROM oko_resume_day '
+                .'WHERE MONTH(oko_resume_day.jour) = '.$month.' AND '
+                .'YEAR(oko_resume_day.jour) = '.$year.' '
+                .'ORDER BY oko_resume_day.jour ASC	';
+*/
         $where = 'FROM oko_resume_day '
-                .'RIGHT JOIN oko_dateref ON oko_resume_day.jour = oko_dateref.jour '
-                .'WHERE MONTH(oko_dateref.jour) = '.$month.' AND '
-                .'YEAR(oko_dateref.jour) = '.$year.' '
-                .'ORDER BY oko_dateref.jour ASC	';
+        .'RIGHT JOIN oko_dateref ON oko_resume_day.jour = oko_dateref.jour '
+        .'WHERE MONTH(oko_dateref.jour) = '.$month.' AND '
+        .'YEAR(oko_dateref.jour) = '.$year.' '
+        .'ORDER BY oko_dateref.jour ASC	';
 
         $resultat = [];
 

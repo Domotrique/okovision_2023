@@ -22,9 +22,17 @@
 	<button type="button" class="btn btn-xs btn-success" id="openModalSqldump" data-toggle="modal" data-target="#modal_sqldump">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.sqldump.generate') ?>
     </button>
-    <span class="btn btn-xs btn-default fileinput-button">
+    <span class="btn btn-xs btn-default fileinput-button" title="<?php echo session::getInstance()->getLabel('lang.text.page.sqldump.info') ?>">
         <i class="glyphicon glyphicon-import"></i>
-        <span id="btup"><?php echo session::getInstance()->getLabel('lang.text.page.sqldump.import') ?></span>
+        <span id="btup"><?php 
+        $htaccess = file(realpath(dirname(__FILE__)) . '/.htaccess');
+        foreach ($htaccess as $line) {
+            if (str_contains($line, "upload_max_filesize")) {
+                preg_match('/(\d+)(?!.*\d)/',$line, $matches);
+                $max_file_size = $matches[1];
+            }
+        }
+        echo (session::getInstance()->getLabel('lang.text.page.sqldump.import') . $max_file_size . "MB max)") ?></span>
         <!-- The file input field used as target for the file upload widget -->
         <input id="fileupload" type="file" name="files[]">
     </span>
@@ -84,7 +92,8 @@
                     <h4 class="modal-title" id="deleteTitre"></h4>
                 </div>
                 <div class="hidden">
-                    <input type="text" id="dumpId">
+                    <input type="text" id="dumpIdDelete">
+                    <input type="text" id="typeModalValid">
                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo session::getInstance()->getLabel('lang.text.modal.cancel') ?></button>

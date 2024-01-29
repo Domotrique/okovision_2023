@@ -48,6 +48,10 @@ var lang = {
         dump: 'Nom de Sauvegarde incorrect',
         dumpExists: 'Une sauvegarde existe déjà à ce nom'
     },
+    warning:{
+        drop: 'Cette sauvegarde effacera votre historique récent ! Veuillez supprimer les lignes DROP dans le fichier SQL.',
+        insert: 'Cette sauvegarde va générer des doublons. Veuillez remplacer les INSERT par des REPLACE dans le fichier SQL.'
+    },
     valid:{
         communication: 'Communication établie',
         maj: 'Mise à jour réalisée avec succès',
@@ -90,9 +94,11 @@ var lang = {
         updateAvailable: 'Une nouvelle version est disponible, cliquez ici',
         updateDump: 'Modification de la sauvegarde',
         deleteDump: 'Confirmez-vous la suppression de la sauvegarde',
+        importDump: "Confirmez-vous l'import de la sauvegarde",
         downloadDump: "Télécharger",
         renameDump: "Renommer",
-        deleteDumpTitle: "Supprimer"
+        deleteDumpTitle: "Supprimer",
+        importDumpTitle: "Importer dans l'historique"
     },
     graphic:{
         thousandsSep: ' ',

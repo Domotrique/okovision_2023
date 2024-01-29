@@ -69,7 +69,7 @@ $(document).ready(function () {
 	            from: "top",
 	            align: "right"
 	        },
-            delay: 120000
+            delay: 12000
 	    });
 	};
 	

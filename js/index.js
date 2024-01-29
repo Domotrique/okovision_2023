@@ -272,6 +272,7 @@ $(document).ready(function() {
 		$.api('GET', 'rendu.getIndicByDay', request).done(function (json) {
 		    if (json.tcExtMax == null && json.tcExtMin == null) { //There are no values yet
 		        $.growlFirstSetup();
+				$(".se-pre-con").fadeOut();
 		    }
 			$("#tcmax").text($.DecSepa(json.tcExtMax + " °C"));
 			$("#tcmin").text($.DecSepa(json.tcExtMin + " °C"));
@@ -338,7 +339,7 @@ $(document).ready(function() {
 						grapheWithTime(json.grapheData, val.id, $("#" + val.id).data("graphename"));
 
 					})
-					.error(function() {
+					.error(function(x,e) {
 						graphe_error(val.id, $("#" + val.id).data("graphename"));
 					});
 
@@ -346,10 +347,6 @@ $(document).ready(function() {
 
 
 		});
-
-
-
-
 
 		//$(".se-pre-con").fadeOut();
 	}

@@ -102,6 +102,8 @@ class okofen extends connectDb
         $capteurs = $ob_capteur->getForImportCsv(); //l'index du tableau correspond a la colonne du capteur dans le fichier csv
         $capteurStatus = $ob_capteur->getByType('status');
         $startCycle = $ob_capteur->getByType('startCycle');
+        $errorCheck1 = $ob_capteur->getByType('error_check_1');
+        $errorCheck2 = $ob_capteur->getByType('error_check_2');
         unset($ob_capteur);
 
         $file = fopen(CSVFILE, 'r');
@@ -150,13 +152,18 @@ class okofen extends connectDb
                     //on commence à la deuxieme colonne de la ligne du csv
                     for ($i = 2; $i <= $nbColCsv; ++$i) {
 						$tmpval = $this->cvtDec($colCsv[$i]);
-						if ($i == 2 && $tmpval == 0) $colDebug2 = true;
-						//We detect if there was an init bug giving 0 degrees value
-						if ($i == 5 && $tmpval == 0 && $colDebug2 = true) {
-							$colDebug5 = true;
-							$colDebug2 = false;
-							break;
-						}
+
+                        if ($errorCheck1 != null) {
+                            if ( $errorCheck1['position_column_csv'] == $i && $tmpval == 0 ) {
+                                $colDebug2 = true;
+                            }
+                            //We detect if there was an init bug giving 0 degrees value
+                            if ($errorCheck2['position_column_csv'] == $i && $tmpval == 0 && $colDebug2 == true) {
+                                $colDebug5 = true;
+                                $colDebug2 = false;
+                                break;
+                            }
+                        }
                         $query .= ', col_'.$capteurs[$i]['column_oko'].'='.$this->cvtDec($colCsv[$i]);
                     }
 					

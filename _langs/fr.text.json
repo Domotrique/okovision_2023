@@ -159,7 +159,8 @@
     "lang.text.page.rt.deleteConfig": "Etes-vous sûrs de supprimer cette configuration ?",
     
     "lang.text.page.sqldump.generate": "Générer une sauvegarde",
-    "lang.text.page.sqldump.import": "Importer une sauvegarde .sql",
+    "lang.text.page.sqldump.import": "Importer une sauvegarde .sql (",
+    "lang.text.page.sqldump.info": "Vous pouvez modifier la taille du fichier en éditant le fichier .htaccess",
     "lang.text.page.sqldump.title": "Nom de l'export",
     "lang.text.page.sqldump.date": "Date d'export",
     "lang.text.page.sqldump.modal.name": "Titre de la sauvegarde",

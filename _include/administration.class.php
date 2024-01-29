@@ -199,7 +199,7 @@ class administration extends connectDb
                 rename($rep.$f['files']['name'][0], $rep.$matrice);
             }
         }
-        $upload_handler->generate_response_manual();
+        //$upload_handler->generate_response_manual();
     }
 
     /**
@@ -849,9 +849,10 @@ class administration extends connectDb
         //translation
         $dico = json_decode(file_get_contents('_langs/'.session::getInstance()->getLang().'.matrice.json'), true);
         //open matrice file just uploaded, first line
-        $line = fgets(fopen('_tmp/matrice.csv', 'r'));
+        $line = trim(fgets(fopen('_tmp/matrice.csv', 'r')));
         //on retire le dernier ; de la ligne
-        $line = mb_convert_encoding(substr($line, 0, strlen($line) - 2), 'UTF-8');
+        $string = substr($line, 0, strlen($line) - 2);
+        $line = mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | CSV First Line | '.$line);
 
@@ -874,12 +875,20 @@ class administration extends connectDb
 
                 $capteursCsv[$title] = $position;
 
+                $q = "";
+
                 //on test si le capteur etait deja connu dans la base oko_capteur
                 if (array_key_exists($title, $capteurs)) {
-                    //on verifie si la position du capteur a changer, si oui, maj de la bdd
-                    if ($capteurs[$title]->position_column_csv !== $position) {
+                    //on verifie si la position du capteur a changé, si oui, maj de la bdd
+                    if ($capteurs[$title]->position_column_csv != $position) {
                         $q = 'UPDATE oko_capteur set position_column_csv='.$position.' where id='.$capteurs[$title]->id.';';
                         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_capteur | '.$q);
+                    }
+                    
+                    //On vérifie s'il s'agit d'une MAJ des types
+                    if (isset($dico[$title]) && $capteurs[$title]->type != $dico[$title]['type']) {
+                        $q = 'UPDATE oko_capteur set type="'.$dico[$title]['type'].'" where id='.$capteurs[$title]->id.';';
+                        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_type | '.$q);
                     }
                 } else {
                     //capteur pas connu dans la base, on le met en fin de table  oko_capteur
@@ -1013,21 +1022,20 @@ class administration extends connectDb
 	function newDump($name)
     {
         $r = [];
-        define('DS', DIRECTORY_SEPARATOR);
 
         $database = BDD_SCHEMA;
         $user = BDD_USER;
         $pass = BDD_PASS;
         $host = BDD_IP;
-        $dir = dirname(__DIR__) . DS . "dumps" . DS . $name . ".sql";
+        $dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . "dumps" . DIRECTORY_SEPARATOR . $name . ".sql";
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $mysqldump = '"' . $this->getSqlPath() . 'bin\mysqldump.exe"';
         } else {
-            //$mysqldump = $mysqldump . '"';
+            $mysqldump = "mysqldump";
         }
 
-        exec("{$mysqldump} --user={$user} --password={$pass} --host={$host} {$database} --result-file={$dir} 2>&1", $output, $result);
+        exec("{$mysqldump} --user={$user} --password={$pass} --host={$host} {$database} --no-create-info --skip-add-drop-table --replace --result-file={$dir} 2>&1", $output, $result);
 		
         if(count($output) > 1){
             $r['response'] = false;
@@ -1047,6 +1055,64 @@ class administration extends connectDb
             $r['response'] = true;
         } else {
             $r['response'] = false;
+        }
+
+        $this->sendResponse($r);
+    }
+
+    public function importDump($d)
+    {
+        $r['response'] = false;
+        $dumpFile = "dumps" . DIRECTORY_SEPARATOR . $d['idDump'];
+
+        $dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . $dumpFile;
+
+        // Temporary variable, used to store current query
+        $templine = '';
+        // Read in entire file
+        $lines = file($dir);
+        // Loop through each line
+        foreach ($lines as $line)
+        {
+            // Skip it if it's a comment
+            if (substr($line, 0, 2) == '--' || $line == '' || substr($line,0,2) == "/*")
+                continue;
+
+            // Add this line to the current segment
+            $templine .= $line;
+            // If it has a semicolon at the end, it's the end of the query
+            if (substr(trim($line), -1, 1) == ';')
+            {
+                // Perform the query
+                //NOT WORKING YET, too dangerous
+                //$this->query($templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysql_error() . '<br /><br />');
+                // Reset temp variable to empty
+                $templine = '';
+                $r['response'] = true;
+            }
+        }
+        $this->sendResponse($r);
+    }
+
+    public function checkSqlFile($d)
+    {
+        $r['response'] = false;
+        $dumpFile = "dumps" . DIRECTORY_SEPARATOR . $d['idDump'];
+
+        $dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . $dumpFile;
+
+        $lines = file($dir);
+        foreach ($lines as $line)
+        {
+            if (substr($line, 0, 4) == 'DROP') {
+                $r['response'] = true;
+                $r['drop'] = true;
+            }
+            //INSERT INTO
+            if (substr($line, 0, 11) == 'INSERT INTO') {
+                $r['response'] = true;
+                $r['insert'] = true;
+            }
         }
 
         $this->sendResponse($r);

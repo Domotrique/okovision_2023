@@ -188,6 +188,14 @@ if (is_ajax() && is_valid()) {
                             $a->uploadDump($_POST, $_FILES);
 
                         break;
+                        case 'importDump':
+                            $a->importDump($_POST);
+
+                        break;
+                        case 'checkSqlFile':
+                            $a->checkSqlFile($_POST);
+
+                        break;
                     }
 
                     break;

@@ -35,6 +35,9 @@ $(document).ready(function() {
                                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.deleteDumpTitle + '"> \
                                                                 	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
                                                                 </button> \
+																<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.importDumpTitle + '"> \
+																	<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> \
+																</button> \
 				                                        	</td>\
 				                                        </tr>');
 				});
@@ -99,10 +102,29 @@ $(document).ready(function() {
 	function deleteDump() {
 
 		var tab = {
-			idDump: $('#confirm-delete').find('#dumpId').val()
+			idDump: $('#confirm-delete').find('#dumpIdDelete').val()
 		};
 		
 		$.api('POST', 'admin.deleteDump', tab, false).done(function(json) {
+
+			$('#confirm-delete').modal('hide');
+			if (json.response) {
+				$.growlValidate(lang.valid.delete);
+				setTimeout(refreshDumps(), 1000);
+			}
+			else {
+				$.growlErreur(lang.error.deleteDump);
+			}
+		});
+	}
+
+	function importDump() {
+
+		var tab = {
+			idDump: $('#confirm-delete').find('#dumpIdDelete').val()
+		};
+		
+		$.api('POST', 'admin.importDump', tab, false).done(function(json) {
 
 			$('#confirm-delete').modal('hide');
 			if (json.response) {
@@ -160,8 +182,35 @@ $(document).ready(function() {
 		var dumpName = row.attr("id");
 
 		$('#confirm-delete').on('show.bs.modal', function() {
+			$(this).find('#typeModalValid').val("delete");
 			$(this).find('.modal-title').html(lang.text.deleteDump + " : " + dumpName + " ?");
-			$(this).find('#dumpId').val(dumpName);
+			$(this).find('#dumpIdDelete').val(dumpName);
+		});
+	}
+
+	function confirmImportDump(row) {
+		var dumpName = row.attr("id");
+		var warningMsg = "";
+
+		var tab = {
+			idDump: dumpName
+		};
+
+		$.api('POST', 'admin.checkSqlFile', tab, false).done(function(json) {
+			if (json.response) {
+				if (json.drop) {
+					warningMsg += '<div class="alert alert-danger" role="alert"><i class="glyphicon glyphicon-warning-sign text-danger" aria-hidden="true"></i> ' + lang.warning.drop + "</div>";
+				}
+				if (json.insert) {
+					warningMsg += '<div class="alert alert-danger" role="alert"><i class="glyphicon glyphicon-warning-sign text-danger" aria-hidden="true"></i> ' + lang.warning.insert + "</div>";
+				}
+			}
+		});
+
+		$('#confirm-delete').on('show.bs.modal', function() {
+			$(this).find('#typeModalValid').val("import");
+			$(this).find('.modal-title').html(lang.text.importDump + " : " + dumpName + " ?<br/><br/>" + warningMsg);
+			$(this).find('#dumpIdDelete').val(dumpName);
 		});
 	}
 
@@ -192,12 +241,20 @@ $(document).ready(function() {
 		if ($(this).children().is(".glyphicon-trash")) {
 			confirmDeleteDump($(this).closest("tr"));
 		}
+		if ($(this).children().is(".glyphicon-log-in")) {
+			confirmImportDump($(this).closest("tr"));
+		}
 		if ($(this).children().is(".glyphicon-plus")) {
 			initModalSqldump();
 		}
 		
 		if ($(this).is('#deleteConfirm')) {
-			deleteDump();
+			if ($("#confirm-delete").find('#typeModalValid').val() === "delete") {
+				deleteDump();
+			}
+			if ($("#confirm-delete").find('#typeModalValid').val() === "import") {
+				importDump();
+			}
 		}
 
 		if ($(this).is('#dumpConfirm')) {			

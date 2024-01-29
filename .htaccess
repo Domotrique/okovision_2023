@@ -1,6 +1,10 @@
 ErrorDocument 401 /errors/401.php
 ErrorDocument 404 /errors/404.php
 ErrorDocument 403 /errors/403.php
+# Increase both values below for uploading bigger files
 php_value upload_max_filesize 50M
 php_value post_max_size 52M
+# End Increase files
+####################
 RewriteRule ^cache/.*\.(htaccess|htpasswd|ini|phps?|fla|psd|log|sh|zip|exe|pl|jsp|asp|htm|sh|cgi|py)$ - [F]
+php_flag display_errors off

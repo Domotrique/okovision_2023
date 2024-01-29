@@ -39,6 +39,11 @@ $(document).ready(function() {
 			}, 1000);
 
 		},
+		fail: function(e, data) {
+			data.errorThrown
+    		data.textStatus;
+    		data.jqXHR;
+		},
 		progress: function(e, data) {
 			var progress = parseInt(data.loaded / data.total * 100, 10);
 			
