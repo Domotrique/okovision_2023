@@ -102,8 +102,9 @@ class okofen extends connectDb
         $capteurs = $ob_capteur->getForImportCsv(); //l'index du tableau correspond a la colonne du capteur dans le fichier csv
         $capteurStatus = $ob_capteur->getByType('status');
         $startCycle = $ob_capteur->getByType('startCycle');
-        $errorCheck1 = $ob_capteur->getByType('error_check_1');
-        $errorCheck2 = $ob_capteur->getByType('error_check_2');
+        $tc_ext = $ob_capteur->getByType('tc_ext');
+        $temp_old = null;
+        $bugTemp = false;
         unset($ob_capteur);
 
         $file = fopen(CSVFILE, 'r');
@@ -111,9 +112,6 @@ class okofen extends connectDb
         $old_status = 0;
         $start_cycle = 0;
         $nbColCsv = count($capteurs);
-		$colDebug2 = false;
-		$colDebug5 = false;
-		$colVal = 0;
 
         $insert = 'INSERT IGNORE INTO oko_historique_full SET ';
         while (!feof($file)) {
@@ -151,28 +149,52 @@ class okofen extends connectDb
                     //creation de la requette sql pour les capteurs
                     //on commence à la deuxieme colonne de la ligne du csv
                     for ($i = 2; $i <= $nbColCsv; ++$i) {
-						$tmpval = $this->cvtDec($colCsv[$i]);
 
-                        if ($errorCheck1 != null) {
-                            if ( $errorCheck1['position_column_csv'] == $i && $tmpval == 0 ) {
-                                $colDebug2 = true;
+                        if ( $tc_ext['position_column_csv'] == $i ) {
+
+                            $tmp_current = $this->cvtDec($colCsv[$i]);
+                            //init the test value
+                            if($temp_old == null) {
+                                $temp_old = $tmp_current;
+                                $bugval = 99; //Crazy value
                             }
-                            //We detect if there was an init bug giving 0 degrees value
-                            if ($errorCheck2['position_column_csv'] == $i && $tmpval == 0 && $colDebug2 == true) {
-                                $colDebug5 = true;
-                                $colDebug2 = false;
-                                break;
+
+                            //There is a strange temperature value change
+                            if ( abs($temp_old - $tmp_current) > 0.2 ) {
+                                
+                                //Is it fixed?
+                                if ($bugval == 100) {
+                                    //Do nothing
+                                    $bugval = 99;
+                                } else {
+                                    if ( abs($bugval - $tmp_current) > 0 && $bugval != 99) {
+                                        //Do nothing
+                                        $bugval = 100;
+                                    } else {
+                                        $bugTemp = true;
+                                    }
+                                    break;
+                                }
+                                
                             }
+                            $temp_old = $tmp_current;
                         }
+
                         $query .= ', col_'.$capteurs[$i]['column_oko'].'='.$this->cvtDec($colCsv[$i]);
                     }
 					
-					//We detected a 0 temperature bug so we ignore this line
-					if ($colDebug5) {
-						$this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Skipping bugged line: '.$jour.' - '.$heure);
-						$colDebug5 = false;
+					//We detected a reset temperature bug so we ignore this line
+                    if ($bugval == 100) {
+                        // We skip this line which is probably bugged
+                        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Skipping bugged line: '.$jour.' - '.$heure);
 						continue;
-					} else $colDebug2 = false;
+                    }
+					if ($bugTemp) {
+						$this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Skipping bugged line: '.$jour.' - '.$heure);
+						$bugTemp = false;
+                        $bugval = $tmp_current;
+						continue;
+					}
 					
                     $query .= ';';
                     //execution de la requette representant l'ensemble d'un ligne du csv
