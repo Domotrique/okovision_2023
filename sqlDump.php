@@ -27,7 +27,7 @@
         <span id="btup"><?php 
         $htaccess = file(realpath(dirname(__FILE__)) . '/.htaccess');
         foreach ($htaccess as $line) {
-            if (str_contains($line, "upload_max_filesize")) {
+            if (strpos(v, "upload_max_filesize") !== false) {
                 preg_match('/(\d+)(?!.*\d)/',$line, $matches);
                 $max_file_size = $matches[1];
             }
