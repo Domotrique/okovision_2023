@@ -79,12 +79,12 @@ class rendu extends connectDb
         $c_ecs = $this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater');
         $min = $this->getTcMinByDay($jour, $timeStart, $timeEnd);
         $max = $this->getTcMaxByDay($jour, $timeStart, $timeEnd);
-
+        
         $this->sendResponse(
             json_encode(
                 [
                     'consoPellet' => $c->consoPellet,
-                    'consoPelletHotwater' => $c_ecs["consoPellet"],
+                    'consoPelletHotwater' => $c_ecs->consoPellet,
                     'tcExtMax' => $max->tcExtMax,
                     'tcExtMin' => $min->tcExtMin,
                 ],
@@ -124,7 +124,7 @@ class rendu extends connectDb
         if ('hotwater' == $type) { //just first circuit for now
             $capteur_ecs = $c->getByType('hotwater[0]');
             if (null == $capteur_ecs) {
-                return ['consoPellet' => null];
+                return json_encode(['consoPellet' => null]);
             }
             $usage = ' AND a.col_'.$capteur_ecs['column_oko'].' = 1';
         }

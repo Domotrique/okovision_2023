@@ -46,16 +46,14 @@ Thumbs.db
 import.csv
 matrice.csv
 test*
-_tmp/*.sql
-_tmp/*.txt
+_tmp/*
 php.ini
 .c9/
+dumps/*
 
-
-.vs/phptasks.json
-.vs/Okovision_2023/v14/.suo
-.vs/config/applicationhost.config
-.vscode/launch.json
 Okovision_2023.phpproj
 Okovision_2023.sln
 Web.config
+.vs/*
+.vscode/*
+Okovision_2023.phpproj.user
