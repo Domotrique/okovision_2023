@@ -14,8 +14,8 @@
         "date": "24/11/2023",
         "changelog": "<ul><li>Reactivate auto update functionality by redirecting to this repository</li><li>Updates Highstock to latest version.</li><li>Fix mobile scrolling bug onto graphs.</li><li>Fix a bug preventing some data to be displayed in real time mode.</li><li>Made install easier with new script for Linux and filling in some standard info in the setup (database path and login)</li></ul>"
     },
-    "1.12.2": {
-        "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.2.zip",
+    "1.12.4": {
+        "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.4.zip",
         "date": "08/02/2024",
         "changelog": "<ul><li>Fix the bugged values issue when the heater gets shutdown.</li><li>Implement a new page for generating SQL dumps of the database (Parameters > Import/Export SQL Base).</li><li>Importing another SQL dump file is not possible through Okovision_2023 yet for security reasons, you might want to do it in command line mode.</li><li>Improve text visibility in history tab (police was too small.</li></ul>"
     }
