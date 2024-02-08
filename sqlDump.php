@@ -22,7 +22,7 @@
 	<button type="button" class="btn btn-xs btn-success" id="openModalSqldump" data-toggle="modal" data-target="#modal_sqldump">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.sqldump.generate') ?>
     </button>
-    <span class="btn btn-xs btn-default fileinput-button" title="<?php echo session::getInstance()->getLabel('lang.text.page.sqldump.info') ?>">
+    <span class="btn btn-xs btn-default fileinput-button" title="<?php echo session::getInstance()->getLabel('lang.text.page.sqldump.info') ?>" disabled>
         <i class="glyphicon glyphicon-import"></i>
         <span id="btup"><?php 
         $htaccess = file(realpath(dirname(__FILE__)) . '/.htaccess');

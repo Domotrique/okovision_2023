@@ -35,7 +35,7 @@ $(document).ready(function() {
                                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.deleteDumpTitle + '"> \
                                                                 	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
                                                                 </button> \
-																<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.importDumpTitle + '"> \
+																<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.importDumpTitle + '" disabled> \
 																	<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> \
 																</button> \
 				                                        	</td>\

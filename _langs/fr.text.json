@@ -69,7 +69,6 @@
     "lang.text.modal.cancel": "Annuler",
     "lang.text.modal.confirm": "Confirmer",
     "lang.text.page.matrix": "Votre installation Okofen est spécifique. Le format du fichier CSV produit est unique. Vous devez alors \"apprendre\" à okovision comment lire ce fichier. <p><lu><li>HK(n): Circuit Chauffage<\/li><li>KT: Température Chaudière <\/li> <li> WW(n): Circuit Eau Chaude sanitaire <\/li> <li> SK(n): Circuit Solaire ECS <\/li> <li> PE(n): Chaudiere N° n <\/li> <li> PU(n): Ballon Tampon N° n <\/li> </lu> </p>",
-    "lang.text.page.sqldump": "Ici vous pouvez faire un backup ou récupérer une ancienne version de votre historique Okovision.",
     
     "lang.text.menu.admin.events": "Gestion des événements de silo et cendrier",
     "lang.text.page.events": "En saisissant les différents événements de maintenance (remplissage du silo, maintenance de la chaudière, vidage du cendrier, ...), Okovision sera capable de vous avertir des prochaines échéances.",
@@ -158,6 +157,7 @@
     "lang.text.page.rt.table.title.desc": "Description",
     "lang.text.page.rt.deleteConfig": "Etes-vous sûrs de supprimer cette configuration ?",
     
+    "lang.text.page.sqldump": "Ici vous pouvez faire un backup ou récupérer une ancienne version de votre historique Okovision. <br/>(L'import n'est pas encore disponible)",
     "lang.text.page.sqldump.generate": "Générer une sauvegarde",
     "lang.text.page.sqldump.import": "Importer une sauvegarde .sql (",
     "lang.text.page.sqldump.info": "Vous pouvez modifier la taille du fichier en éditant le fichier .htaccess",
