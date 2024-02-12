@@ -29,6 +29,33 @@
         exit(23);
     }
 
+	function testPing($address)
+    {
+        $waitTimeoutInSeconds = 1;
+		
+        $r = [];
+        $tmp = explode(':', $address['ip']);
+        $ip = $tmp[0];
+        $port = isset($tmp[1]) ? $tmp[1] : 80;
+
+		if (!$ip == "") {
+			if ($fp = @fsockopen($ip, $port, $errCode, $errStr, $waitTimeoutInSeconds)) {
+				// It worked
+				$r['response'] = true;
+				@fclose($fp);
+			} else {
+				$r['response'] = false;
+			}
+		} else {
+			$r['response'] = false;
+		}
+
+		header('Content-type: text/json');
+        echo json_encode($r, JSON_NUMERIC_CHECK);
+
+        exit(23);
+    }
+
     function makeInstallation($s)
     {
         if ($s['createDb']) {
@@ -109,6 +136,10 @@
                     testBddConnection($_POST);
 
                     break;
+				case 'ip':
+					testPing($_POST);
+
+					break;
                 case 'install':
                     makeInstallation($_POST);
 
@@ -231,10 +262,16 @@
 					
 					<!-- Text input-->
 					<div class="form-group" id="form-ip" style="display: none;">
-					  <label class="col-md-4 control-label" for="oko_ip">Boiler IP address :</label>  
-					  <div class="col-md-3">
-					    <input id="oko_ip" name="oko_ip" type="text" placeholder="ex : 192.168.0.xx" class="form-control input-md">
-					  </div>
+						<label class="col-md-4 control-label" for="oko_ip">Boiler IP address :</label>  
+						<div class="col-md-3">
+							<input id="oko_ip" name="oko_ip" type="text" placeholder="ex : 192.168.0.xx" class="form-control input-md">
+							<span class="help-block" id="connection"></span>
+						</div>
+						<div class="col-md-3">
+							<button type="button" class="btn btn-xs btn-default" id="test_oko_ip">
+								<span class="glyphicon glyphicon-share" aria-hidden="true"></span> Test IP
+							</button>
+						</div>
 					</div>
 				
 				</fieldset>

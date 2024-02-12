@@ -74,7 +74,30 @@ $(document).ready(function() {
 
 	});
 
+	$('#test_oko_ip').click(function() {
 
+		var ip = $('#oko_ip').val();
+
+		var tab = {
+			ip: $('#oko_ip').val()
+		};
+
+		$.ajax({
+			url: 'setup.php?type=ip',
+			type: 'POST',
+			data: $.param(tab),
+			async: false,
+			success: function(a) {
+				if (a.response) {
+					$('#connection').append('Communication OK');
+				}
+				else {
+					$.growlErreur('Communication Error');
+				}
+
+			}
+		});
+	});
 
 
 });
