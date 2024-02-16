@@ -198,6 +198,11 @@ class administration extends connectDb
 
                 rename($rep.$f['files']['name'][0], $rep.$matrice);
             }
+
+            if ('auto_create' == $s['actionFile']) {
+                $this->initMatriceFromFile();
+                unlink('_tmp\matrice.csv');
+            }
         }
         //$upload_handler->generate_response_manual();
     }

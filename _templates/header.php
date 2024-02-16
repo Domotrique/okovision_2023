@@ -1,6 +1,6 @@
 <?php
  $page = basename($_SERVER['SCRIPT_NAME']);
- $pageNotLogged = ['setup.php', 'index.php', 'histo.php'];
+ $pageNotLogged = ['setup.php', 'index.php', 'histo.php', 'adminMatrix.php'];
 
  if (!in_array($page, $pageNotLogged) && !session::getInstance()->getVar('logged')) {
      header('Location: /errors/401.php');

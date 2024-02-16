@@ -27,15 +27,20 @@
     					<!-- Select Basic -->
     					<div class="form-group">
     					  <label class="col-md-4 control-label" for="oko_typeconnect"><?php echo session::getInstance()->getLabel('lang.text.page.admin.boilergetfile'); ?></label>
-    					  <div class="col-md-3">
-    					    <select id="oko_typeconnect" name="oko_typeconnect" class="form-control">
-    					        <option value="0">USB</option>
-    			                <option value="1" <?php if (GET_CHAUDIERE_DATA_BY_IP) {
-    echo 'selected=selected';
-} ?> >IP</option>
-    					    </select>
-    					  </div>
-    					 
+							<div class="col-md-3">
+								<label class="radio-inline"><input id="oko_typeconnect_ip" type="radio" value="ip" name="oko_typeconnect" <?php if (GET_CHAUDIERE_DATA_BY_IP) {
+										echo 'checked';
+									} ?>>
+									<img src="css/images/ethernet.svg" width="25" height="25">
+									<label>IP</label>
+								</label>
+								<label class="radio-inline"><input id="oko_typeconnect_usb" type="radio" value="usb" name="oko_typeconnect" <?php if (!GET_CHAUDIERE_DATA_BY_IP) {
+										echo 'checked';
+									} ?>>
+									<img src="css/images/usb-plug.svg" width="25" height="25">
+									<label>USB</label>
+								</label>
+							</div>    					 
     					</div>
     					
                         <!-- Text input-->
@@ -113,7 +118,6 @@
     			
 
                     <fieldset>
-    				
     				<!-- Form Name -->
     					<legend><?php echo session::getInstance()->getLabel('lang.text.page.admin.silo'); ?></legend>
     					
@@ -121,12 +125,22 @@
     					<div class="form-group">
     					  <label class="col-md-4 control-label" for="oko_loadingmode"><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode'); ?></label>
     					  <div class="col-md-3">
-    					    <select id="oko_loadingmode" name="oko_loadingmode" class="form-control">
-    					        <option value="0"><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode_bags'); ?></option>
-    			                <option value="1" <?php if (HAS_SILO) {
-                                    echo 'selected=selected';
-                                } ?> ><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode_silo'); ?></option>
-    					    </select>
+						  		<div>
+									<label class="radio-inline"><input id="oko_loadingmode_silo" type="radio" value="silo" name="oko_loadingmode" <?php if (HAS_SILO) {
+											echo 'checked';
+										} ?>>
+										<img src="css/images/silo.png" width="25" height="25">
+										<label><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode_silo'); ?></label>
+									</label>
+								</div>	
+								<div>
+									<label class="radio-inline"><input id="oko_loadingmode_bags" type="radio" value="bags" name="oko_loadingmode" <?php if (!HAS_SILO) {
+                                    		echo 'checked';
+										} ?>>
+										<img src="css/images/bag-plus.svg" width="25" height="25">
+										<label><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode_bags'); ?></label>
+									</label>
+								</div>	
     					  </div>
     					 
     					</div>
