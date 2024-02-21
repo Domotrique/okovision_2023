@@ -87,7 +87,6 @@ $(document).ready(function() {
 					if(a.csv) {
 						window.location.replace("adminMatrix.php?csv=" + a.csv);
 					} else {
-					//window.location.replace("index.php");
 						window.location.replace("index.php?setup=1");
 					}
 				}

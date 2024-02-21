@@ -58,7 +58,6 @@
 
     function makeInstallation($s)
     {
-
 		if ($s['oko_ip_ok'] == "true") {
 			// Retrieve CSV file from boiler for Matrix table creation
 			$r = [];
