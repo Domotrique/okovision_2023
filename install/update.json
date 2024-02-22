@@ -18,5 +18,10 @@
         "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.4.zip",
         "date": "08/02/2024",
         "changelog": "<ul><li>Fix the bugged values issue when the heater gets shutdown.</li><li>Implement a new page for generating SQL dumps of the database (Parameters > Import/Export SQL Base).</li><li>Importing another SQL dump file is not possible through Okovision_2023 yet for security reasons, you might want to do it in command line mode.</li><li>Improve text visibility in history tab (police was too small.</li></ul>"
+    },
+    "1.12.5": {
+        "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.5.zip",
+        "date": "22/02/2024",
+        "changelog": "<ul><li>Update setup and parameters pages.</li><li>Fix bug on SQL backup page preventing from generating a dump.</li></ul>"
     }
 }
