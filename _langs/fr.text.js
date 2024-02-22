@@ -80,7 +80,7 @@ var lang = {
         eventPelletsdetails: "{0} kg, {1}€ ({2}€/T)",
         eventBagDetails: "{0} kg, {1}€ ({2}€/15Kg)",
         eventmaintenanceDetails: "{0}€",
-        firstSetup: "Aucune valeur n'est remontée par votre chaudière. Vérifiez que vous avez bien tout paramétré (Lecture Matrice CSV)",
+        firstSetup: "Aucune valeur n'est encore remontée par votre chaudière.",
         addGraphe: "Création d'un nouveau graphique",
         updateGraphe: 'Modification de',
         deleteGraphe: 'Confirmez-vous la suppresion de',

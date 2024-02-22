@@ -7,9 +7,11 @@
 $(document).ready(function() {
     var loader = true;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const product = urlParams.get('setup')
-    if (product == "1") {
+    var urlParams = new URLSearchParams(window.location.search);
+    var setup = urlParams.get('setup')
+    if (setup == "1") {
+		$("#inputUser").val('admin');
+		$("#inputPassword").val('okouser');
         $("#login-modal").modal('show');
     }
 
@@ -454,7 +456,7 @@ $(document).ready(function() {
 			                        </div>');
 		});
 
-		if (product == "1") {
+		if (setup == "1") {
 		    $.growlFirstSetup();
 		} else {
 		    refreshAllGraphe();

@@ -11,16 +11,6 @@ $(document).ready(function() {
 	 * Espace Information general
 	 */
 
-	$("#oko_typeconnect").change(function() {
-		
-		if ($(this).val() == 1) {
-			$("#form-ip").show();
-		}
-		else {
-			$("#form-ip").hide();
-		}
-	});
-
 	$('#test_oko_ip').click(function() {
 
 
@@ -47,16 +37,6 @@ $(document).ready(function() {
 		    $.growlErreur('Adresse Ip Invalide !');
 		}
 		*/
-	});
-        
-	$("#oko_loadingmode").change(function() {
-
-		if ($(this).val() == 1) {
-			$("#form-silo-details").show();
-		}
-		else {
-			$("#form-silo-details").hide();
-		}
 	});
         
 	$('#bt_save_infoge').click(function() {

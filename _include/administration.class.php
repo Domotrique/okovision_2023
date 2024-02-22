@@ -169,11 +169,11 @@ class administration extends connectDb
         $upload_handler = new UploadHandler();
 
         if (isset($s['actionFile'])) {
-            if ('matrice' == $s['actionFile']) {
-                $matrice = 'matrice.csv';
-                $opt = $upload_handler->getOption();
-                $rep = $opt['upload_dir'];
+            $opt = $upload_handler->getOption();
+            $matrice = 'matrice.csv';
+            $rep = $opt['upload_dir'];
 
+            if ('matrice' === $s['actionFile']) {
                 if (file_exists($rep.$matrice)) {
                     unlink($rep.$matrice);
                 }
@@ -187,16 +187,17 @@ class administration extends connectDb
                 }
             }
 
-            if ('majusb' == $s['actionFile']) {
-                $matrice = 'import.csv';
-                $opt = $upload_handler->getOption();
-                $rep = $opt['upload_dir'];
-
+            if ('majusb' === $s['actionFile']) {
                 if (file_exists($rep.$matrice)) {
                     unlink($rep.$matrice);
                 }
 
                 rename($rep.$f['files']['name'][0], $rep.$matrice);
+            }
+
+            if ('auto_create' === $s['actionFile']) {
+                $this->initMatriceFromFile();
+                unlink($rep.$matrice);
             }
         }
         //$upload_handler->generate_response_manual();

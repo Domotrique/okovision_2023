@@ -7,12 +7,18 @@
 
 $(document).ready(function() {
 
-	
-
-	/*
-	 * Espace Matrice CSV
-	 */
-	
+    var urlParams = new URLSearchParams(window.location.search);
+    var csv = urlParams.get('csv')
+    if (csv == 1) {
+		var tab = {
+			actionFile: 'auto_create'
+		};
+		$.api('POST', 'admin.uploadCsv', {
+			actionFile: 'auto_create'
+		}, false).done(function(json) {
+			window.location.replace("index.php?setup=1");
+		});
+    }	
 	
 	$('#fileupload').fileupload({
 
