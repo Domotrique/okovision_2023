@@ -202,5 +202,6 @@ include __DIR__.'/_templates/footer.php';
 ?>
     <!--script src="js/jquery.fileupload.js"></script-->
 	<script src="js/adminParam.js"></script>
+	<script src="js/listeners.js"></script>
     </body>
 </html>

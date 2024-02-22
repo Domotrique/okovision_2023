@@ -437,5 +437,6 @@
 	<script src="js/custom.js"></script>
 <!--appel des scripts personnels de la page -->
 	<script src="js/setup.js"></script>
+	<script src="js/listeners.js"></script>
     </body>
 </html>

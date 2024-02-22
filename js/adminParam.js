@@ -39,24 +39,6 @@ $(document).ready(function() {
 		*/
 	});
         
-	document.body.addEventListener('change', function (e) {
-		let target = e.target;
-		switch (target.value) {
-			case 'ip':
-				$("#form-ip").show();
-				break;
-			case 'usb':
-				$("#form-ip").hide();
-				break;
-			case 'silo':
-				$("#form-silo-details").show();
-				break;
-			case 'bags':
-				$("#form-silo-details").hide();
-				break;
-		}
-	});
-        
 	$('#bt_save_infoge').click(function() {
 
 		var tab = {
