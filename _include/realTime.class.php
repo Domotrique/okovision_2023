@@ -345,11 +345,11 @@ class realTime extends connectDb
         $this->sendResponse(json_encode($json));
     }
 
-    public function setBoilerMode($mode = 0, $way = 1)
+    public function setBoilerMode($mode = 1, $way = 1)
     {
-        // The Time program number starts at 0
-        //Time 1 = 0
-        //$mode=0
+        // le numéro du circuit ou de la zone commence à 0
+        // $way=0
+        // $mode : 0 - arret / 1 - Auto / 2 - Confort / 3 - Reduit
 
         $hk = $way - 1;
         $o = new okofen();
@@ -362,10 +362,40 @@ class realTime extends connectDb
         $this->sendResponse($o->getResponseBoiler());
     }
 
-    public function setProgramMode($mode = 0, $way = 1)
+    public function setHolidayMode($mode = 0, $way = 1)
     {
         // le numéro du circuit ou de la zone commence à 0
-        // zone 1 = 0
+        // $way=0
+        // $mode : 0 - arret / 1 - Holiday
+        $hk = $way - 1;
+        $o = new okofen();
+        $date_time = strtotime("now");
+        $date_time_2weeks = strtotime("+2 Weeks");
+        if ($mode == 1) {
+            $o->applyConfiguration(
+                [
+                    "CAPPL:LOCAL.hk[{$hk}].urlaubsprg_start" => $date_time,
+                    "CAPPL:LOCAL.hk[{$hk}].urlaubsprg_ende" => $date_time_2weeks,
+                    "CAPPL:LOCAL.hk[{$hk}].urlaubsprg_aktiviert" => $mode,
+                ]
+            );
+        } else {
+            $o->applyConfiguration(
+                [
+                    "CAPPL:LOCAL.hk[{$hk}].urlaubsprg_aktiviert" => $mode,
+                ]
+            );
+        }
+
+        $this->sendResponse($o->getResponseBoiler());
+    }
+
+    public function setProgramMode($mode = 0, $way = 1)
+    {
+        // The Time program number starts at 0
+        // $mode 1 = 0
+        // le numéro du circuit ou de la zone commence à 0
+        // $way 1 = 0
         $hk = $way - 1;
         $o = new okofen();
         $o->applyConfiguration(
