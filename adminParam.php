@@ -28,13 +28,13 @@
     					<div class="form-group">
     					  <label class="col-md-4 control-label" for="oko_typeconnect"><?php echo session::getInstance()->getLabel('lang.text.page.admin.boilergetfile'); ?></label>
 							<div class="col-md-3">
-								<label class="radio-inline"><input id="oko_typeconnect_ip" type="radio" value="ip" name="oko_typeconnect" <?php if (GET_CHAUDIERE_DATA_BY_IP) {
+								<label class="radio-inline"><input id="oko_typeconnect_ip" type="radio" value="1" name="oko_typeconnect" <?php if (GET_CHAUDIERE_DATA_BY_IP) {
 										echo 'checked';
 									} ?>>
 									<img src="css/images/ethernet.svg" width="25" height="25">
 									<label>IP</label>
 								</label>
-								<label class="radio-inline"><input id="oko_typeconnect_usb" type="radio" value="usb" name="oko_typeconnect" <?php if (!GET_CHAUDIERE_DATA_BY_IP) {
+								<label class="radio-inline"><input id="oko_typeconnect_usb" type="radio" value="0" name="oko_typeconnect" <?php if (!GET_CHAUDIERE_DATA_BY_IP) {
 										echo 'checked';
 									} ?>>
 									<img src="css/images/usb-plug.svg" width="25" height="25">
@@ -126,7 +126,7 @@
     					  <label class="col-md-4 control-label" for="oko_loadingmode"><?php echo session::getInstance()->getLabel('lang.text.page.admin.loading_mode'); ?></label>
     					  <div class="col-md-3">
 						  		<div>
-									<label class="radio-inline"><input id="oko_loadingmode_silo" type="radio" value="silo" name="oko_loadingmode" <?php if (HAS_SILO) {
+									<label class="radio-inline"><input id="oko_loadingmode_silo" type="radio" value="1" name="oko_loadingmode" <?php if (HAS_SILO) {
 											echo 'checked';
 										} ?>>
 										<img src="css/images/silo.png" width="25" height="25">
@@ -134,7 +134,7 @@
 									</label>
 								</div>	
 								<div>
-									<label class="radio-inline"><input id="oko_loadingmode_bags" type="radio" value="bags" name="oko_loadingmode" <?php if (!HAS_SILO) {
+									<label class="radio-inline"><input id="oko_loadingmode_bags" type="radio" value="0" name="oko_loadingmode" <?php if (!HAS_SILO) {
                                     		echo 'checked';
 										} ?>>
 										<img src="css/images/bag-plus.svg" width="25" height="25">

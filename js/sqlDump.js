@@ -155,6 +155,7 @@ $(document).ready(function() {
 				if (json.response) {
 					$.growlValidate(lang.valid.save);
 					setTimeout(refreshDumps(), 1000);
+					$("#openModalSqldump").find('span').switchClass('glyphicon-refresh glyphicon-spin', 'glyphicon-plus', 0);
 				}
 				else {
 					$.growlErreur(lang.error.createDump);
@@ -259,6 +260,7 @@ $(document).ready(function() {
 
 		if ($(this).is('#dumpConfirm')) {			
 			if ($("#modal_sqldump").find('#typeModal').val() === "add") {
+				$("#openModalSqldump").find('span').switchClass('glyphicon-plus', 'glyphicon-refresh glyphicon-spin', 0);
 				newDump();
 			}
 			if ($("#modal_sqldump").find('#typeModal').val() === "edit") {
