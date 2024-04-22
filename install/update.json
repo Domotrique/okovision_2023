@@ -23,5 +23,10 @@
         "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.5.zip",
         "date": "22/02/2024",
         "changelog": "<ul><li>Update setup and parameters pages.</li><li>Fix bug on SQL backup page preventing from generating a dump.</li></ul>"
+    },
+    "1.12.6": {
+        "url": "https://github.com/Domotrique/okovision_2023/archive/1.12.6.zip",
+        "date": "22/04/2024",
+        "changelog": "<ul><li>Add 'running' icon for the dump generation.</li><li>Fix bug in setup page which prevented from saving new values.</li></ul>"
     }
 }
