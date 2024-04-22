@@ -49,8 +49,8 @@ $(document).ready(function() {
 			oko_typeconnect: $('input[name=oko_typeconnect]:checked').val(),
 			timezone: $("#timezone").val(),
 			send_to_web: 0,
-            has_silo: $('input[name=oko_loadingmode]:checked').val(),
-            silo_size: $('#oko_silo_size').val(),
+			has_silo: $('input[name=oko_loadingmode]:checked').val(),
+			silo_size: $('#oko_silo_size').val(),
 			ashtray : $('#oko_ashtray').val(),
 			lang : $('input[name=oko_language]:checked').val()
 		};
