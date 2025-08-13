@@ -345,6 +345,30 @@ class realTime extends connectDb
         $this->sendResponse(json_encode($json));
     }
 
+    
+
+    public function getExteriorTemp()
+    {
+        $json['response'] = false;
+
+        $sensor = ["CAPPL:LOCAL.L_aussentemperatur_ist", // Programme horaire en cours
+        ];
+
+        $r = $this->getOkoValue($sensor);
+
+        if (!empty($r)) {
+            $tmp = [];
+
+            foreach ($sensor as $key) {
+                $tmp[$key] = trim($r[$key]->value.' '.$r[$key]->unitText);
+            }
+            $json['data'] = $tmp;
+            $json['response'] = true;
+        }
+
+        $this->sendResponse(json_encode($json));
+    }
+
     public function setBoilerMode($mode = 1, $way = 1)
     {
         // le numéro du circuit ou de la zone commence à 0
