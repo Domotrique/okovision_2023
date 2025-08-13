@@ -164,6 +164,10 @@ if (is_ajax() && is_valid()) {
                             }
 
                             break;
+                        case 'getExtTemp':
+                            $rt->getExteriorTemp();
+
+                            break;
                         case 'setBoilerMode':
                             if (isset($_GET['mode'], $_GET['way'])) {
                                 $rt->setBoilerMode($_GET['mode']);
