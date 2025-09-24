@@ -364,8 +364,18 @@ class okofen extends connectDb
         $min = $rendu->getTcMinByDay($day);
         $conso = $rendu->getConsoByday($day);
         $conso_ecs = $rendu->getConsoByday($day, null, null, 'hotwater');
-        $dju = $rendu->getDju($max->tcExtMax, $min->tcExtMin);
         $cycle = $rendu->getNbCycleByDay($day);
+
+        // Test for empty values
+        if (
+            empty($max) || empty($min) || empty($conso) || empty($conso_ecs) || empty($cycle)
+            || !isset($max->tcExtMax) || !isset($min->tcExtMin)
+        ) {
+            $this->log->info('Class '.__CLASS__.' | '.__FUNCTION__.' | Date '.$day.' is empty, synthese not created.');
+            return false;
+        }
+
+        $dju = $rendu->getDju($max->tcExtMax, $min->tcExtMin);
 
         $consoPellet = (null == $conso->consoPellet) ? 0 : $conso->consoPellet;
         $consoEcsPellet = (null == $conso_ecs->consoPellet) ? 0 : $conso_ecs->consoPellet;
