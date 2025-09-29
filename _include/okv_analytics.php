@@ -64,46 +64,37 @@ function okv_build_hmac(string $payloadJson): string {
 
 // --- envoi HTTP (fire-and-forget, timeout court) --------------------
 function okv_send_payload(string $endpoint, string $jsonPayload, ?string $hmac = null): bool {
-    $ch = curl_init();
+    $headers = ['Content-Type: application/json', 'Expect:'];
+    if ($hmac !== null) { $headers[] = 'X-Signature: '.$hmac; }
 
+    $ch = curl_init($endpoint);
     curl_setopt_array($ch, [
-        CURLOPT_URL            => $endpoint,
         CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $jsonPayload,
-        CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            $hmac !== null ? 'X-Signature: ' . $hmac : ''],
+        CURLOPT_POSTFIELDS     => $jsonPayload,              // $jsonPayload DOIT être une chaîne JSON brute
+        CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => OKV_ANALYTICS_TIMEOUT,
         CURLOPT_TIMEOUT        => OKV_ANALYTICS_TIMEOUT,
-        CURLOPT_FOLLOWLOCATION => false,
-
-        // TLS
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 2,
+        // TLS strict (WAMP) — si OpenSSL, assure un cacert.pem via php.ini (cf. plus haut)
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
-
-        // Réseau : si IPv6 cause problème
-        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
     ]);
-
-    // ne pas suivre les redirections trop longtemps
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-
-    // optionnel : forcer TLS >= 1.2
-    curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
     $res = curl_exec($ch);
     $errno = curl_errno($ch);
+    $err = curl_error($ch);
     $http  = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    // consider success only if HTTP 2xx returned
     if ($errno !== 0 || $http < 200 || $http >= 300) {
         error_log("[okv_analytics] errno=$errno http=$http err=$err");
+        return false;
     }
 
-    // consider success only if HTTP 2xx returned
-    if ($errno !== 0) return false;
-    return ($http >= 200 && $http < 300);
+    return true;
 }
 
 
