@@ -65,16 +65,27 @@ function okv_build_hmac(string $payloadJson): string {
 // --- envoi HTTP (fire-and-forget, timeout court) --------------------
 function okv_send_payload(string $endpoint, string $jsonPayload, ?string $hmac = null): bool {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $endpoint);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, OKV_ANALYTICS_TIMEOUT);
-    curl_setopt($ch, CURLOPT_TIMEOUT, OKV_ANALYTICS_TIMEOUT);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        $hmac !== null ? 'X-Signature: ' . $hmac : ''],
-    );
+
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $endpoint,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $jsonPayload,
+        CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            $hmac !== null ? 'X-Signature: ' . $hmac : ''],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => OKV_ANALYTICS_TIMEOUT,
+        CURLOPT_TIMEOUT        => OKV_ANALYTICS_TIMEOUT,
+        CURLOPT_FOLLOWLOCATION => false,
+
+        // TLS
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+
+        // Réseau : si IPv6 cause problème
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+    ]);
+
     // ne pas suivre les redirections trop longtemps
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
 
@@ -83,8 +94,12 @@ function okv_send_payload(string $endpoint, string $jsonPayload, ?string $hmac =
 
     $res = curl_exec($ch);
     $errno = curl_errno($ch);
-    $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $http  = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+    if ($errno !== 0 || $http < 200 || $http >= 300) {
+        error_log("[okv_analytics] errno=$errno http=$http err=$err");
+    }
 
     // consider success only if HTTP 2xx returned
     if ($errno !== 0) return false;
@@ -106,7 +121,7 @@ function okv_analytics_maybe_send(): void {
 
     // rate-limit basique
     $last = (int)($cfg['last_ping'] ?? 0);
-    if ($last > 0 && (time() - $last) < OKV_ANALYTICS_MIN_INTERVAL) return;
+    //if ($last > 0 && (time() - $last) < OKV_ANALYTICS_MIN_INTERVAL) return;
 
     // build payload
     $payload = okv_build_payload($cfg);
