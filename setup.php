@@ -141,8 +141,25 @@
         $configFile = str_replace('###_TOKEN_###', sha1(rand()), $configFile);
         //$configFile = str_replace("###_TOKEN-API_###",sha1(rand()),$configFile);
 
-        file_put_contents('config.php', $configFile);
+		//Get latest version number from github
+		$ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'OkovisionDownloader');
+        $response = curl_exec($ch);
+        curl_close($ch);
 
+        $data = json_decode($response, true);
+
+        // Vérifie si une release a été trouvée
+        if (isset($data['tag_name'])) {
+            $version = $data['tag_name'] ?? '0.0.0';
+        } else {
+            echo "Aucune release trouvée ou erreur d’API." . PHP_EOL;
+        }
+
+        $configFile = str_replace('###_OKOVISION_VERSION_###', $version, $configFile);
+
+        file_put_contents('config.php', $configFile);
 		
         // Make config.json
         $param = [

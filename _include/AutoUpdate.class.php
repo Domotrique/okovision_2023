@@ -80,19 +80,6 @@ class AutoUpdate extends connectDb
     public $updateScriptName = '_upgrade.php';
 
     /**
-     * Url to the update folder on the server.
-     *
-     * @var string
-     */
-    protected $_updateUrl = 'https://raw.githubusercontent.com/Domotrique/okovision_2023/master/install';
-    /**
-     * Version filename on the server.
-     *
-     * @var string
-     */
-    protected $_updateFile = 'update.json';
-
-    /**
      * Current version.
      *
      * @var vierbergenlars\SemVer\version
@@ -378,105 +365,55 @@ class AutoUpdate extends connectDb
         $this->_latestVersion = new version('0.0.0');
         $this->_updates = [];
 
-        //$versions = $this->_cache->get('update-versions');
-
-        // Check if cache is empty
-        //if ($versions === false) {
-        // Create absolute url to update file
-        $updateFile = $this->_updateUrl.'/'.$this->_updateFile;
-        if (!empty($this->_branch)) {
-            $updateFile .= '.'.$this->_branch;
-        }
-
-        $this->log->debug(sprintf('Get new updates from %s', $updateFile));
-
-        // Read update file from update server
-        /*$ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://raw.githubusercontent.com/octocat/Spoon-Knife/master/index.html');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $data = curl_exec($ch);
+        $ch = curl_init(REPO_VERSION_API);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'OkovisionDownloader');
+        $response = curl_exec($ch);
         curl_close($ch);
 
-        echo $data;*/
+        $data = json_decode($response, true);
 
-        $update = @file_get_contents($updateFile);
-        if (false === $update) {
-            $this->log->info(sprintf('Could not download update file "%s"!', $updateFile));
-
-            return false;
+        // Vérifie si une release a été trouvée
+        if (isset($data['tag_name'])) {
+            $version = new version($data['tag_name']);
+            $this->_latestVersion = $version;
+            $this->log->info(sprintf('Dernière version d\'Okovision 2023 : ' . $data['tag_name']));
+        } else {
+            echo "Aucune release trouvée ou erreur d’API." . PHP_EOL;
         }
 
-        // Parse update file
-        $updateFileExtension = substr(strrchr($this->_updateFile, '.'), 1);
-        switch ($updateFileExtension) {
-                case 'ini':
-                    $versions = @parse_ini_string($update, true);
-                    if (!is_array($versions)) {
-                        $this->log->info('Unable to parse ini update file!');
-
-                        return false;
-                    }
-
-                    $versions = array_map(function ($block) {
-                        return isset($block['url']) ? $block['url'] : false;
-                    }, $versions);
-
-                    break;
-                case 'json':
-                    $versions = (array) @json_decode($update);
-                    if (!is_array($versions)) {
-                        $this->log->info('Unable to parse json update file!');
-
-                        return false;
-                    }
-
-                    break;
-                default:
-                    $this->log->info(sprintf('Unknown file extension "%s"', $updateFileExtension));
-
-                    return false;
+        if (version::gt($version, $this->_currentVersion)) {
+            if (version::gt($version, $this->_latestVersion)) {
+                $this->log->info(sprintf('New version "%s" available', $this->_latestVersion));
             }
 
-        //	$this->_cache->set('update-versions', $versions);
-        //} else {
-        //	$this->log->debug('Got updates from cache');
-        //}
-
-        // Check for latest version
-        foreach ($versions as $versionRaw => $updateInfo) {
-            //var_dump($updateInfo);exit;
-            $version = new version($versionRaw);
-            if (null === $version->valid()) {
-                $this->log->info(sprintf('Could not parse version "%s" from update server "%s"', $versionRaw, $updateFile));
-
-                continue;
-            }
-
-            if (version::gt($version, $this->_currentVersion)) {
-                if (version::gt($version, $this->_latestVersion)) {
-                    $this->_latestVersion = $version;
-                }
-
-                $this->_updates[] = [
-                    'version' => $version,
-                    'url' => $updateInfo->url,
-                    'changelog' => $updateInfo->changelog,
-                    'date' => $updateInfo->date,
-                ];
-            }
-        }
-
-        // Sort versions to install
-        usort($this->_updates, function ($a, $b) {
-            return version::compare($a['version'], $b['version']);
-        });
-
-        if ($this->newVersionAvailable()) {
-            $this->log->debug(sprintf('New version "%s" available', $this->_latestVersion));
+            $this->_updates[] = [
+                'version' => $version,
+                'url' => $data['zipball_url'] ?? $data['tarball_url'] ?? null,
+                // Format changelog proprement en remplaçant les titres Markdown par des balises HTML
+                'changelog' => isset($data['body']) 
+                    ? nl2br(
+                        preg_replace([
+                            '/^### (.*)$/m', // Titres niveau 3
+                            '/^## (.*)$/m',  // Titres niveau 2
+                            '/^# (.*)$/m',   // Titres niveau 1
+                            '/\*\*(.*?)\*\*/', // Gras Markdown
+                            '/\*(.*?)\*/',     // Italique Markdown
+                        ], [
+                            '<h3>$1</h3>',
+                            '<h2>$1</h2>',
+                            '<h1>$1</h1>',
+                            '<strong>$1</strong>',
+                            '<em>$1</em>',
+                        ], $data['body'])
+                    )
+                    : null,
+                'date' => isset($data['published_at']) ? substr($data['published_at'], 0, 10) : null,
+            ];
 
             return true;
         }
+
         $this->log->debug('No new version available');
 
         return self::NO_UPDATE_AVAILABLE;
@@ -514,6 +451,9 @@ class AutoUpdate extends connectDb
 
             return self::ERROR_VERSION_CHECK;
         }
+
+        // Ajout des nouvelles constantes dans config.php
+        $this->addNewConfigConstants($this->_currentVersion->getVersion(), $this->_latestVersion->getVersion());
 
         // Check if current version is up to date
         if (!$this->newVersionAvailable()) {
@@ -554,18 +494,10 @@ class AutoUpdate extends connectDb
                 $this->log->info(sprintf('Latest update already downloaded to "%s"', $updateFile));
             }
 
-            //Backup old Install
-            //Not Working yet
-            /*
-            if (!$this->_createBackup()) {
-                $this->log->error('Could not Backup the previous install!');
-
-                return self::ERROR_BACKUP;
-            }*/
-
             // Install update
             $result = $this->_install($updateFile, $simulateInstall, $update['version']);
             if (true === $result) {
+                $this->updateConfigVersion($this->_latestVersion->getVersion());
                 if ($deleteDownload) {
                     $this->log->debug(sprintf('Trying to delete update file "%s" after successfull update', $updateFile));
                     if (@unlink($updateFile)) {
@@ -983,5 +915,67 @@ class AutoUpdate extends connectDb
             }
         }
         return 0;
+    }
+
+    private function addNewConfigConstants($oldVersion, $newVersion)
+    {
+        // On ne fait rien si la version actuelle >= 1.12.7 ou la nouvelle < 1.12.7
+        if (version_compare($oldVersion, '1.12.7', '>=') || version_compare($newVersion, '1.12.7', '<')) {
+            $this->log->info("Pas besoin d'ajouter les nouvelles constantes dans config.php (versions : $oldVersion -> $newVersion)");
+            return false;
+        }
+
+        $configPath = CONTEXT . '/config.php';
+        $constants = [
+            "DEFINE('OKOVISION_VERSION','". $newVersion ."');",
+            "define('OKV_ANALYTICS_MIN_INTERVAL', 86400); // 24h",
+            "define('OKV_ANALYTICS_TIMEOUT', 2);",
+            "define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/index.php');",
+            "define('OKV_ANALYTICS_HMAC_ENABLED', true);",
+            "define('OKV_ANALYTICS_HMAC_SECRET', '21a72bf10caf499d75f84764b0986004ebb146d42754572b9b12f7a3fcb501ad');"
+        ];
+
+        if (!file_exists($configPath)) {
+            $this->log->error("config.php introuvable !");
+            return false;
+        }
+
+        $content = file_get_contents($configPath);
+
+        $toAdd = [];
+        foreach ($constants as $const) {
+            if (strpos($content, $const) === false) {
+                $toAdd[] = $const;
+            }
+        }
+
+        if (!empty($toAdd)) {
+            $content .= "\n\n// Ajout automatique lors de la mise à jour\n" . implode("\n", $toAdd) . "\n";
+            file_put_contents($configPath, $content);
+            $this->log->info("Nouvelles constantes ajoutées à config.php");
+        }
+        return true;
+    }
+
+    private function updateConfigVersion($newVersion)
+    {
+        $configPath = CONTEXT . '/config.php';
+        if (!file_exists($configPath)) {
+            $this->log->error("config.php introuvable !");
+            return false;
+        }
+
+        $content = file_get_contents($configPath);
+
+        // Remplace la ligne de version existante par la nouvelle
+        $content = preg_replace(
+            "/DEFINE\('OKOVISION_VERSION','[^']*'\);/",
+            "DEFINE('OKOVISION_VERSION','" . $newVersion . "');",
+            $content
+        );
+
+        file_put_contents($configPath, $content);
+        $this->log->info("OKOVISION_VERSION mis à jour dans config.php : " . $newVersion);
+        return true;
     }
 }

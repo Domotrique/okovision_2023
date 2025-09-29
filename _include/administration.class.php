@@ -569,16 +569,6 @@ class administration extends connectDb
     }
 
     /**
-     * Function get current local version.
-     *
-     * @return string
-     */
-    public static function getCurrentVersion()
-    {
-        return trim(file_get_contents('_include/version.json'));
-    }
-
-    /**
      * Function checking if new okovision version is available.
      *
      * @return json
@@ -591,11 +581,8 @@ class administration extends connectDb
         $r['newVersion'] = false;
         $r['information'] = '';
 
-        //Remove agent for now
-        //$this->addOkoStat();
-
         $update = new AutoUpdate();
-        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : 'unknown');        
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');        
 
         if (false === $update->checkUpdate()) {
             $r['information'] = session::getInstance()->getLabel('lang.error.maj.information');
@@ -651,7 +638,7 @@ class administration extends connectDb
         $r = [];
         $r['install'] = false;
         $update = new AutoUpdate();
-        $update->setCurrentVersion($this->getCurrentVersion());
+        $update->setCurrentVersion(OKOVISION_VERSION);
 
         $result = $update->update(); //fait une simulation d'abord, si ok ça install
         if (true === $result) {
@@ -1171,16 +1158,5 @@ class administration extends connectDb
         
         copy($rep.$dumpFile, DUMP_FOLDER .'/'.$dumpFile);
         unlink($rep.$dumpFile);
-    }
-
-    /**
-     * Function set current version in version.json.
-     *
-     * @param string (x.y.z)
-     * @param mixed $v
-     */
-    private function setCurrentVersion($v)
-    {
-        return file_put_contents('_include/version.json', $v);
     }
 }

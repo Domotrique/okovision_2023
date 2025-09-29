@@ -92,7 +92,7 @@ define('OKV_ANALYTICS_MIN_INTERVAL', 86400); // 24h
 // timeout curl en secondes
 define('OKV_ANALYTICS_TIMEOUT', 2);
 // endpoint public (collector) — changer pour ton domaine/public endpoint
-define('OKV_ANALYTICS_ENDPOINT', 'analytics.okostats.ovh/index.php');
+define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/index.php');
 // activer HMAC (si ton collecteur l'exige)
 define('OKV_ANALYTICS_HMAC_ENABLED', true);
 // clé HMAC (doit être la même que celle renseignée sur le collecteur)
