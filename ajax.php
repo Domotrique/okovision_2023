@@ -5,6 +5,16 @@
  * Utilisation commerciale interdite sans mon accord.
  */
 include_once 'config.php';
+    
+// --- Analytics status endpoint for modal pop-up ---
+if (isset($_GET['type']) && $_GET['type'] === 'analytics_status') {
+    require_once '_include/okv_analytics.php';
+    $cfg = okv_read_cfg();
+    $enabled = !empty($cfg['analytics_enabled']);
+    header('Content-Type: application/json');
+    echo json_encode(['enabled' => $enabled]);
+    exit;
+}
 
 function is_ajax()
 {

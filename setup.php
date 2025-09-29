@@ -160,6 +160,17 @@
 
         file_put_contents('config.json', json_encode($param));
 
+		// Create analytics JSON file
+		require_once '_include/okv_analytics.php';
+		$analytics_enabled = isset($s['analytics_enabled']) && $s['analytics_enabled'] == '1';
+		$analytics_cfg = [
+			'analytics_enabled' => $analytics_enabled,
+			'install_id' => okv_uuidv4(),
+			'created_at' => time(),
+			'app_version' => defined('OKOVISION_VERSION') ? OKOVISION_VERSION : null
+		];
+		okv_write_cfg($analytics_cfg);
+
 		exit;
     }
 
@@ -394,6 +405,15 @@
 							</div>
     					</div>
 					</fieldset> 
+
+					<legend>Analytics</legend>
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="analytics_enabled">Enable anonymous usage analytics?</label>
+						<div class="col-md-3">
+							<input id="analytics_enabled" name="analytics_enabled" type="checkbox" checked>
+							<span class="help-block">Help improve Okovision by sending anonymous usage statistics. No personal data is sent.</span>
+						</div>
+					</div>
 					
 					<fieldset>
     				

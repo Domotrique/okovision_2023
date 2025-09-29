@@ -52,7 +52,8 @@ $(document).ready(function() {
 			has_silo: $('input[name=oko_loadingmode]:checked').val(),
 			silo_size: $('#oko_silo_size').val(),
 			ashtray : $('#oko_ashtray').val(),
-			lang : $('input[name=oko_language]:checked').val()
+			lang : $('input[name=oko_language]:checked').val(),
+			analytics_enabled: $('#analytics_enabled').is(':checked') ? 1 : 0
 		};
 		
 		$.api('POST', 'admin.saveInfoGe', tab, false).done(function(json) {

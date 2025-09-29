@@ -71,6 +71,9 @@ class administration extends connectDb
             'ashtray' => $s['ashtray'],
             'lang' => $s['lang'],
         ];
+        // Save analytics opt-in/out
+        require_once __DIR__ . '/okv_analytics.php';
+        okv_analytics_enable(!empty($s['analytics_enabled']));
 
         $r = [];
         $r['response'] = true;
@@ -582,6 +585,8 @@ class administration extends connectDb
      */
     public function checkUpdate()
     {
+        require_once __DIR__ . '/okv_analytics.php';
+
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
@@ -590,7 +595,7 @@ class administration extends connectDb
         //$this->addOkoStat();
 
         $update = new AutoUpdate();
-        $update->setCurrentVersion($this->getCurrentVersion());
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : 'unknown');        
 
         if (false === $update->checkUpdate()) {
             $r['information'] = session::getInstance()->getLabel('lang.error.maj.information');
@@ -600,6 +605,8 @@ class administration extends connectDb
         } else {
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
         }
+        
+        okv_analytics_maybe_send();
 
         return $this->sendResponse($r);
     }

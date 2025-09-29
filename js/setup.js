@@ -58,7 +58,8 @@ $(document).ready(function() {
 				silo_size: $('#oko_silo_size').val(),
 				ashtray: $('#oko_ashtray').val(),
 				send_to_web: $('#send_to_web').val(),
-				lang: $('input[name=oko_language]:checked').val()
+				lang: $('input[name=oko_language]:checked').val(),
+				analytics_enabled: $('#analytics_enabled').is(':checked') ? 1 : 0
 			};
 			$.ajax({
 				url: 'setup.php?type=install',

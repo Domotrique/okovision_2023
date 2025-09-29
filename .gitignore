@@ -57,3 +57,4 @@ Web.config
 .vs/*
 .vscode/*
 Okovision_2023.phpproj.user
+var/okv_analytics.json

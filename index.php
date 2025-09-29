@@ -35,12 +35,51 @@ if (!file_exists('config.php')) {
 		</div>
 		<div class="container-graphe" id="container-graphs">
 		</div>
+		<!-- Analytics Info Modal -->
+		<div class="modal fade" id="analyticsInfoModal" tabindex="-1" role="dialog" aria-labelledby="analyticsInfoLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="analyticsInfoLabel">Information</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>Des statistiques anonymes d'utilisation sont envoyées pour améliorer Okovision. Vous pouvez désactiver cette option à tout moment dans les paramètres.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">J'ai compris</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 <?php
 include __DIR__.'/_templates/footer.php';
 ?>
-<!--appel des scripts personnels de la page -->
-	<script src="_langs/<?php echo session::getInstance()->getLang(); ?>.datepicker.js"></script>
-	<script src="js/index.js"></script>
+
+		<script>
+		(function() {
+		// Only show modal if analytics are enabled and user hasn't seen it yet
+		if (localStorage.getItem('okv_analytics_info_shown') !== '1') {
+			// Check if analytics are enabled via AJAX
+			console.log('Checking analytics info');
+			$.get('ajax.php?type=analytics_status', function(data) {
+				console.log("data");
+				console.log(data);
+			if (data.enabled) {
+				$('#analyticsInfoModal').modal('show');
+				$('#analyticsInfoModal').on('hidden.bs.modal', function () {
+				localStorage.setItem('okv_analytics_info_shown', '1');
+				});
+			}
+			});
+		}
+		})();
+		</script>
+	<!--appel des scripts personnels de la page -->
+		<script src="_langs/<?php echo session::getInstance()->getLang(); ?>.datepicker.js"></script>
+		<script src="js/index.js"></script>
 	</body>
 </html>

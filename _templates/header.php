@@ -18,6 +18,9 @@
     <script type="text/javascript">
             var sessionToken = "<?php echo session::getInstance()->getVar('sid'); ?>";		
    </script>
+   
+    <script src="js/jquery/jquery.min.js"></script>
+	<script src="js/bootstrap/bootstrap.min.js"></script>
 	<!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
