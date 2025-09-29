@@ -83,4 +83,18 @@ DEFINE('BDD_DECIMAL','.');
 //UNIQUE TOKEN ID
 DEFINE('TOKEN','###_TOKEN_###');
 //NEWPARAMUPDATE
+//VERSION
+DEFINE('OKOVISION_VERSION','.');
+
+//ANONYMOUS ANALYTICS
+// intervalle minimal entre pings (en secondes)
+define('OKV_ANALYTICS_MIN_INTERVAL', 86400); // 24h
+// timeout curl en secondes
+define('OKV_ANALYTICS_TIMEOUT', 2);
+// endpoint public (collector) — changer pour ton domaine/public endpoint
+define('OKV_ANALYTICS_ENDPOINT', 'analytics.okostats.ovh/index.php');
+// activer HMAC (si ton collecteur l'exige)
+define('OKV_ANALYTICS_HMAC_ENABLED', true);
+// clé HMAC (doit être la même que celle renseignée sur le collecteur)
+define('OKV_ANALYTICS_HMAC_SECRET', '21a72bf10caf499d75f84764b0986004ebb146d42754572b9b12f7a3fcb501ad');
 ?>
