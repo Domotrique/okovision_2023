@@ -6,12 +6,12 @@
 declare(strict_types=1);
 
 
-// --- CONFIG (à adapter) ---------------------------------------------
 // chemin local du fichier de config client (permissions 600)
 if (!defined('OKV_ANALYTICS_CFG')) define('OKV_ANALYTICS_CFG', __DIR__ . '/../var/okv_analytics.json');
 
 
 // --- utilitaires ----------------------------------------------------
+// génère un UUIDv4
 function okv_uuidv4(): string {
     $data = random_bytes(16);
     $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
@@ -19,7 +19,7 @@ function okv_uuidv4(): string {
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
-
+// --- config locale (JSON) --------------------------------------------
 function okv_read_cfg(): array {
     $path = OKV_ANALYTICS_CFG;
     if (!is_file($path)) return [];
@@ -29,6 +29,7 @@ function okv_read_cfg(): array {
     return is_array($data) ? $data : [];
 }
 
+// ecrit config locale (JSON)
 function okv_write_cfg(array $data): bool {
     $path = OKV_ANALYTICS_CFG;
     $dir = dirname($path);
@@ -98,10 +99,24 @@ function okv_send_payload(string $endpoint, string $jsonPayload, ?string $hmac =
 }
 
 
-// --- fonction principale : decide & envoie -------------------------
+/**
+ * Envoie les données analytiques si activé et si le délai minimal est écoulé.
+ *
+ * Lit/écrit la config locale dans var/okv_analytics.json
+ * Ne fait rien si le fichier n'existe pas ou si l'opt-in n'est pas activé.
+ *
+ * @return void
+ */
 function okv_analytics_maybe_send(): void {
     // Lire config locale
     $cfg = okv_read_cfg();
+
+    if (!is_file(OKV_ANALYTICS_CFG)) {
+        // Première exécution : créer un fichier de config minimal (opt-in conservé)
+        $cfg = ['analytics_enabled' => true];
+        okv_ensure_install_id($cfg);
+        okv_write_cfg($cfg); // crée var/ et le .json avec chmod 0600
+    }
 
     // Par défaut, desactiver (opt-in) si non explicite
     $enabled = $cfg['analytics_enabled'] ?? false;
@@ -112,7 +127,7 @@ function okv_analytics_maybe_send(): void {
 
     // rate-limit basique
     $last = (int)($cfg['last_ping'] ?? 0);
-    //if ($last > 0 && (time() - $last) < OKV_ANALYTICS_MIN_INTERVAL) return;
+    if ($last > 0 && (time() - $last) < OKV_ANALYTICS_MIN_INTERVAL) return;
 
     // build payload
     $payload = okv_build_payload($cfg);

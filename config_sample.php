@@ -84,6 +84,7 @@ DEFINE('BDD_DECIMAL','.');
 DEFINE('TOKEN','###_TOKEN_###');
 //NEWPARAMUPDATE
 //VERSION
+DEFINE('REPO_VERSION_API','https://api.github.com/repos/domotrique/okovision_2023/releases/latest');
 DEFINE('OKOVISION_VERSION','.');
 
 //ANONYMOUS ANALYTICS

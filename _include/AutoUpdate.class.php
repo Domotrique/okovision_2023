@@ -929,6 +929,14 @@ class AutoUpdate extends connectDb
         return 0;
     }
 
+    /**
+     * Ajoute les nouvelles constantes dans config.php si nécessaire.
+     *
+     * @param string $oldVersion
+     * @param string $newVersion
+     *
+     * @return bool
+     */
     private function addNewConfigConstants($oldVersion, $newVersion)
     {
         // On ne fait rien si la version actuelle >= 1.12.7 ou la nouvelle < 1.12.7
@@ -981,6 +989,13 @@ class AutoUpdate extends connectDb
         return true;
     }
 
+    /**
+     * Met à jour la constante OKOVISION_VERSION dans config.php.
+     *
+     * @param string $newVersion
+     *
+     * @return bool
+     */
     private function updateConfigVersion($newVersion)
     {
         $configPath = CONTEXT . '/config.php';
