@@ -536,26 +536,38 @@ class AutoUpdate extends connectDb
     protected function _downloadUpdate($updateUrl, $updateFile)
     {
         $this->log->info(sprintf('Downloading update "%s" to "%s"', $updateUrl, $updateFile));
-        $update = @file_get_contents($updateUrl);
 
-        if (false === $update) {
-            $this->log->error(sprintf('Could not download update "%s"!', $updateUrl));
+        $ch = curl_init($updateUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'OkovisionDownloader'); // GitHub requires a User-Agent
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
+        $update = curl_exec($ch);
+
+        if ($update === false) {
+            $this->log->error(sprintf('Could not download update "%s"! Curl error: %s', $updateUrl, curl_error($ch)));
+            curl_close($ch);
+            return false;
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            $this->log->error(sprintf('Download failed with HTTP code %d for "%s"', $httpCode, $updateUrl));
             return false;
         }
 
         $handle = fopen($updateFile, 'w');
-
         if (!$handle) {
             $this->log->error(sprintf('Could not open file handle to save update to "%s"!', $updateFile));
-
             return false;
         }
 
-        if (!fwrite($handle, $update)) {
+        if (fwrite($handle, $update) === false) {
             $this->log->error(sprintf('Could not write update to file "%s"!', $updateFile));
             fclose($handle);
-
             return false;
         }
 
@@ -927,7 +939,10 @@ class AutoUpdate extends connectDb
 
         $configPath = CONTEXT . '/config.php';
         $constants = [
-            "DEFINE('OKOVISION_VERSION','". $newVersion ."');",
+            // Ajoute ou met à jour la constante OKOVISION_VERSION
+            (strpos(file_get_contents(CONTEXT . '/config.php'), "DEFINE('OKOVISION_VERSION'") === false)
+                ? "DEFINE('OKOVISION_VERSION','". $newVersion ."');"
+                : null,
             "define('OKV_ANALYTICS_MIN_INTERVAL', 86400); // 24h",
             "define('OKV_ANALYTICS_TIMEOUT', 2);",
             "define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/index.php');",
@@ -950,7 +965,16 @@ class AutoUpdate extends connectDb
         }
 
         if (!empty($toAdd)) {
-            $content .= "\n\n// Ajout automatique lors de la mise à jour\n" . implode("\n", $toAdd) . "\n";
+            // Trouver la position de la balise de fin PHP
+            $phpEndTagPos = strrpos($content, '?>');
+            $newConstants = "\n" . implode("\n", $toAdd) . "\n";
+            if ($phpEndTagPos !== false) {
+                // Insérer avant la balise de fin PHP
+                $content = substr_replace($content, $newConstants, $phpEndTagPos, 0);
+            } else {
+                // Ajouter à la fin si pas de balise de fin PHP
+                $content .= $newConstants;
+            }
             file_put_contents($configPath, $content);
             $this->log->info("Nouvelles constantes ajoutées à config.php");
         }

@@ -172,28 +172,42 @@ $(document).ready(function () {
 	});
 	
 	$("#btChangePass").click(function(e){
-		
+		e.preventDefault();
+
+		var previous_pass = $('#inputPassCurrent').val();
 		var pass 	= $('#inputPass').val();
 		var confirm = $('#inputPassConfirm').val();
-		
+
+		if(previous_pass === '') {
+			$.growlErreur(lang.error.previousPassEmpty);
+			return;
+		}
+
 		if(pass !== '' && confirm !== ''){
-			
 			if(pass === confirm){
-			
-				$.api('POST', 'admin.changePassword', {pass: pass}).done(function(json) {
-							
-					if(!json.response){
-						e.preventDefault();
-						$.growlErreur(lang.error.passNotChanged);
-					}
-				});
+				$.api('POST', 'admin.changePassword', {pass: pass, previous_pass: previous_pass}, false)
+					.done(function(json) {
+						//console.log(json);
+
+						if (!json || typeof json.response === 'undefined') {
+							$.growlErreur(lang.error.unexpectedResponse);
+						} else if (!json.response) {
+							if (json.reason === 'previousPasswordNotMatch') {
+								$.growlErreur(lang.error.previousPassNotMatch);
+							} else {
+								$.growlErreur(lang.error.passNotChanged);
+							}
+						} else {
+							$.growlValidate(lang.text.passChanged);
+							setTimeout(function(){location.reload();},1500);
+						}
+					})
+					.fail(function(error) {
+						$.growlErreur(lang.error.communication + ": " + (error.statusText));
+					});
 			}else{
-				e.preventDefault();
 				$.growlErreur(lang.error.passNotTheSame);
 			}
 		}
-		
 	});
-
-
 });

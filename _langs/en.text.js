@@ -35,6 +35,7 @@ var lang = {
         bddFail: "Database connection failed",
         passNotChanged: "Password unchanged !",
         passNotTheSame: "The two fields are not identical.",
+        previousPassNotMatch: "The current password does not match.",
         userPassIncorrect: "User/password incorrect",
         sessionEnded: 'Session timed out',
         connectBoiler: 'Connection failure (boiler)',
@@ -46,7 +47,10 @@ var lang = {
         deleteDump: 'Backup delete probleme',
         createDump: 'Backup creation probleme',
         dump: 'Incorrect Backup Name',
-        dumpExists: 'A backup with this name already exists'
+        dumpExists: 'A backup with this name already exists',
+        unexpectedResponse: "Unexpected server response",
+        previousPassEmpty: "The current password cannot be empty",
+        statusText: "Error : "
     },
     warning:{
         drop: 'This backup will reset your history to this previous version! (new data will be deleted) Please remove the DROP lines from sql file.',
@@ -64,6 +68,7 @@ var lang = {
         applyConfigboiler: 'Configuration applied to the boiler'
     },
     text:{
+        passChanged: "Password changed successfully !",
         newDump: "Do you confirm the creation of a new history backup?",
         seeFileOnboiler: 'View Boiler files',
         addSeason: "Add Season",

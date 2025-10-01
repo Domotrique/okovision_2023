@@ -742,15 +742,38 @@ class administration extends connectDb
      *
      * @return json
      */
-    public function changePassword($pass)
+    public function changePassword($pass, $previousPass)
     {
         $pass = sha1($this->realEscapeString($pass));
         $userId = session::getInstance()->getVar('userId');
+        $previousPass = sha1($this->realEscapeString($previousPass));
+        $r = [];
+        $r['response'] = false;
 
-        $q = "update oko_user set pass='{$pass}' where id={$userId}";
+        // Check if previous password is ok
+        $q = "select count(*) as nb from oko_user where id={$userId} and pass='{$previousPass}' group by id";
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($q);
+        $result = $this->query($q);
+
+        if ($result) {
+            $res = $result->fetch_object();
+
+            if (1 == $res->nb) {
+                // Previous password is correct, update password
+                $q = "update oko_user set pass='{$pass}' where id={$userId}";
+                $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+
+                if ($this->query($q)) {
+                    $r['response'] = true;
+                }
+            } else {
+                $r['response'] = false;
+                $r['reason'] = 'previousPasswordNotMatch';
+            }
+        } else {
+            $r['response'] = false;
+        }
 
         $this->sendResponse($r);
     }

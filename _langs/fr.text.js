@@ -35,6 +35,7 @@ var lang = {
         bddFail: "Echec de connexion à la base de données",
         passNotChanged: "Mot de passe inchangé !",
         passNotTheSame: "Les deux champs ne sont pas identiques.",
+        previousPassNotMatch: "Le mot de passe actuel ne correspond pas.",
         userPassIncorrect: "User/password incorrect",
         sessionEnded: 'Session expirée',
         connectBoiler: 'Echec de connexion (chaudière)',
@@ -46,7 +47,10 @@ var lang = {
         deleteDump: 'Erreur lors de la suppression de la sauvegarde',
         createDump: 'Erreur lors de la création de la sauvegarde',
         dump: 'Nom de Sauvegarde incorrect',
-        dumpExists: 'Une sauvegarde existe déjà à ce nom'
+        dumpExists: 'Une sauvegarde existe déjà à ce nom',
+        unexpectedResponse: "Réponse inattendue du serveur",
+        previousPassEmpty: "Le mot de passe actuel ne peut pas être vide",
+        statusText: "Erreur : "
     },
     warning:{
         drop: 'Cette sauvegarde effacera votre historique récent ! Veuillez supprimer les lignes DROP dans le fichier SQL.',
@@ -64,6 +68,7 @@ var lang = {
         applyConfigboiler: 'Configuration appliquée sur la chaudière'
     },
     text:{
+        passChanged: "Mot de passe modifié avec succès !",
         newDump: "Confirmez-vous la création d'une nouvelle sauvegarde de l'historique ?",
         seeFileOnboiler: 'Visualiser les fichiers sur la chaudière',
         addSeason: "Ajout d'une saison",

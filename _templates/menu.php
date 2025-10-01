@@ -147,14 +147,17 @@
             </div>
             <div class="modal-body">
                 <form id="formChangePass" class="form">
-                    <p><label for="inputPass" class="sr-only">Mot de passe</label>
-                    <input type="password" id="inputPass" autocomplete="on" class="form-control" placeholder="Mot de passe" required autofocus>
-                    <label for="inputPassConfirm" class="sr-only">Confirmation</label>
-                    <input type="password" id="inputPassConfirm" autocomplete="on" class="form-control" placeholder="Confirmation" required></p>
-                    <p><button class="btn btn-lg btn-primary btn-block"id="btChangePass">Changer</button></p>
+                    <p>
+                        <label for="inputPassCurrent" class="sr-only">Mot de passe actuel</label>
+                        <input type="password" id="inputPassCurrent" autocomplete="on" class="form-control" placeholder="Mot de passe actuel" required>
+                        <label for="inputPass" class="sr-only">Nouveau mot de passe</label>
+                        <input type="password" id="inputPass" autocomplete="on" class="form-control" placeholder="Nouveau mot de passe" required>
+                        <label for="inputPassConfirm" class="sr-only">Confirmation</label>
+                        <input type="password" id="inputPassConfirm" autocomplete="on" class="form-control" placeholder="Confirmation" required>
+                    </p>
+                    <p><button class="btn btn-lg btn-primary btn-block" id="btChangePass">Changer</button></p>
                     <br/>
                 </form>
-                
 			</div>
 	    </div>  	
 	  </div>

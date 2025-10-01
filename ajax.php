@@ -148,16 +148,6 @@ if (is_ajax() && is_valid()) {
                             }
 
                             break;
-                        // case 'getDateForMigrate':
-                        //     $a->getDateForMigrate();
-
-                        //     break;
-                        // case 'migrateDataForDate':
-                        //     if (isset($_GET['jour'])) {
-                        //         $a->migrateDataForDate($_GET['jour']);
-                        //     }
-
-                        //     break;
                         case 'login':
                             $a->login($_POST['user'], $_POST['pass']);
 
@@ -171,7 +161,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'changePassword':
-                            $a->changePassword($_POST['pass']);
+                            $a->changePassword($_POST['pass'], $_POST['previous_pass']);
 
                             break;
                         case 'getDumps':
