@@ -71,6 +71,7 @@ class administration extends connectDb
             'ashtray' => $s['ashtray'],
             'lang' => $s['lang'],
         ];
+        
         // Save analytics opt-in/out
         require_once __DIR__ . '/okv_analytics.php';
         okv_analytics_enable(!empty($s['analytics_enabled']));
@@ -576,8 +577,6 @@ class administration extends connectDb
      */
     public function checkUpdate()
     {
-        require_once __DIR__ . '/okv_analytics.php';
-
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
@@ -593,8 +592,6 @@ class administration extends connectDb
         } else {
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
         }
-        
-        okv_send_stats();
 
         return $this->sendResponse($r);
     }

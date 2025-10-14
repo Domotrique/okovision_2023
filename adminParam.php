@@ -170,9 +170,14 @@
 						<label class="col-md-4 control-label" for="analytics_enabled">Enable anonymous usage analytics?</label>
 						<div class="col-md-3">
 							<input id="analytics_enabled" name="analytics_enabled" type="checkbox" value="1" <?php
-								require_once '_include/okv_analytics.php';
-								$cfg = okv_read_cfg();
-								if (!empty($cfg['analytics_enabled'])) echo 'checked';
+								//require_once __DIR__ . '/config.php';
+								if (!defined('OKV_ANALYTICS_ENABLED')) {
+									echo 'unchecked';
+								} elseif (OKV_ANALYTICS_ENABLED) {
+									echo 'checked';
+								} else {
+									echo 'unchecked';
+								}
 							?>>
 							<span class="help-block">Help improve Okovision by sending anonymous usage statistics. No personal data is sent.</span>
 						</div>

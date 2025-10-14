@@ -7,16 +7,17 @@
      * Le serveur tiers doit implémenter un endpoint /register pour l'enrôlement
      * et un endpoint /index.php pour la collecte des stats.
      */
-    function okv_get_install_id(): string {
-        // Génère un UUID unique la première fois et le sauvegarde dans config.php sous forme de DEFINE.
-        $config_path = __DIR__ . '/../config.php';
 
-        // Si le fichier config.php contient déjà le DEFINE, on le lit et on le réutilise.
-        if (is_file($config_path)) {
-            $content = file_get_contents($config_path);
-            if (preg_match("/define\('INSTALL_ID',\s*'([^']+)'\)/", $content, $m)) {
-                return trim($m[1]);
-            }
+    /**
+     * Récupère ou génère un identifiant unique pour cette installation.
+     * Le premier appel crée un UUID v4 et l'enregistre dans config.php
+     * sous la forme d'un DEFINE('INSTALL_ID', '...').
+     * Les appels suivants renvoient la même valeur.
+     */
+    function okv_get_install_id(): string {
+        // Si déjà défini, on le renvoie
+        if (defined('INSTALL_ID')) {
+            return INSTALL_ID;
         }
 
         // Création d’un nouvel UUID v4
@@ -28,14 +29,17 @@
 
         // Ajoute le DEFINE dans config.php
         $define_line = "define('INSTALL_ID', '$uuid');\n";
+        $config_path = __DIR__ . '/../config.php';
         if (is_file($config_path)) {
             $content = file_get_contents($config_path);
             if (strpos($content, 'INSTALL_ID') === false) {
-                file_put_contents($config_path, $content . "\n" . $define_line, LOCK_EX);
+                if (preg_match('/\?>\s*$/', $content)) {
+                    $content = preg_replace('/\?>\s*$/', "\n$define_line?>", $content);
+                } else {
+                    $content .= "\n$define_line";
+                }
+                file_put_contents($config_path, $content, LOCK_EX);
             }
-        } else {
-            okv_log('WARN', 'config.php not found, creating new one with INSTALL_ID');
-            file_put_contents($config_path, "<?php\n$define_line", LOCK_EX);
         }
 
         okv_log('INFO', 'new INSTALL_ID generated', ['install_id' => $uuid]);
@@ -189,6 +193,13 @@
             return okv_send_stats($fields, true);
         }
 
+        if ($http === 409) {
+            okv_log('WARN', 'install_id mismatch, new registration necessary', ['http' => $http]);
+            okv_delete_token();
+            if (!okv_register_if_needed()) return false;
+            return okv_send_stats($fields, true);
+        }
+
         if ($errno !== 0 || $http < 200 || $http >= 300) {
             okv_log('ERROR', 'send failed', ['http' => $http, 'errno' => $errno]);
             @error_log("[okv_analytics] send errno=$errno http=$http body=" . substr((string)$resp, 0, 200));
@@ -247,4 +258,18 @@
         } else {
             @error_log($prefix);
         }
+    }
+
+    function okv_analytics_enable(bool $value): bool {
+        $config_path = __DIR__ . '/../config.php';
+        
+        $configFile = file_get_contents($config_path);
+        $val = "define('OKV_ANALYTICS_ENABLED', " . OKV_ANALYTICS_ENABLED . ");";
+        str_replace("define('OKV_ANALYTICS_ENABLED', " . OKV_ANALYTICS_ENABLED . ");", "define('OKV_ANALYTICS_ENABLED', " . ($value ? '1' : '0') . ");", $configFile, $count);
+        if ($count > 0) {
+            file_put_contents($config_path, $configFile, LOCK_EX);
+            return true;
+        }
+
+        return false; // par défaut, désactivé
     }

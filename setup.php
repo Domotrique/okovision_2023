@@ -177,17 +177,6 @@
 
         file_put_contents('config.json', json_encode($param));
 
-		// Create analytics JSON file
-		require_once '_include/okv_analytics.php';
-		$analytics_enabled = isset($s['analytics_enabled']) && $s['analytics_enabled'] == '1';
-		$analytics_cfg = [
-			'analytics_enabled' => $analytics_enabled,
-			'install_id' => okv_uuidv4(),
-			'created_at' => time(),
-			'app_version' => defined('OKOVISION_VERSION') ? OKOVISION_VERSION : null
-		];
-		okv_write_cfg($analytics_cfg);
-
 		exit;
     }
 
