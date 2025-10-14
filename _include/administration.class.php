@@ -570,6 +570,7 @@ class administration extends connectDb
 
     /**
      * Function checking if new okovision version is available.
+     * Uses okv_analytics.php
      *
      * @return json
      */
@@ -593,7 +594,7 @@ class administration extends connectDb
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
         }
         
-        okv_analytics_maybe_send();
+        okv_send_stats();
 
         return $this->sendResponse($r);
     }

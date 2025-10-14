@@ -52,11 +52,15 @@
             return trim($m[1]);
         }
         okv_log('WARN', 'OKV_ANALYTICS_ENDPOINT not defined, using default');
-        return 'https://analytics.okostats.ovh/index.php';
+        return 'https://analytics.okostats.ovh/';
     }
 
     function okv_token_path(): string {
         return __DIR__ . '/../var/okv_ingest.json';
+    }
+
+    function okv_delete_token(): void {
+        @unlink(okv_token_path());
     }
 
     /** 
@@ -99,13 +103,13 @@
         $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($http !== 200 || !$resp) {
-            okv_log('ERROR', 'register failed', ['http' => $http]);
-            return null; // échec de la requête
+        if ($http < 200 || $http >= 300) {
+            okv_log('ERROR', 'register failed (http)', ['http' => $http, 'body' => substr((string)$resp, 200)]);
+            return null;
         }
 
         $data = json_decode($resp, true);
-        if (!is_array($data) || empty($data['ok'])) {
+        if (!is_array($data)) {
             okv_log('ERROR', 'register failed', ['http' => $http, 'body' => substr((string)$resp, 0, 200)]);
             return null;
         }
@@ -173,6 +177,18 @@
         $errno= curl_errno($ch);
         curl_close($ch);
 
+        if ($http === 403 || $http === 401) {
+            okv_log('WARN', 'send unauthorized, rotating token', ['http' => $http]);
+            if (okv_rotate_token()) {
+                okv_log('INFO', 'token rotated, retrying send');
+                return okv_send_stats($fields);
+            }
+            okv_log('WARN', 'install unknown on server; forcing re-register', ['http' => $http]);
+            okv_delete_token();
+            if (!okv_register_if_needed()) return false;
+            return okv_send_stats($fields, true);
+        }
+
         if ($errno !== 0 || $http < 200 || $http >= 300) {
             okv_log('ERROR', 'send failed', ['http' => $http, 'errno' => $errno]);
             @error_log("[okv_analytics] send errno=$errno http=$http body=" . substr((string)$resp, 0, 200));
@@ -193,14 +209,16 @@
         $old = $j['token'] ?? null; if (!$old) return false;
 
         $endpoint = okv_get_endpoint();
-        $url = rtrim($endpoint, '/') . '/register?action=rotate';
+        $url = rtrim($endpoint, '/') . '/rotate';
 
         $payload = json_encode(['install_id' => okv_get_install_id(), 'ts' => time()], JSON_UNESCAPED_SLASHES);
         $hdrs = ['Content-Type: application/json', 'Authorization: Bearer '.$old, 'Expect:'];
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$payload, CURLOPT_HTTPHEADER=>$hdrs, CURLOPT_RETURNTRANSFER=>true]);
-        $resp = curl_exec($ch); $http=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch);
+        $resp = curl_exec($ch); 
+        $http=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE); 
+        curl_close($ch);
         if ($http!==200 || !$resp) {
             okv_log('WARN', 'rotate failed', ['http'=>$http]);
             return false;
