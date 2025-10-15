@@ -1,7 +1,7 @@
 #!/bin/sh
 sudo apt-get -y install mariadb-server
 sudo mysql -e "CREATE USER 'okouser'@'localhost' IDENTIFIED BY 'okopass';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'okouser'@'localhost' ;"
+sudo mysql -e "GRANT ALL PRIVILEGES ON okovision.* TO 'okouser'@'localhost' ;"
 sudo apt-get -y install apache2
 sudo systemctl enable apache2
 
