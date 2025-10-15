@@ -56,7 +56,7 @@
         exit(23);
     }
 
-    function makeInstallation($s)
+	function makeInstallation($s)
     {
 		if ($s['oko_ip_ok'] == "true") {
 			// Retrieve CSV file from boiler for Matrix table creation
@@ -79,8 +79,13 @@
 				}
 			}
 			
-			$file_name = '_tmp\matrice.csv';
+			$dir = __DIR__ . '/_tmp';
+			if (!is_dir($dir)) {
+				mkdir($dir, 0775, true);
+			}
+			$file_name = $dir . '/matrice.csv';
 			file_put_contents($file_name, file_get_contents($csvFile));
+
 			$r['csv'] = 1;
 
 			header('Content-type: text/json');
