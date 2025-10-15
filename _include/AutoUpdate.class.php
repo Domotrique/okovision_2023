@@ -170,8 +170,9 @@ class AutoUpdate extends connectDb
     public function setTempDir($dir)
     {
         // Add slash at the end of the path
-        if (substr($dir, -1 != '/')) {
-            $dir = $dir.'/';
+        if (substr($dir, -1) !== '/') 
+        { 
+            $dir .= '/';
         }
 
         if (!is_dir($dir)) {
@@ -195,8 +196,8 @@ class AutoUpdate extends connectDb
     public function setInstallDir($dir)
     {
         // Add slash at the end of the path
-        if (substr($dir, -1 != '/')) {
-            $dir = $dir.'/';
+        if (substr($dir, -1) != '/') {
+            $dir .= '/';
         }
 
         if (!is_dir($dir)) {
@@ -358,7 +359,6 @@ class AutoUpdate extends connectDb
      */
     public function checkUpdate()
     {   
-        //$this->_createBackup(); //FOR DEBUG
         $this->log->debug('Checking for a new update...');
 
         // Reset previous updates
@@ -495,6 +495,8 @@ class AutoUpdate extends connectDb
             }
 
             // Install update
+            
+            //$this->_createBackup(); //FOR DEBUG
             $result = $this->_install($updateFile, $simulateInstall, $update['version']);
             if (true === $result) {
                 $this->updateConfigVersion($this->_latestVersion->getVersion());
@@ -588,43 +590,56 @@ class AutoUpdate extends connectDb
         $this->log->info('[SIMULATE] Install new version');
         clearstatcache();
 
-        // Check if zip file could be opened
-        $zip = zip_open($updateFile);
-        if (!is_resource($zip)) {
-            $this->log->error(sprintf('Could not open zip file "%s", error: %d', $updateFile, $zip));
-
+        $zip = new ZipArchive();
+        if ($zip->open($updateFile) !== true) {
+            $this->log->error(sprintf('Could not open zip file "%s" with ZipArchive', $updateFile));
             return false;
         }
 
-        $i = -1;
         $files = [];
         $simulateSuccess = true;
-        $gitFolder = '';
-        while ($file = zip_read($zip)) {
-            ++$i;
 
-            if (0 == $i) {
-                $gitFolder = zip_entry_name($file);
-                $this->log->debug($gitFolder);
+        // Détecte le dossier racine GitHub (préfixe commun) : p.ex. okovision_2023-<hash>/
+        $prefix = '';
+        if ($zip->numFiles > 0) {
+            $first = $zip->statIndex(0);
+            if ($first && isset($first['name'])) {
+                $parts = explode('/', $first['name']);
+                $prefix = rtrim($parts[0] ?? '', '/') . '/';
+            }
+        }
 
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            if (!$stat || !isset($stat['name'])) {
                 continue;
-                //exit;
             }
 
-            $filename = str_replace($gitFolder, '', zip_entry_name($file));
-            //$filename = zip_entry_name($file);
-            $foldername = $this->_installDir.dirname($filename);
-            $absoluteFilename = $this->_installDir.$filename;
+            // Nom interne dans l’archive (avec ou sans préfixe)
+            $internalName = $stat['name'];
+
+            // Ignore la racine
+            if ($i === 0 && substr($internalName, -1) === '/') {
+                continue;
+            }
+
+            // Chemin relatif à installer (on enlève le préfixe GitHub si présent)
+            $filename = $prefix && str_starts_with($internalName, $prefix)
+                ? substr($internalName, strlen($prefix))
+                : $internalName;
+
+            $foldername = $this->_installDir . dirname($filename);
+            $absoluteFilename = $this->_installDir . $filename;
 
             $files[$i] = [
-                'filename' => $filename,
-                'foldername' => $foldername,
-                'absolute_filename' => $absoluteFilename,
+                'filename'           => $filename,
+                'foldername'         => $foldername,
+                'absolute_filename'  => $absoluteFilename,
             ];
 
             $this->log->debug(sprintf('[SIMULATE] Updating file "%s"', $filename));
 
-            // Check if parent directory is writable
+            // Dossier parent
             if (!is_dir($foldername)) {
                 $this->log->debug(sprintf('[SIMULATE] Create directory "%s"', $foldername));
                 $files[$i]['parent_folder_exists'] = false;
@@ -632,7 +647,6 @@ class AutoUpdate extends connectDb
                 $parent = dirname($foldername);
                 if (!is_writable($parent) && is_dir($parent)) {
                     $files[$i]['parent_folder_writable'] = false;
-
                     $simulateSuccess = false;
                     $this->log->warn(sprintf('[SIMULATE] Directory "%s" has to be writeable!', $parent));
                 } else {
@@ -640,35 +654,32 @@ class AutoUpdate extends connectDb
                 }
             }
 
-            // Skip if entry is a directory
-            if ('/' == substr($filename, -1, 1)) {
+            // Répertoires dans le zip : on skip
+            if (substr($internalName, -1) === '/') {
                 continue;
             }
-            // Read file contents from archive
-            $contents = zip_entry_read($file, zip_entry_filesize($file));
-            if (false === $contents) {
-                $files[$i]['extractable'] = false;
 
+            // Lecture du contenu (équiv. zip_entry_read)
+            $contents = $zip->getFromIndex($i);
+            if ($contents === false) {
+                $files[$i]['extractable'] = false;
                 $simulateSuccess = false;
-                $this->log->warn(sprintf('[SIMULATE] Coud not read contents of file "%s" from zip file!', $filename));
+                $this->log->warn(sprintf('[SIMULATE] Could not read contents of "%s" from zip!', $filename));
             }
 
-            // Write to file
+            // Vérif d’écriture
             if (file_exists($absoluteFilename)) {
                 $files[$i]['file_exists'] = true;
                 if (!is_writable($absoluteFilename)) {
                     $files[$i]['file_writable'] = false;
-
                     $simulateSuccess = false;
-                    $this->log->warn('[SIMULATE] Could not overwrite "%s"!', $absoluteFilename);
+                    $this->log->warn(sprintf('[SIMULATE] Could not overwrite "%s"!', $absoluteFilename));
                 }
             } else {
                 $files[$i]['file_exists'] = false;
-
                 if (is_dir($foldername)) {
                     if (!is_writable($foldername)) {
                         $files[$i]['file_writable'] = false;
-
                         $simulateSuccess = false;
                         $this->log->warn(sprintf('[SIMULATE] The file "%s" could not be created!', $absoluteFilename));
                     } else {
@@ -676,17 +687,11 @@ class AutoUpdate extends connectDb
                     }
                 } else {
                     $files[$i]['file_writable'] = true;
-
                     $this->log->debug(sprintf('[SIMULATE] The file "%s" could be created', $absoluteFilename));
                 }
             }
 
-            if ($filename == $this->updateScriptName) {
-                $this->log->debug(sprintf('[SIMULATE] Update script "%s" found', $absoluteFilename));
-                $files[$i]['update_script'] = true;
-            } else {
-                $files[$i]['update_script'] = false;
-            }
+            $files[$i]['update_script'] = ($filename === $this->updateScriptName);
         }
 
         $this->_simulationResults = $files;
@@ -706,120 +711,114 @@ class AutoUpdate extends connectDb
      */
     protected function _install($updateFile, $simulateInstall, $version)
     {
-        $this->log->info(sprintf('Trying to install update "%s"', $updateFile));
+        $this->log->info(sprintf('Trying to install update "%s" (ZipArchive)', $updateFile));
 
-        // Check if install should be simulated
         if ($simulateInstall && !$this->_simulateInstall($updateFile)) {
             $this->log->fatal('Simulation of update process failed!');
-            //zip_close($zip);
             return self::ERROR_SIMULATE;
         }
 
-
-
         clearstatcache();
 
-        // Check if zip file could be opened
-        $zip = zip_open($updateFile);
-        if (!is_resource($zip)) {
-            $this->log->error(sprintf('Could not open zip file "%s", error: %d', $updateFile, $zip));
-
-            return false;
+        $zip = new ZipArchive();
+        if ($zip->open($updateFile) !== true) {
+            $this->log->error(sprintf('Could not open zip file "%s" with ZipArchive', $updateFile));
+            return self::ERROR_INVALID_ZIP;
         }
-        $gitFolder = '';
-        $i = -1;
+
+        // Détecte le préfixe racine GitHub (voir ci-dessus)
+        $prefix = '';
+        if ($zip->numFiles > 0) {
+            $first = $zip->statIndex(0);
+            if ($first && isset($first['name'])) {
+                $parts = explode('/', $first['name']);
+                $prefix = rtrim($parts[0] ?? '', '/') . '/';
+            }
+        }
 
         $updateScriptExist = false;
-        // Read every file from archive
-        while ($file = zip_read($zip)) {
-            ++$i;
 
-            if (0 == $i) {
-                $gitFolder = zip_entry_name($file);
-                $this->log->debug($gitFolder);
-
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            if (!$stat || !isset($stat['name'])) {
                 continue;
-                //exit;
             }
 
-            $filename = str_replace($gitFolder, '', zip_entry_name($file));
+            $internalName = $stat['name'];
 
-            //$filename = zip_entry_name($file);
-            $foldername = $this->_installDir.dirname($filename);
-            $absoluteFilename = $this->_installDir.$filename;
+            // Ignore le répertoire racine
+            if ($i === 0 && substr($internalName, -1) === '/') {
+                continue;
+            }
+
+            $filename = $prefix && str_starts_with($internalName, $prefix)
+                ? substr($internalName, strlen($prefix))
+                : $internalName;
+
+            $foldername = $this->_installDir . dirname($filename);
+            $absoluteFilename = $this->_installDir . $filename;
 
             $this->log->debug(sprintf('Updating file "%s"', $filename));
 
             if (!is_dir($foldername)) {
                 if (!mkdir($foldername, $this->dirPermissions, true)) {
-                    $this->log->error(sprintf('Directory "%s" has to be writeable!', $parent));
-
+                    $this->log->error(sprintf('Directory "%s" has to be writeable!', $foldername));
+                    $zip->close();
                     return false;
                 }
             }
 
-            // Skip if entry is a directory
-            if ('/' == substr($filename, -1, 1)) {
-                continue;
-            }
-            // Read file contents from archive
-            $contents = zip_entry_read($file, zip_entry_filesize($file));
-
-            if (false === $contents) {
-                $this->log->error(sprintf('Coud not read zip entry "%s"', $file));
-
+            // Répertoires => skip
+            if (substr($internalName, -1) === '/') {
                 continue;
             }
 
-            // Write to file
+            $contents = $zip->getFromIndex($i);
+            if ($contents === false) {
+                $this->log->error(sprintf('Could not read zip entry "%s"', $internalName));
+                continue;
+            }
+
             if (file_exists($absoluteFilename)) {
                 if (!is_writable($absoluteFilename)) {
-                    $this->log->error('Could not overwrite "%s"!', $absoluteFilename);
-
-                    zip_close($zip);
-
+                    $this->log->error(sprintf('Could not overwrite "%s"!', $absoluteFilename));
+                    $zip->close();
                     return false;
                 }
             } else {
                 if (!touch($absoluteFilename)) {
-                    $this->log->error(sprintf('[SIMULATE] The file "%s" could not be created!', $absoluteFilename));
-                    zip_close($zip);
-
+                    $this->log->error(sprintf('The file "%s" could not be created!', $absoluteFilename));
+                    $zip->close();
                     return false;
                 }
-
                 $this->log->debug(sprintf('File "%s" created', $absoluteFilename));
             }
 
             $updateHandle = @fopen($absoluteFilename, 'w');
-
             if (!$updateHandle) {
                 $this->log->error(sprintf('Could not open file "%s"!', $absoluteFilename));
-                zip_close($zip);
-
+                $zip->close();
                 return false;
             }
 
-            if (!fwrite($updateHandle, $contents)) {
+            if (fwrite($updateHandle, $contents) === false) {
+                fclose($updateHandle);
                 $this->log->error(sprintf('Could not write to file "%s"!', $absoluteFilename));
-                zip_close($zip);
-
+                $zip->close();
                 return false;
             }
-
             fclose($updateHandle);
 
-            //If file is a update script, juste say yes, and execute it in last file
-            if ($filename == $this->updateScriptName) {
+            if ($filename === $this->updateScriptName) {
                 $updateScriptExist = true;
             }
         }
 
-        zip_close($zip);
+        $zip->close();
 
-        //execute update script
+        // Exécute le script d’upgrade à la fin
         if ($updateScriptExist) {
-            $upgradeFile = $this->_installDir.$this->updateScriptName;
+            $upgradeFile = $this->_installDir . $this->updateScriptName;
             $this->log->debug(sprintf('Try to include update script "%s"', $upgradeFile));
 
             require $upgradeFile;
@@ -827,14 +826,13 @@ class AutoUpdate extends connectDb
             $this->log->info(sprintf('Update script "%s" included!', $upgradeFile));
 
             if (!DEBUG) {
-                if (!unlink($upgradeFile)) {
+                if (!@unlink($upgradeFile)) {
                     $this->log->warn(sprintf('Could not delete update script "%s"!', $upgradeFile));
                 }
             }
         }
-        // TODO
-        $this->log->info(sprintf('Update "%s" successfully installed', $version));
 
+        $this->log->info(sprintf('Update "%s" successfully installed', $version));
         return true;
     }
 
@@ -927,66 +925,6 @@ class AutoUpdate extends connectDb
             }
         }
         return 0;
-    }
-
-    /**
-     * Ajoute les nouvelles constantes dans config.php si nécessaire.
-     *
-     * @param string $oldVersion
-     * @param string $newVersion
-     *
-     * @return bool
-     */
-    private function addNewConfigConstants($oldVersion, $newVersion)
-    {
-        // On ne fait rien si la version actuelle >= 1.12.7 ou la nouvelle < 1.12.7
-        if (version_compare($oldVersion, '1.12.7', '>=') || version_compare($newVersion, '1.12.7', '<')) {
-            $this->log->info("Pas besoin d'ajouter les nouvelles constantes dans config.php (versions : $oldVersion -> $newVersion)");
-            return false;
-        }
-
-        $configPath = CONTEXT . '/config.php';
-        $constants = [
-            // Ajoute ou met à jour la constante OKOVISION_VERSION
-            (strpos(file_get_contents(CONTEXT . '/config.php'), "DEFINE('OKOVISION_VERSION'") === false)
-                ? "DEFINE('OKOVISION_VERSION','". $newVersion ."');"
-                : null,
-            "define('OKV_ANALYTICS_MIN_INTERVAL', 86400); // 24h",
-            "define('OKV_ANALYTICS_TIMEOUT', 2);",
-            "define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/index.php');",
-            "define('OKV_ANALYTICS_HMAC_ENABLED', true);",
-            "define('OKV_ANALYTICS_HMAC_SECRET', '21a72bf10caf499d75f84764b0986004ebb146d42754572b9b12f7a3fcb501ad');"
-        ];
-
-        if (!file_exists($configPath)) {
-            $this->log->error("config.php introuvable !");
-            return false;
-        }
-
-        $content = file_get_contents($configPath);
-
-        $toAdd = [];
-        foreach ($constants as $const) {
-            if (strpos($content, $const) === false) {
-                $toAdd[] = $const;
-            }
-        }
-
-        if (!empty($toAdd)) {
-            // Trouver la position de la balise de fin PHP
-            $phpEndTagPos = strrpos($content, '?>');
-            $newConstants = "\n" . implode("\n", $toAdd) . "\n";
-            if ($phpEndTagPos !== false) {
-                // Insérer avant la balise de fin PHP
-                $content = substr_replace($content, $newConstants, $phpEndTagPos, 0);
-            } else {
-                // Ajouter à la fin si pas de balise de fin PHP
-                $content .= $newConstants;
-            }
-            file_put_contents($configPath, $content);
-            $this->log->info("Nouvelles constantes ajoutées à config.php");
-        }
-        return true;
     }
 
     /**

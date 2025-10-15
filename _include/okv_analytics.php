@@ -1,13 +1,6 @@
 <?php
     // okv_client_register.php — enrôlement d'une installation Okovision
 
-    /** 
-     * Fonctions pour l'enrôlement et l'envoi de statistiques anonymes vers un serveur tiers.
-     * Basé sur un système d'UUID unique par installation.
-     * Le serveur tiers doit implémenter un endpoint /register pour l'enrôlement
-     * et un endpoint /index.php pour la collecte des stats.
-     */
-
     /**
      * Récupère ou génère un identifiant unique pour cette installation.
      * Le premier appel crée un UUID v4 et l'enregistre dans config.php
