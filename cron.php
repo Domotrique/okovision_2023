@@ -6,7 +6,6 @@
 */
 
 include_once __DIR__.'/config.php';
-require_once __DIR__ . '/okv_analytics.php';
 
 $oko = new okofen();
 $log = new logger();
@@ -36,8 +35,5 @@ if (GET_CHAUDIERE_DATA_BY_IP) {
     $day = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 1, date('Y')));
     $oko->makeSyntheseByDay($day, false);
 }
-
-//on envoie les stats anonymes
-okv_send_stats();
 
   echo 'done';

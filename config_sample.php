@@ -85,9 +85,9 @@ DEFINE('TOKEN','###_TOKEN_###');
 //NEWPARAMUPDATE
 //VERSION
 DEFINE('REPO_VERSION_API','https://api.github.com/repos/domotrique/okovision_2023/releases/latest');
-DEFINE('OKOVISION_VERSION','.');
+DEFINE('OKOVISION_VERSION','###_OKOVISION_VERSION_###');
 
 //ANONYMOUS ANALYTICS
-// endpoint public (collector) — changer pour ton domaine/public endpoint
-define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/index.php');
+define('OKV_ANALYTICS_ENDPOINT', 'https://analytics.okostats.ovh/');
+define('OKV_ANALYTICS_ENABLED', '###_ANALYTICS_###');
 ?>

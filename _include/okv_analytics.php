@@ -137,6 +137,12 @@
      * $fields permet de surcharger/ajouter des champs applicatifs.
      */
     function okv_send_stats(array $fields = []): bool {
+        // Analytics désactivé ?
+        if (!defined('OKV_ANALYTICS_ENABLED') || !OKV_ANALYTICS_ENABLED) {
+            okv_log('INFO', 'analytics disabled, not sending stats');
+            return false;
+        }
+
         $install_id = okv_get_install_id();
         $token      = okv_register_if_needed();
         if (!$token) { return false; }
@@ -260,16 +266,25 @@
         }
     }
 
+    /**
+     * Active ou désactive l'envoi de statistiques anonymes.
+     * Modifie le fichier config.php pour ajouter ou mettre à jour
+     * la ligne define('OKV_ANALYTICS_ENABLED', 1|0);
+     * Renvoie true si l'opération a réussi, false sinon.
+     */
     function okv_analytics_enable(bool $value): bool {
         $config_path = __DIR__ . '/../config.php';
-        
-        $configFile = file_get_contents($config_path);
-        $val = "define('OKV_ANALYTICS_ENABLED', " . OKV_ANALYTICS_ENABLED . ");";
-        str_replace("define('OKV_ANALYTICS_ENABLED', " . OKV_ANALYTICS_ENABLED . ");", "define('OKV_ANALYTICS_ENABLED', " . ($value ? '1' : '0') . ");", $configFile, $count);
-        if ($count > 0) {
-            file_put_contents($config_path, $configFile, LOCK_EX);
+
+        if (is_file($config_path)) {
+            $content = file_get_contents($config_path);
+            if (strpos($content, 'OKV_ANALYTICS_ENABLED') !== false) {
+                $content = preg_replace("/define\('OKV_ANALYTICS_ENABLED',\s*(0|1)\)/", "define('OKV_ANALYTICS_ENABLED', " . ($value ? '1' : '0') . ")", $content);
+            } else {
+                $content .= "\ndefine('OKV_ANALYTICS_ENABLED', " . ($value ? '1' : '0') . ");\n";
+            }
+            file_put_contents($config_path, $content, LOCK_EX);
             return true;
         }
 
-        return false; // par défaut, désactivé
+        return false;
     }

@@ -139,7 +139,6 @@
         $configFile = str_replace('###_CONTEXT_###', getcwd(), $configFile);
 
         $configFile = str_replace('###_TOKEN_###', sha1(rand()), $configFile);
-        //$configFile = str_replace("###_TOKEN-API_###",sha1(rand()),$configFile);
 
 		//Get latest version number from github
 		$ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
@@ -158,6 +157,7 @@
         }
 
         $configFile = str_replace('###_OKOVISION_VERSION_###', $version, $configFile);
+        $configFile = str_replace('###_ANALYTICS_###', $s['analytics_enabled'], $configFile);
 
         file_put_contents('config.php', $configFile);
 		

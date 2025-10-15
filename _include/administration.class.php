@@ -71,7 +71,7 @@ class administration extends connectDb
             'ashtray' => $s['ashtray'],
             'lang' => $s['lang'],
         ];
-        
+
         // Save analytics opt-in/out
         require_once __DIR__ . '/okv_analytics.php';
         okv_analytics_enable(!empty($s['analytics_enabled']));
@@ -577,6 +577,8 @@ class administration extends connectDb
      */
     public function checkUpdate()
     {
+        require_once __DIR__ . '/okv_analytics.php';
+
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
@@ -593,37 +595,10 @@ class administration extends connectDb
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
         }
 
+        //on envoie les stats anonymes
+        okv_send_stats();
+
         return $this->sendResponse($r);
-    }
-
-    /**
-     * Function notify stawen's server for making an update.
-     *
-     * @return json
-     */
-    public function addOkoStat()
-    {
-        $curl = curl_init();
-        // Set some options - we are passing in a useragent too here
-        $host = $_SERVER['HTTP_HOST'];
-        $folder = dirname($_SERVER['SCRIPT_NAME']);
-        $source = $host.$folder;
-
-        curl_setopt_array($curl, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $this->_urlApi,
-            CURLOPT_USERAGENT => 'Okovision :-:'.TOKEN.':-:',
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => [
-                'token' => TOKEN,
-                'source' => $source,
-                'version' => $this->getCurrentVersion(),
-            ],
-        ]);
-        // Send the request & save response to $resp
-        $resp = curl_exec($curl);
-        // Close request to clear up some resources
-        curl_close($curl);
     }
 
     /**
