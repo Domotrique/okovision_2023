@@ -61,21 +61,22 @@ include __DIR__.'/_templates/footer.php';
 
 		<script>
 		(function() {
-		// Only show modal if analytics are enabled and user hasn't seen it yet
-		if (localStorage.getItem('okv_analytics_info_shown') !== '1') {
+			// Ne rien faire si l'utilisateur a déjà vu la popup
+			if (localStorage.getItem('okv_analytics_info_shown') === '1') {
+				return;
+			}
+
 			// Check if analytics are enabled via AJAX
 			console.log('Checking analytics info');
-			$.get('ajax.php?type=analytics_status', function(data) {
-				console.log("data");
-				console.log(data);
-			if (data.enabled) {
+
+			var analyticsEnabled = <?php echo (defined('OKV_ANALYTICS_ENABLED') && OKV_ANALYTICS_ENABLED) ? 'true' : 'false'; ?>;
+
+			if (analyticsEnabled) {
+				// Affiche la popup (nécessite Bootstrap ou équivalent)
 				$('#analyticsInfoModal').modal('show');
-				$('#analyticsInfoModal').on('hidden.bs.modal', function () {
+				// Mémorise que la popup a été affichée
 				localStorage.setItem('okv_analytics_info_shown', '1');
-				});
 			}
-			});
-		}
 		})();
 		</script>
 	<!--appel des scripts personnels de la page -->

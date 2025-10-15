@@ -225,6 +225,7 @@ class okofen extends connectDb
      */
     public function makeSyntheseByDay($dateChoosen = null, $bForce = true)
     {
+        $this->insertSyntheseDay($dateChoosen);
         //on ne fait rien si la date choisie est la date du jour
         if ($dateChoosen == date('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')))) {
             return false;
@@ -357,7 +358,7 @@ class okofen extends connectDb
 
     private function insertSyntheseDay($day)
     {
-        $query = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUE ';
+        $query = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUES ';
 
         $rendu = new rendu();
         $max = $rendu->getTcMaxByDay($day);
@@ -378,7 +379,7 @@ class okofen extends connectDb
         $dju = $rendu->getDju($max->tcExtMax, $min->tcExtMin);
 
         $consoPellet = (null == $conso->consoPellet) ? 0 : $conso->consoPellet;
-        $consoEcsPellet = (null == $conso_ecs->consoPellet) ? 0 : $conso_ecs->consoPellet;
+        $consoEcsPellet = (float)((json_decode($conso_ecs)->consoPellet ?? 0));
         $nbCycle = (null == $cycle->nbCycle) ? 0 : $cycle->nbCycle;
 
         $query .= "('".$day."', ".$max->tcExtMax.', '.$min->tcExtMin.', '.$consoPellet.', '.$consoEcsPellet.', '.$dju.', '.$nbCycle.' );';
