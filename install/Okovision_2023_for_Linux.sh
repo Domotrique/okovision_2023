@@ -20,14 +20,6 @@ sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-availab
 sudo a2ensite 099-okovision.conf
 sudo a2dissite 000-default
 sudo service apache2 reload
+sudo (crontab -l ; echo "22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php") | crontab -
 
-sudo crontab -l > crontab_new
-if grep -R "okovision" "crontab_new" > 0
-then
-    echo "Crontab Ready"
-else
-    sudo echo "22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
-	sudo crontab crontab_new
-fi
-sudo rm crontab_new
 echo "Install done! Please open localhost in your web browser."
