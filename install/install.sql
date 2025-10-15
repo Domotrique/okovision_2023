@@ -54,7 +54,21 @@ CREATE TABLE IF NOT EXISTS `oko_user` (
   PRIMARY KEY (`id`)
 ) ENGINE=MYISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
-insert into oko_user set user="admin", pass="97f108bdeaad841227830678c7ecec6dc541bab3" , type="admin", login_boiler='oekofen', pass_boiler='b2Vrb2Zlbg==';
+DROP TABLE IF EXISTS `oko_user`;
+CREATE TABLE `oko_user` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user` VARCHAR(64) NOT NULL,
+  `pass` VARCHAR(255) NOT NULL,               -- stocker un hash (bcrypt/argon2)
+  `type` ENUM('admin','user') NOT NULL DEFAULT 'admin',
+  `login_boiler` VARCHAR(128) NULL,
+  `pass_boiler`  VARBINARY(255) NULL,         -- évitez base64 en clair; chiffrer côté app
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_oko_user_user` (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `oko_user` (`user`,`pass`,`type`,`login_boiler`,`pass_boiler`)
+VALUES ('admin','97f108bdeaad841227830678c7ecec6dc541bab3','admin','oekofen',UNHEX('6232566B32667A674D414D3D')); -- pass: admin
 
 -- Export de la structure de table okovision. oko_user
 DROP TABLE IF EXISTS `oko_boiler`;

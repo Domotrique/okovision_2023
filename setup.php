@@ -122,6 +122,42 @@
             $query .= "('".$day."'),";
         }
 
+		// -- Crée ou met à jour l'utilisateur admin si un mot de passe est fourni
+		if (!empty($s['admin_password'])) {
+			// Hash bcrypt (PHP >=5.5). Ajuste le coût si besoin.
+			$hash = password_hash($s['admin_password'], PASSWORD_BCRYPT, ['cost' => 12]);
+
+			// Vérifie si 'admin' existe déjà
+			if ($stmt = $mysqli->prepare("SELECT id FROM oko_user WHERE user = 'admin' LIMIT 1")) {
+				$stmt->execute();
+				$stmt->store_result();
+
+				if ($stmt->num_rows > 0) {
+					// Met à jour le mot de passe de l'admin existant
+					$stmt->free_result();
+					$stmt->close();
+
+					$upd = $mysqli->prepare("UPDATE oko_user SET pass = ?, type = 'admin' WHERE user = 'admin'");
+					$upd->bind_param('s', $hash);
+					$upd->execute();
+					$upd->close();
+				} else {
+					// Insère un nouvel admin
+					$stmt->free_result();
+					$stmt->close();
+
+					// Adapte les colonnes ci-dessous à ton schéma exact si besoin
+					$ins = $mysqli->prepare("
+						INSERT INTO oko_user (user, pass, type, login_boiler, pass_boiler, created_at)
+						VALUES ('admin', ?, 'admin', NULL, NULL, NOW())
+					");
+					$ins->bind_param('s', $hash);
+					$ins->execute();
+					$ins->close();
+				}
+			}
+		}
+
         $query = substr($query, 0, strlen($query) - 1).';';
 
         $mysqli->query($query);
@@ -275,7 +311,19 @@
 					</div>
 				</form>
 			</fieldset>
-			
+			<form class="form-horizontal">
+				<fieldset>
+					<legend>Admin account</legend>
+
+					<div class="form-group">
+					<label class="col-md-4 control-label" for="admin_password">Admin password (*) :</label>
+					<div class="col-md-3">
+						<input id="admin_password" name="admin_password" type="password" class="form-control input-md" required="">
+						<span class="help-block">Will set/update the password for user “admin”.</span>
+					</div>
+					</div>
+				</fieldset>
+			</form>
 
 			<form class="form-horizontal">
 				<fieldset>
