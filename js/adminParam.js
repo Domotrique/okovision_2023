@@ -12,10 +12,6 @@ $(document).ready(function() {
 	 */
 
 	$('#test_oko_ip').click(function() {
-
-
-		//if(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test($('#oko_ip').val())){
-
 		var ip = $('#oko_ip').val();
 
 		$.api('GET', 'admin.testIp', {
@@ -31,12 +27,6 @@ $(document).ready(function() {
 				$.growlWarning(lang.error.ipNotPing);
 			}
 		});
-
-		/*    
-		}else{
-		    $.growlErreur('Adresse Ip Invalide !');
-		}
-		*/
 	});
         
 	$('#bt_save_infoge').click(function() {
@@ -60,9 +50,9 @@ $(document).ready(function() {
 			//console.log(a);
 			if (json.response) {
 				$.growlValidate(lang.valid.configSave);
-				setTimeout(function() {
+				/*setTimeout(function() {
 					document.location.reload();
-				  }, 1000);
+				  }, 1000);*/
 				
 			}
 			else {

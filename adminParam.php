@@ -167,19 +167,10 @@
 					
 					<legend>Analytics</legend>
 					<div class="form-group">
-						<label class="col-md-4 control-label" for="analytics_enabled">Enable anonymous usage analytics?</label>
+						<label class="col-md-4 control-label" for="analytics_enabled"><?php echo session::getInstance()->getLabel('lang.text.page.admin.analytics'); ?></label>
 						<div class="col-md-3">
-							<input id="analytics_enabled" name="analytics_enabled" type="checkbox" value="1" <?php
-								//require_once __DIR__ . '/config.php';
-								if (!defined('OKV_ANALYTICS_ENABLED')) {
-									echo 'unchecked';
-								} elseif (OKV_ANALYTICS_ENABLED) {
-									echo 'checked';
-								} else {
-									echo 'unchecked';
-								}
-							?>>
-							<span class="help-block">Help improve Okovision by sending anonymous usage statistics. No personal data is sent.</span>
+							<input id="analytics_enabled" name="analytics_enabled" type="checkbox" <?= defined('OKV_ANALYTICS_ENABLED') && OKV_ANALYTICS_ENABLED ? 'checked' : '' ?>>
+							<span class="help-block"><?php echo session::getInstance()->getLabel('lang.text.page.admin.analytics.desc'); ?></span>
 						</div>
 					</div>
 					
@@ -206,9 +197,10 @@
                     
                     
     			</form>
-                <div  align="center">
+                <div class="text-center">
 					    <button id="bt_save_infoge" name="bt_save_infoge" class="btn btn-primary" type="button"><?php echo session::getInstance()->getLabel('lang.text.page.admin.save'); ?></button>
 				</div>
+				<br>
             </div>
             
             

@@ -47,7 +47,7 @@ $t = new timeExec();
     // Defines à garantir
     ensure_define_text($content, 'REPO_VERSION_API', "'https://api.github.com/repos/domotrique/okovision_2023/releases/latest'");
     ensure_define_text($content, 'OKOVISION_VERSION', "'" . addslashes($version) . "'");
-    ensure_define_text($content, 'OKV_ANALYTICS_ENABLED', 'true');
+    ensure_define_text($content, 'OKV_ANALYTICS_ENABLED', '1');
     ensure_define_text($content, 'OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
 
     // Force DEBUG = false
@@ -57,7 +57,5 @@ $t = new timeExec();
     if (file_put_contents($configPath, $content) === false) {
         exit("Impossible d'écrire $configPath\n");
     }
-
-    echo "Upgrade config OK.\n";
 
 ?> 
