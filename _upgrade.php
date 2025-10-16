@@ -7,94 +7,57 @@ $t = new timeExec();
 
 // BEGIN code upgrade
 
-try {
-    $root = __DIR__;
-    $configPath = $root . '/config.php';
-
-    if (!file_exists($configPath)) {
-        throw new RuntimeException("config.php not found at $configPath");
-    }
-    if (!is_writable($configPath)) {
-        throw new RuntimeException("config.php not writable at $configPath");
+    $configPath = __DIR__ . '/config.php';
+    if (!is_file($configPath) || !is_readable($configPath) || !is_writable($configPath)) {
+        exit("config.php introuvable ou non éditable: $configPath\n");
     }
 
     $content = file_get_contents($configPath);
-    if ($content === false) {
-        throw new RuntimeException("Cannot read config.php");
+    if ($content === false) exit("Impossible de lire $configPath\n");
+
+        // --- Helpers très simples ---
+    function insert_before_php_close(string $content, string $toAdd): string {
+        return preg_match('/\?>\s*$/', $content)
+            ? preg_replace('/\?>\s*$/', $toAdd . "?>", $content)
+            : $content . (str_ends_with($content, "\n") ? '' : "\n") . $toAdd;
     }
 
-    // --- Préparer ce qu'on veut garantir dans config.php (sans require) ---
-    $appends = [];
-    $report  = [];
-
-    $ensureTextDefine = function (string $name, string $phpValue) use (&$appends, &$report, $findDefine, $noComments) {
-        $found = $findDefine($noComments, $name);
-        if (!$found['exists']) {
-            $appends[] = "define('{$name}', {$phpValue});";
-            $report[]  = ['action' => 'add', 'name' => $name, 'value' => $phpValue];
-        } else {
-            $report[]  = ['action' => 'keep', 'name' => $name, 'value' => $found['value']];
-        }
-    };
-
-    // Ajout des defines (quote les strings)
-    $ensureTextDefine('REPO_VERSION_API', "'https://api.github.com/repos/domotrique/okovision_2023/releases/latest'");
-    $ensureTextDefine('OKOVISION_VERSION', "'" . addslashes((string)$version) . "'");
-    $ensureTextDefine('OKV_ANALYTICS_ENABLED', 'true');
-
-    // Endpoint analytics
-    $ensureTextDefine('OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
-
-    // Si on a des ajouts à faire, on construit le footer
-    $footer = '';
-    if ($appends) {
-        $footer .= implode("\n", $appends) . "\n";
-    }
-
-    // Injecter le footer avant la balise de fin PHP si présente
-    $newContent = $content;
-    if ($footer !== '') {
-        if (preg_match('/\?>\s*$/', $content)) {
-            $newContent = preg_replace('/\?>\s*$/', $footer . "?>", $content);
-        } else {
-            $newContent = $content . $footer;
+    function ensure_define_text(string &$content, string $name, string $phpValue): void {
+        $pattern = '/^[ \t]*define\s*\(\s*[\'"]' . preg_quote($name,'/') . '[\'"]\s*,/mi';
+        if (!preg_match($pattern, $content)) {
+            $line = "define('{$name}', {$phpValue});\n";
+            $content = insert_before_php_close($content, $line);
         }
     }
 
-    // Forcer DEBUG à false (remplace seulement les lignes non commentées)
-    $pattern = '/^[ \t]*define\s*\(\s*["\']DEBUG["\']\s*,\s*(true|false)\s*\)\s*;.*$/im';
-    $replacement = "define('DEBUG', false); //default -> false";
-    $replaced = preg_replace($pattern, $replacement, $newContent, -1, $count);
-    $newContent = $replaced;
-
-    // Écriture atomique pour éviter corruption
-    $backup = $configPath . '.bak-' . date('Ymd-His');
-    if (!copy($configPath, $backup)) {
-        throw new RuntimeException("Cannot create backup at $backup");
-    }
-    $this->log->info("UPGRADE | {$version} | config backup created", ['backup' => $backup]);
-
-    $perm = @fileperms($configPath) ?: 0644;
-    $tmp  = $configPath . '.tmp-' . getmypid();
-    if (file_put_contents($tmp, $newContent) === false) {
-        @unlink($tmp);
-        throw new RuntimeException("Cannot write temporary config");
-    }
-    @chmod($tmp, $perm);
-    if (!@rename($tmp, $configPath)) {
-        @unlink($tmp);
-        throw new RuntimeException("Cannot replace config.php atomically");
+    function force_debug_false(string &$content): void {
+        $pattern = '/^[ \t]*define\s*\(\s*[\'"]DEBUG[\'"]\s*,\s*(true|false)\s*\)\s*;.*$/mi';
+        $replacement = "define('DEBUG', false); //default -> false";
+        $new = preg_replace($pattern, $replacement, $content, -1, $count);
+        $content = $new;
     }
 
-    $this->log->info("UPGRADE | {$version} | config updated", ['defines' => array_column($report, 'name')]);
+    // --- Ajouts / modifs ---
+    // (OK : on passe les strings déjà quotées ; les bool/num en brut)
+    $version = isset($version) ? (string)$version : 'unknown';
 
-} catch (Throwable $e) {
-    $this->log->error("UPGRADE | {$version} | failed", ['error' => $e->getMessage()]);
-    throw $e;
-}
+    // Sauvegarde simple
+    @copy($configPath, $configPath . '.bak-' . date('Ymd-His'));
 
-// END code upgrade
+    // Defines à garantir
+    ensure_define_text($content, 'REPO_VERSION_API', "'https://api.github.com/repos/domotrique/okovision_2023/releases/latest'");
+    ensure_define_text($content, 'OKOVISION_VERSION', "'" . addslashes($version) . "'");
+    ensure_define_text($content, 'OKV_ANALYTICS_ENABLED', 'true');
+    ensure_define_text($content, 'OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
 
-$this->log->info("UPGRADE | {$version} | end :".$t->getTime());
+    // Force DEBUG = false
+    force_debug_false($content);
+
+    // Écriture
+    if (file_put_contents($configPath, $content) === false) {
+        exit("Impossible d'écrire $configPath\n");
+    }
+
+    echo "Upgrade config OK.\n";
 
 ?> 
