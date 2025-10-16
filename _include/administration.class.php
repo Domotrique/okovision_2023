@@ -566,7 +566,11 @@ class administration extends connectDb
 
     public function getVersion()
     {
-        $this->sendResponse($this->getCurrentVersion());
+        if (defined('OKOVISION_VERSION')) {
+            return $this->sendResponse(OKOVISION_VERSION);
+        } else {
+            return $this->sendResponse('0.0.0');
+        }
     }
 
     /**
