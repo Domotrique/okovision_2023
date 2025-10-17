@@ -114,8 +114,6 @@
             'ts' => time()]
         );
 
-        okv_log('DEBUG', 'register payload', ['install_id' => $install_id]);
-
         if ($http !== 200 && $http !== 201) {
             okv_log('WARN', 'register failed', ['http' => $http, 'body' => substr((string)$resp, 0, 200)]);
             return null;
@@ -153,8 +151,10 @@
         if (empty($token)) {
             $token = okv_register_if_needed();
             if (empty($token)) 
+            {
                 okv_log('ERROR', 'cannot send stats, no token and registration failed');
                 return false;
+            }
         }
 
         $payload = [
@@ -163,7 +163,6 @@
             'php_version' => PHP_VERSION,
             'ts'          => time(),
         ];
-        okv_log('DEBUG', 'payload', $payload);
 
         $headers = [
             'Authorization: Bearer ' . $token,
@@ -185,14 +184,14 @@
             okv_log('WARN', 'install unknown on server; forcing re-register', ['http' => $http]);
             okv_delete_token();
             if (!okv_register_if_needed()) return false;
-            return okv_send_stats($fields, true);
+            return okv_send_stats($fields);
         }
 
         if ($http === 409) {
             okv_log('WARN', 'install_id mismatch, new registration necessary', ['http' => $http]);
             okv_delete_token();
             if (!okv_register_if_needed()) return false;
-            return okv_send_stats($fields, true);
+            return okv_send_stats($fields);
         }
 
         if ($http < 200 || $http >= 300) {
@@ -229,13 +228,16 @@
             $headers
         );
 
-        if ($http!==200 || !$resp) {
+        if (($http!==200 && $http!==201) || !$resp) {
             okv_log('WARN', 'rotate failed', ['http'=>$http]);
             return false;
         }
-        $data = json_decode($resp,true); 
-        
-        if (empty($data['token'])) return false;
+
+        $data = json_decode((string)$resp, true);
+        if (!is_array($data) || empty($data['token'])) {
+            okv_log('WARN', 'rotate response invalid', ['body'=>substr((string)$resp,0,200)]);
+            return false;
+        }
 
         $ingest_data['token'] = $data['token'];
 
