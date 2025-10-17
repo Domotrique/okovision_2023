@@ -1,33 +1,102 @@
-#!/bin/sh
-sudo apt-get -y install mariadb-server
-sudo mysql -e "CREATE USER 'okouser'@'localhost' IDENTIFIED BY 'okopass';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'okouser'@'localhost' ;"
-sudo apt-get -y install apache2
-sudo systemctl enable apache2
+#!/usr/bin/env bash
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
 
-sudo apt update
-sudo apt-get -y install php8.2 php8.2-cli php8.2-common || apt-get -y install php php-cli php-common
-sudo apt-get -y install php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8.2-gd php8.2-mbstring php8.2-intl php8.2-zip || apt-get -y install php-mysql php-mbstring php-xml php-curl php-gd php-mbstring php-intl php-zip
+# --- helpers ---------------------------------------------------------------
+log(){ echo -e "[OKV] $*"; }
 
-cd /var/www/
-sudo wget https://github.com/domotrique/okovision_2023/archive/master.zip
-sudo unzip -q master.zip
-[ -d "okovision" ] && mv okovision/ "$(date +"%y-%m-%d")_okovision"
-sudo mv okovision_2023-master okovision
-sudo rm master.zip
-sudo chown www-data:www-data -R okovision/
-sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/.
-sudo a2ensite 099-okovision.conf
-sudo a2dissite 000-default
-sudo service apache2 reload
+need_cmd(){ command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1"; exit 1; }; }
 
-sudo crontab -l > crontab_new
-if grep -R "okovision" "crontab_new" > 0
-then
-    echo "Crontab Ready"
-else
-    sudo echo "22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php" >> crontab_new
-	sudo crontab crontab_new
+# --- OS detection ----------------------------------------------------------
+source /etc/os-release
+ID="${ID:-debian}"
+VERSION_CODENAME="${VERSION_CODENAME:-}"
+log "Detected: $PRETTY_NAME"
+
+# --- base tools ------------------------------------------------------------
+sudo apt-get update -y
+sudo apt-get install -y ca-certificates curl wget gnupg lsb-release unzip
+
+# --- PHP repo (Debian 11 needs sury for PHP 8.2) ---------------------------
+if [[ "$ID" = "debian" && "$VERSION_CODENAME" = "bullseye" ]]; then
+  log "Adding Sury PHP repo for Debian 11 (bullseye)"
+  curl -fsSL https://packages.sury.org/php/apt.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/sury.gpg
+  echo "deb https://packages.sury.org/php/ bullseye main" | sudo tee /etc/apt/sources.list.d/sury-php.list >/dev/null
+  sudo apt-get update -y
 fi
-sudo rm crontab_new
-echo "Install done! Please open localhost in your web browser."
+
+# --- MariaDB ---------------------------------------------------------------
+log "Installing MariaDB server"
+sudo apt-get install -y mariadb-server
+sudo systemctl enable --now mariadb
+
+# Create DB and user (idempotent & scoped)
+DB_NAME="okovision"
+DB_USER="okouser"
+DB_PASS="okopass"
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;"
+
+# --- Apache + PHP >= 8.2 ---------------------------------------------------
+log "Installing Apache"
+sudo apt-get install -y apache2
+sudo a2enmod rewrite
+sudo systemctl enable --now apache2
+
+# Try to install PHP 8.2 explicitly, fallback to distro 'php' meta if 8.2 unavailable
+PHP_PKGS_COMMON="mysql mbstring xml curl gd intl zip"
+if apt-cache policy php8.2 >/dev/null 2>&1; then
+  log "Installing PHP 8.2"
+  sudo apt-get install -y php8.2 php8.2-cli php8.2-common libapache2-mod-php8.2
+  sudo apt-get install -y $(printf "php8.2-%s " $PHP_PKGS_COMMON)
+else
+  log "PHP 8.2 not found in repos; installing distro default PHP"
+  sudo apt-get install -y php php-cli php-common libapache2-mod-php
+  sudo apt-get install -y $(printf "php-%s " $PHP_PKGS_COMMON)
+fi
+
+# Ensure Apache uses our PHP
+sudo systemctl restart apache2
+
+# --- Deploy Okovision ------------------------------------------------------
+log "Deploying Okovision to /var/www/okovision"
+cd /var/www/
+ZIPFILE="okovision.zip"
+
+# Try master.zip then fallback to main.zip
+if wget -q --spider https://github.com/domotrique/okovision_2023/archive/refs/heads/master.zip; then
+  wget -q -O "$ZIPFILE" https://github.com/domotrique/okovision_2023/archive/refs/heads/master.zip
+  SRC_DIR="okovision_2023-master"
+else
+  wget -q -O "$ZIPFILE" https://github.com/domotrique/okovision_2023/archive/refs/heads/main.zip
+  SRC_DIR="okovision_2023-main"
+fi
+
+unzip -q "$ZIPFILE"
+rm -f "$ZIPFILE"
+
+# Backup existing install if present
+if [[ -d "okovision" ]]; then
+  mv okovision "$(date +"%y-%m-%d")_okovision"
+fi
+mv "$SRC_DIR" okovision
+sudo chown -R www-data:www-data okovision
+
+# --- Apache vhost ----------------------------------------------------------
+if [[ -f /var/www/okovision/install/099-okovision.conf ]]; then
+  sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-available/
+  sudo a2ensite 099-okovision.conf
+  sudo a2dissite 000-default || true
+  sudo systemctl reload apache2
+else
+  log "WARNING: vhost file not found: /var/www/okovision/install/099-okovision.conf"
+fi
+
+# --- Cron (idempotent) -----------------------------------------------------
+log "Setting up cron"
+PHP_BIN="$(command -v php)"
+CRONLINE="22 */1 * * * cd /var/www/okovision; ${PHP_BIN} -f cron.php"
+( sudo crontab -l 2>/dev/null | grep -v "okovision; .*cron.php" || true; echo "$CRONLINE" ) | sudo crontab -
+
+log "Install done! Open http://localhost/ in your browser."
