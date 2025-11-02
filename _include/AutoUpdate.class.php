@@ -359,34 +359,72 @@ class AutoUpdate extends connectDb
      */
     public function checkUpdate()
     {   
+        $result = [
+            'status'  => 'ok',          // ok / error / no_update / update_available
+            'message' => '',
+        ];
+        
         $this->log->debug('Checking for a new update...');
 
         // Reset previous updates
         $this->_latestVersion = new version('0.0.0');
         $this->_updates = [];
-
-        $ch = curl_init(REPO_VERSION_API);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'OkovisionDownloader');
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $data = json_decode($response, true);
-
-        // Vérifie si une release a été trouvée
-        if (isset($data['tag_name'])) {
-            $version = new version($data['tag_name']);
-            $this->_latestVersion = $version;
-            $this->log->info(sprintf('Dernière version d\'Okovision 2023 : ' . $data['tag_name']));
-        } else {
-            echo "Aucune release trouvée ou erreur d’API." . PHP_EOL;
+		
+		 if (empty(REPO_VERSION_API)) {
+            $result['status']  = 'error';
+            $result['message'] = 'URL de mise à jour manquante';
+            $this->log->error($result['message']);
+            return $result;
         }
 
-        if (version::gt($version, $this->_currentVersion)) {
-            if (version::gt($version, $this->_latestVersion)) {
-                $this->log->info(sprintf('New version "%s" available', $this->_latestVersion));
-            }
+        $ch = curl_init(REPO_VERSION_API);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT      => 'OkovisionDownloader',
+            CURLOPT_HTTPHEADER     => ['Accept: application/vnd.github+json'],
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 3,
+            CURLOPT_CONNECTTIMEOUT => 8,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+        ]);
 
+        $response = curl_exec($ch);
+        $errno    = curl_errno($ch);
+        $error    = curl_error($ch);
+        $info     = curl_getinfo($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            $msg = sprintf("Erreur cURL (%d): %s", $errno, $error);
+            $this->log->error($msg . ' | url=' . REPO_VERSION_API . ' | http_code=' . ($info['http_code'] ?? 'N/A'));
+            $result['status']  = 'error';
+            $result['message'] = "Impossible de contacter le serveur de mise à jour : $error";
+            return $result;
+        }
+
+        $data = json_decode($response, true);
+        if ($data === null) {
+            $result['status']  = 'error';
+            $result['message'] = "Réponse du serveur de mise à jour invalide (non JSON).";
+            $this->log->error($result['message']);
+            return $result;
+        }
+
+        if (!isset($data['tag_name'])) {
+            $result['status']  = 'no_update';
+            $result['message'] = "Aucune release trouvée.";
+            return $result;
+        }
+
+        $version = new version($data['tag_name']);
+        $this->log->info(sprintf('Dernière version d\'Okovision 2023 : ' . $data['tag_name']));
+        
+        if (version::gt($version, $this->_currentVersion)) {
+            $result['status']  = 'update_available';
+            $result['message'] = "Nouvelle version disponible : " . $data['tag_name'];
+            $this->_latestVersion = $version;
+            $this->log->info(sprintf('New version "%s" available', $this->_latestVersion));
             $this->_updates[] = [
                 'version' => $version,
                 'url' => $data['zipball_url'] ?? $data['tarball_url'] ?? null,
@@ -410,13 +448,12 @@ class AutoUpdate extends connectDb
                     : null,
                 'date' => isset($data['published_at']) ? substr($data['published_at'], 0, 10) : null,
             ];
-
-            return true;
+            return $result;
         }
 
-        $this->log->debug('No new version available');
-
-        return self::NO_UPDATE_AVAILABLE;
+        $result['status']  = 'no_update';
+        $result['message'] = "Aucune mise à jour disponible.";
+        return $result;
     }
 
     /**

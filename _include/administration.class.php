@@ -588,10 +588,11 @@ class administration extends connectDb
         $r['information'] = '';
 
         $update = new AutoUpdate();
-        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');        
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
+        $updateResult = $update->checkUpdate();
 
-        if (false === $update->checkUpdate()) {
-            $r['information'] = session::getInstance()->getLabel('lang.error.maj.information');
+        if ($updateResult['status'] == 'error') {
+            $r['information'] = $updateResult['message'];
         } elseif ($update->newVersionAvailable()) {
             $r['newVersion'] = true;
             $r['list'] = $update->getVersionsInformationToUpdate();
