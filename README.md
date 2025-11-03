@@ -25,7 +25,7 @@ sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/ins
 ```
 sudo apt-get -y install mariadb-server
 sudo mysql -e "CREATE USER 'okouser'@'localhost' IDENTIFIED BY 'okopass';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'okouser'@'localhost' ;"
+sudo mysql -e "GRANT ALL PRIVILEGES ON okovision.* TO 'okouser'@'localhost' ;"
 sudo apt-get -y install apache2
 sudo systemctl enable apache2
 
@@ -43,15 +43,8 @@ sudo cp /var/www/okovision/install/099-okovision.conf /etc/apache2/sites-availab
 sudo a2ensite 099-okovision.conf
 sudo a2dissite 000-default
 sudo service apache2 reload
+sudo (crontab -l ; echo "22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php") | crontab -
 ```
-```sudo crontab -e```
-
-Select NANO if asked and add the following line at the end of the file.
-
-```22 */1 * * * cd /var/www/okovision; /usr/bin/php -f cron.php```
-
-This last command will retrieve data from the okofen every hour, 22 minutes past the hour (this is 10 min after the CSV is generated on the Okofen) and update the welcome page.
-You can then hit **CTRL+X** then **Y** and then **ENTER** key.
 
 ## OKOFEN BOILER SETUP
 
