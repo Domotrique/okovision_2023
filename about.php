@@ -18,7 +18,7 @@ if (!file_exists('config.php')) {
 <div class="container theme-showcase" role="main">
 
 	<div class="page-header">
-		<h2><?php echo session::getInstance()->getLabel('lang.text.page.about.title'); ?></h2> <div id="version"><?php echo file_get_contents('_include/version.json'); ?></div>
+		<h2><?php echo session::getInstance()->getLabel('lang.text.page.about.title'); ?></h2> <div id="version"><?php echo OKOVISION_VERSION; ?></div>
 	</div>
 	<div class="well">
 		<img style='float:left;width:256px;height:128px; margin-right:20px;' src="css/images/Theme.png" alt="Okovision 2023">

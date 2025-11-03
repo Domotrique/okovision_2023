@@ -72,6 +72,10 @@ class administration extends connectDb
             'lang' => $s['lang'],
         ];
 
+        // Save analytics opt-in/out
+        require_once __DIR__ . '/okv_analytics.php';
+        okv_analytics_enable(!empty($s['analytics_enabled']));
+
         $r = [];
         $r['response'] = true;
 
@@ -562,38 +566,33 @@ class administration extends connectDb
 
     public function getVersion()
     {
-        $this->sendResponse($this->getCurrentVersion());
-    }
-
-    /**
-     * Function get current local version.
-     *
-     * @return string
-     */
-    public static function getCurrentVersion()
-    {
-        return trim(file_get_contents('_include/version.json'));
+        if (defined('OKOVISION_VERSION')) {
+            return $this->sendResponse(OKOVISION_VERSION);
+        } else {
+            return $this->sendResponse('0.0.0');
+        }
     }
 
     /**
      * Function checking if new okovision version is available.
+     * Uses okv_analytics.php
      *
      * @return json
      */
     public function checkUpdate()
     {
+        require_once __DIR__ . '/analytics.class.php';
+
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
 
-        //Remove agent for now
-        //$this->addOkoStat();
-
         $update = new AutoUpdate();
-        $update->setCurrentVersion($this->getCurrentVersion());
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
+        $updateResult = $update->checkUpdate();
 
-        if (false === $update->checkUpdate()) {
-            $r['information'] = session::getInstance()->getLabel('lang.error.maj.information');
+        if ($updateResult['status'] == 'error') {
+            $r['information'] = $updateResult['message'];
         } elseif ($update->newVersionAvailable()) {
             $r['newVersion'] = true;
             $r['list'] = $update->getVersionsInformationToUpdate();
@@ -601,37 +600,10 @@ class administration extends connectDb
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
         }
 
+        //on envoie les stats anonymes
+        \Okovision\analytics::sendStats();
+
         return $this->sendResponse($r);
-    }
-
-    /**
-     * Function notify stawen's server for making an update.
-     *
-     * @return json
-     */
-    public function addOkoStat()
-    {
-        $curl = curl_init();
-        // Set some options - we are passing in a useragent too here
-        $host = $_SERVER['HTTP_HOST'];
-        $folder = dirname($_SERVER['SCRIPT_NAME']);
-        $source = $host.$folder;
-
-        curl_setopt_array($curl, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $this->_urlApi,
-            CURLOPT_USERAGENT => 'Okovision :-:'.TOKEN.':-:',
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => [
-                'token' => TOKEN,
-                'source' => $source,
-                'version' => $this->getCurrentVersion(),
-            ],
-        ]);
-        // Send the request & save response to $resp
-        $resp = curl_exec($curl);
-        // Close request to clear up some resources
-        curl_close($curl);
     }
 
     /**
@@ -644,7 +616,8 @@ class administration extends connectDb
         $r = [];
         $r['install'] = false;
         $update = new AutoUpdate();
-        $update->setCurrentVersion($this->getCurrentVersion());
+		
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
 
         $result = $update->update(); //fait une simulation d'abord, si ok ça install
         if (true === $result) {
@@ -748,15 +721,38 @@ class administration extends connectDb
      *
      * @return json
      */
-    public function changePassword($pass)
+    public function changePassword($pass, $previousPass)
     {
         $pass = sha1($this->realEscapeString($pass));
-        $userId = session::getInstance()->getVar('userId');
+        $userId = (int)session::getInstance()->getVar('userId');
+        $previousPass = sha1($this->realEscapeString($previousPass));
+        $r = [];
+        $r['response'] = false;
 
-        $q = "update oko_user set pass='{$pass}' where id={$userId}";
+        // Check if previous password is ok
+        $q = "select count(*) as nb from oko_user where id={$userId} and pass='{$previousPass}' group by id";
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($q);
+        $result = $this->query($q);
+
+        if ($result) {
+            $res = $result->fetch_object();
+
+            if (1 == $res->nb) {
+                // Previous password is correct, update password
+                $q = "update oko_user set pass='{$pass}' where id={$userId}";
+                $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+
+                if ($this->query($q)) {
+                    $r['response'] = true;
+                }
+            } else {
+                $r['response'] = false;
+                $r['reason'] = 'previousPasswordNotMatch';
+            }
+        } else {
+            $r['response'] = false;
+        }
 
         $this->sendResponse($r);
     }
@@ -1166,14 +1162,15 @@ class administration extends connectDb
         unlink($rep.$dumpFile);
     }
 
-    /**
-     * Function set current version in version.json.
-     *
-     * @param string (x.y.z)
-     * @param mixed $v
-     */
-    private function setCurrentVersion($v)
+    public function analyticsDeleteLocalId()
     {
-        return file_put_contents('_include/version.json', $v);
+        //delete  okv_ingest.json from var folder
+        $file = __DIR__ . '/../var/okv_ingest.json';
+        if (file_exists($file)) {
+            unlink($file);
+        }
+        $r = [];
+        $r['response'] = true;
+        $this->sendResponse($r);
     }
 }

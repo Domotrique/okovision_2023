@@ -46,10 +46,6 @@ if (is_ajax() && is_valid()) {
                             $a->importFileFromChaudiere($_POST);
 
                             break;
-                        // case 'importFileFromUpload':
-                        //     $a->importFileFromUpload($_POST);
-
-                        //     break;
                         case 'uploadCsv':
                             $a->uploadCsv($_POST, $_FILES);
 
@@ -138,16 +134,6 @@ if (is_ajax() && is_valid()) {
                             }
 
                             break;
-                        // case 'getDateForMigrate':
-                        //     $a->getDateForMigrate();
-
-                        //     break;
-                        // case 'migrateDataForDate':
-                        //     if (isset($_GET['jour'])) {
-                        //         $a->migrateDataForDate($_GET['jour']);
-                        //     }
-
-                        //     break;
                         case 'login':
                             $a->login($_POST['user'], $_POST['pass']);
 
@@ -161,7 +147,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'changePassword':
-                            $a->changePassword($_POST['pass']);
+                            $a->changePassword($_POST['pass'], $_POST['previous_pass']);
 
                             break;
                         case 'getDumps':
@@ -196,6 +182,10 @@ if (is_ajax() && is_valid()) {
                             $a->checkSqlFile($_POST);
 
                         break;
+                        case 'analyticsDeleteLocalId':
+                            $a->analyticsDeleteLocalId();
+
+                            break;
                     }
 
                     break;
