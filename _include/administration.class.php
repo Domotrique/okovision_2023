@@ -73,8 +73,8 @@ class administration extends connectDb
         ];
 
         // Save analytics opt-in/out
-        require_once __DIR__ . '/okv_analytics.php';
-        okv_analytics_enable(!empty($s['analytics_enabled']));
+        require_once __DIR__ . '/analytics.class.php';
+        \Okovision\analytics::setEnabled(!empty($s['analytics_enabled']));
 
         $r = [];
         $r['response'] = true;
