@@ -979,13 +979,17 @@ class AutoUpdate extends connectDb
         $content = file_get_contents($configPath);
 
         // Remplace la ligne de version existante par la nouvelle
-        $content = preg_replace(
-            "/DEFINE\('OKOVISION_VERSION','[^']*'\);/",
-            "DEFINE('OKOVISION_VERSION','" . $newVersion . "');",
-            $content
-        );
+        $pattern = "/define\s*\(\s*'OKOVISION_VERSION'\s*,\s*'[^']*'\s*\)\s*;/i";
+        $replacement = "define('OKOVISION_VERSION', '" . $newVersion . "');";
 
-        file_put_contents($configPath, $content);
+        $newContent = preg_replace($pattern, $replacement, $content, 1);
+
+        if ($newContent === $content) {
+            $this->log->warning("La ligne de version n’a pas été trouvée dans config.php");
+            return false;
+        }
+
+        file_put_contents($configPath, $newContent);
         $this->log->info("OKOVISION_VERSION mis à jour dans config.php : " . $newVersion);
         return true;
     }
