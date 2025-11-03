@@ -56,10 +56,6 @@ if (is_ajax() && is_valid()) {
                             $a->importFileFromChaudiere($_POST);
 
                             break;
-                        // case 'importFileFromUpload':
-                        //     $a->importFileFromUpload($_POST);
-
-                        //     break;
                         case 'uploadCsv':
                             $a->uploadCsv($_POST, $_FILES);
 
@@ -196,6 +192,10 @@ if (is_ajax() && is_valid()) {
                             $a->checkSqlFile($_POST);
 
                         break;
+                        case 'analyticsDeleteLocalId':
+                            $a->analyticsDeleteLocalId();
+
+                            break;
                     }
 
                     break;

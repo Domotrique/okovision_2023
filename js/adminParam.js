@@ -28,6 +28,33 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	function syncDeleteBtn() {
+		const disabled = $('#analytics_enabled').is(':checked');
+		$('#bt_delete_install_id').prop('disabled', disabled);
+	}
+
+	syncDeleteBtn();
+	$('#analytics_enabled').on('change', function () {
+		syncDeleteBtn();
+	});
+
+	$('#bt_delete_install_id').on('click', function () {
+		if (!confirm("Supprimer l'install_id local et les éventuels tokens ?")) return;
+		
+		$.api('GET', 'admin.analyticsDeleteLocalId').done(function (json) {
+			if (json && json.response) {
+			$.growlValidate('Install ID supprimé localement.');
+			// Si tu stockes quelque chose côté navigateur (rare), nettoie-le ici :
+			try { localStorage.removeItem('okv_install_id'); } catch(e) {}
+			} else {
+			$.growlErreur(json && json.message ? json.message : 'Échec de la suppression.');
+			}
+		})
+		.error(function () {
+			$.growlErreur('Erreur réseau.');
+		});
+	});
         
 	$('#bt_save_infoge').click(function() {
 

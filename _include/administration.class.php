@@ -724,7 +724,7 @@ class administration extends connectDb
     public function changePassword($pass, $previousPass)
     {
         $pass = sha1($this->realEscapeString($pass));
-        $userId = session::getInstance()->getVar('userId');
+        $userId = (int)session::getInstance()->getVar('userId');
         $previousPass = sha1($this->realEscapeString($previousPass));
         $r = [];
         $r['response'] = false;
@@ -1160,5 +1160,17 @@ class administration extends connectDb
         
         copy($rep.$dumpFile, DUMP_FOLDER .'/'.$dumpFile);
         unlink($rep.$dumpFile);
+    }
+
+    public function analyticsDeleteLocalId()
+    {
+        //delete  okv_ingest.json from var folder
+        $file = __DIR__ . '/../var/okv_ingest.json';
+        if (file_exists($file)) {
+            unlink($file);
+        }
+        $r = [];
+        $r['response'] = true;
+        $this->sendResponse($r);
     }
 }

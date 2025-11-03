@@ -170,6 +170,9 @@
 						<label class="col-md-4 control-label" for="analytics_enabled"><?php echo session::getInstance()->getLabel('lang.text.page.admin.analytics'); ?></label>
 						<div class="col-md-3">
 							<input id="analytics_enabled" name="analytics_enabled" type="checkbox" <?= defined('OKV_ANALYTICS_ENABLED') && OKV_ANALYTICS_ENABLED ? 'checked' : '' ?>>
+							<button id="bt_delete_install_id" class="btn btn-danger" type="button" title="Supprime l'install_id local et les éventuels tokens associés">
+								Remove Local ID
+							</button>
 							<span class="help-block"><?php echo session::getInstance()->getLabel('lang.text.page.admin.analytics.desc'); ?></span>
 						</div>
 					</div>

@@ -370,7 +370,7 @@ class AutoUpdate extends connectDb
         $this->_latestVersion = new version('0.0.0');
         $this->_updates = [];
 		
-		 if (empty(REPO_VERSION_API)) {
+		if (empty(REPO_VERSION_API)) {
             $result['status']  = 'error';
             $result['message'] = 'URL de mise à jour manquante';
             $this->log->error($result['message']);

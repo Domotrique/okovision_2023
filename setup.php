@@ -146,18 +146,45 @@
         $configFile = str_replace('###_TOKEN_###', sha1(rand()), $configFile);
 
 		//Get latest version number from github
-		$ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'OkovisionDownloader');
+        $ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT      => 'OkovisionDownloader',
+            CURLOPT_HTTPHEADER     => ['Accept: application/vnd.github+json'],
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 3,
+            CURLOPT_CONNECTTIMEOUT => 8,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+        ]);
+
         $response = curl_exec($ch);
+        $errno    = curl_errno($ch);
+        $error    = curl_error($ch);
+        $info     = curl_getinfo($ch);
         curl_close($ch);
 
+        if ($response === false) {
+            $msg = sprintf("Erreur cURL (%d): %s", $errno, $error);
+            $this->log->error($msg . ' | url=https://api.github.com/repos/domotrique/okovision_2023/releases/latest | http_code=' . ($info['http_code'] ?? 'N/A'));
+            $result['status']  = 'error';
+            $result['message'] = "Impossible de contacter le serveur de mise à jour : $error";
+            return $result;
+        }
+
         $data = json_decode($response, true);
+        if ($data === null) {
+            $result['status']  = 'error';
+            $result['message'] = "Réponse du serveur de mise à jour invalide (non JSON).";
+            $this->log->error($result['message']);
+            return $result;
+        }
 
         // Vérifie si une release a été trouvée
         if (isset($data['tag_name'])) {
             $version = $data['tag_name'] ?? '0.0.0';
         } else {
+            $version = '0.0.0';
             echo "Aucune release trouvée ou erreur d’API." . PHP_EOL;
         }
 
