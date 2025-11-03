@@ -616,7 +616,8 @@ class administration extends connectDb
         $r = [];
         $r['install'] = false;
         $update = new AutoUpdate();
-        $update->setCurrentVersion(OKOVISION_VERSION);
+		
+        $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
 
         $result = $update->update(); //fait une simulation d'abord, si ok ça install
         if (true === $result) {
