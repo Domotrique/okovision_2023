@@ -581,7 +581,7 @@ class administration extends connectDb
      */
     public function checkUpdate()
     {
-        require_once __DIR__ . '/okv_analytics.php';
+        require_once __DIR__ . '/analytics.class.php';
 
         $r = [];
         $r['newVersion'] = false;
@@ -601,7 +601,7 @@ class administration extends connectDb
         }
 
         //on envoie les stats anonymes
-        okv_send_stats();
+        \Okovision\analytics::sendStats();
 
         return $this->sendResponse($r);
     }
