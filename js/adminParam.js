@@ -50,10 +50,6 @@ $(document).ready(function() {
 			//console.log(a);
 			if (json.response) {
 				$.growlValidate(lang.valid.configSave);
-				/*setTimeout(function() {
-					document.location.reload();
-				  }, 1000);*/
-				
 			}
 			else {
 				$.growlWarning(lang.error.configNotSave);
