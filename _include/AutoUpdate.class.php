@@ -489,9 +489,6 @@ class AutoUpdate extends connectDb
             return self::ERROR_VERSION_CHECK;
         }
 
-        // Ajout des nouvelles constantes dans config.php
-        $this->addNewConfigConstants($this->_currentVersion->getVersion(), $this->_latestVersion->getVersion());
-
         // Check if current version is up to date
         if (!$this->newVersionAvailable()) {
             $this->log->warn('No update available!');
