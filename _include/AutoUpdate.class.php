@@ -732,7 +732,7 @@ class AutoUpdate extends connectDb
         }
 
         $this->_simulationResults = $files;
-        zip_close($zip);
+        $zip->close();
 
         return $simulateSuccess;
     }
