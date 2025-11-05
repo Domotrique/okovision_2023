@@ -225,7 +225,6 @@ class okofen extends connectDb
      */
     public function makeSyntheseByDay($dateChoosen = null, $bForce = true)
     {
-        $this->insertSyntheseDay($dateChoosen);
         //on ne fait rien si la date choisie est la date du jour
         if ($dateChoosen == date('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')))) {
             return false;
