@@ -140,7 +140,7 @@ class rendu extends connectDb
         if (!$result) {
             return false;
         } else {
-            return $result->fetch_object();
+            return json_encode($result->fetch_object());
         }
     }
 
