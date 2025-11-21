@@ -35,10 +35,12 @@ public/build/* linguist-generated=true
 # Vendor or external libraries
 vendor/* linguist-vendored=true
 node_modules/* linguist-vendored=true
-js/highstock/* linguist-vendored=true
-js/highcharts/* linguist-vendored=true
-js/jquery/* linguist-vendored=true
-js/bootstrap/* linguist-vendored=true
+
+# Ignore JavaScript libraries (recursive)
+js/highstock/**/* linguist-vendored=true
+js/highcharts/**/* linguist-vendored=true
+js/jquery/**/* linguist-vendored=true
+js/bootstrap/**/* linguist-vendored=true
 
 # Cache / temp files
 cache/* linguist-generated=true
