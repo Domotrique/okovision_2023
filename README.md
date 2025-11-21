@@ -1,6 +1,6 @@
 # OKOVISION
 
-This project is a fork from [Stawen's Okovision](https://github.com/stawen/okovision) project which is no longer updated.
+This project was a fork from [Stawen's Okovision](https://github.com/stawen/okovision) project which is no longer updated.
 
 <http://okovision.dronek.com>
 
