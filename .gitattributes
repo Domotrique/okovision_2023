@@ -1,0 +1,20 @@
+# ================================
+#  LANGUAGES DECLARATION
+#  Force detection of PHP / JS / HTML
+# ================================
+
+# PHP files
+*.php linguist-language=PHP
+*.class.php linguist-language=PHP
+*.inc linguist-language=PHP
+*.phtml linguist-language=PHP
+
+# JavaScript
+*.js linguist-language=JavaScript
+
+# HTML
+*.html linguist-language=HTML
+*.htm linguist-language=HTML
+
+# ================================
+* text=auto
