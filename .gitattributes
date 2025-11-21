@@ -17,4 +17,31 @@
 *.htm linguist-language=HTML
 
 # ================================
+#  IGNORE GENERATED OR VENDORED FILES
+#  (they won't count toward language stats)
+# ================================
+
+# Logs
+*.log linguist-generated=true
+
+# Build directories (JS/CSS generated)
+build/* linguist-generated=true
+dist/* linguist-generated=true
+public/build/* linguist-generated=true
+
+# Minified JS (not counted)
+*.min.js linguist-vendored=true
+
+# Vendor or external libraries
+vendor/* linguist-vendored=true
+node_modules/* linguist-vendored=true
+
+# Cache / temp files
+cache/* linguist-generated=true
+tmp/* linguist-generated=true
+
+# JSON config files do not count as code
+*.json linguist-language=JSON linguist-vendored=true
+
+# ================================
 * text=auto
