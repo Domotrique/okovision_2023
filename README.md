@@ -1,6 +1,6 @@
 # OKOVISION
 
-This project is a fork from [Stawen's Okovision](https://github.com/stawen/okovision) project which is no longer updated.
+This project was a fork from [Stawen's Okovision](https://github.com/stawen/okovision) project which is no longer updated.
 
 <http://okovision.dronek.com>
 
@@ -88,3 +88,5 @@ Next, I invite you to check the very well explained documentation from @stawen [
 ## AND NOW?
 
 If you see something not working as expected, please [create an issue](https://github.com/Domotrique/okovision_2023/issues/new/choose) and I will try to have a look as soon as possible.
+<!-- SEO: okovision okofen raspberry pi php8 domotique chaudière granulés pellet boiler monitoring php 8 raspberrypi -->
+

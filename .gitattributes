@@ -1,0 +1,53 @@
+# ================================
+#  LANGUAGES DECLARATION
+#  Force detection of PHP / JS / HTML
+# ================================
+
+# PHP files
+*.php linguist-language=PHP
+*.class.php linguist-language=PHP
+*.inc linguist-language=PHP
+*.phtml linguist-language=PHP
+
+# JavaScript
+*.js linguist-language=JavaScript
+
+# HTML
+*.html linguist-language=HTML
+*.htm linguist-language=HTML
+
+# ================================
+#  IGNORE GENERATED OR VENDORED FILES
+#  (they won't count toward language stats)
+# ================================
+
+# Logs
+*.log linguist-generated=true
+
+# Build directories (JS/CSS generated)
+build/* linguist-generated=true
+dist/* linguist-generated=true
+public/build/* linguist-generated=true
+
+# Minified JS (not counted)
+*.min.js linguist-vendored=true
+
+# Vendor or external libraries
+vendor/* linguist-vendored=true
+node_modules/* linguist-vendored=true
+
+# Ignore JavaScript libraries (recursive)
+js/highstock/** linguist-vendored=true
+js/highcharts/** linguist-vendored=true
+js/jquery/** linguist-vendored=true
+js/bootstrap/** linguist-vendored=true
+
+# Cache / temp files
+cache/* linguist-generated=true
+tmp/* linguist-generated=true
+
+# JSON config files do not count as code
+*.json linguist-language=JSON linguist-vendored=true
+
+# ================================
+* text=auto
