@@ -6,7 +6,6 @@ $this->log->info("UPGRADE | {$version} | begin");
 $t = new timeExec();
 
 // BEGIN code upgrade
-
     $configPath = __DIR__ . '/config.php';
     if (!is_file($configPath) || !is_readable($configPath) || !is_writable($configPath)) {
         exit("config.php introuvable ou non éditable: $configPath\n");
@@ -41,14 +40,17 @@ $t = new timeExec();
     // (OK : on passe les strings déjà quotées ; les bool/num en brut)
     $version = isset($version) ? (string)$version : 'unknown';
 
-    // Sauvegarde simple
-    @copy($configPath, $configPath . '.bak-' . date('Ymd-His'));
+    //si la version est antérieure à 1.13.0
+    if (version_compare($version, '1.13.0', '<')) {
+        // Sauvegarde simple
+        @copy($configPath, $configPath . '.bak-' . date('Ymd-His'));
 
-    // Defines à garantir
-    ensure_define_text($content, 'REPO_VERSION_API', "'https://api.github.com/repos/domotrique/okovision_2023/releases/latest'");
-    ensure_define_text($content, 'OKOVISION_VERSION', "'" . addslashes($version) . "'");
-    ensure_define_text($content, 'OKV_ANALYTICS_ENABLED', '1');
-    ensure_define_text($content, 'OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
+        // Defines à garantir
+        ensure_define_text($content, 'REPO_VERSION_API', "'https://api.github.com/repos/domotrique/okovision_2023/releases/latest'");
+        ensure_define_text($content, 'OKOVISION_VERSION', "'" . addslashes($version) . "'");
+        ensure_define_text($content, 'OKV_ANALYTICS_ENABLED', '1');
+        ensure_define_text($content, 'OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
+    }
 
     // Force DEBUG = false
     force_debug_false($content);
@@ -58,4 +60,6 @@ $t = new timeExec();
         exit("Impossible d'écrire $configPath\n");
     }
 
+    // END code upgrade
+    $this->log->info("UPGRADE | {$version} | end");
 ?> 
