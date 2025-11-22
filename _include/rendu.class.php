@@ -74,9 +74,9 @@ class rendu extends connectDb
             $timeEnd = (int) ($timeEnd / 1000);
         }
 
-        $c = $this->getConsoByday($jour, $timeStart, $timeEnd);
-
-        $c_ecs = $this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater');
+        
+        $c = json_decode($this->getConsoByday($jour, $timeStart, $timeEnd));
+        $c_ecs = json_decode($this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater'));
         $min = $this->getTcMinByDay($jour, $timeStart, $timeEnd);
         $max = $this->getTcMaxByDay($jour, $timeStart, $timeEnd);
         
