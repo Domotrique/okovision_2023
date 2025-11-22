@@ -362,8 +362,8 @@ class okofen extends connectDb
         $rendu = new rendu();
         $max = $rendu->getTcMaxByDay($day);
         $min = $rendu->getTcMinByDay($day);
-        $conso = $rendu->getConsoByday($day);
-        $conso_ecs = $rendu->getConsoByday($day, null, null, 'hotwater');
+        $conso = json_decode($rendu->getConsoByday($day));
+        $conso_ecs = json_decode($rendu->getConsoByday($day, null, null, 'hotwater'));
         $cycle = $rendu->getNbCycleByDay($day);
 
         // Test for empty values
@@ -378,7 +378,8 @@ class okofen extends connectDb
         $dju = $rendu->getDju($max->tcExtMax, $min->tcExtMin);
 
         $consoPellet = (null == $conso->consoPellet) ? 0 : $conso->consoPellet;
-        $consoEcsPellet = (float)((json_decode($conso_ecs)->consoPellet ?? 0));
+        $consoEcsPellet = (null == $conso_ecs->consoPellet) ? 0 : $conso_ecs->consoPellet;
+        
         $nbCycle = (null == $cycle->nbCycle) ? 0 : $cycle->nbCycle;
 
         $query .= "('".$day."', ".$max->tcExtMax.', '.$min->tcExtMin.', '.$consoPellet.', '.$consoEcsPellet.', '.$dju.', '.$nbCycle.' );';
