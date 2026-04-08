@@ -5,8 +5,6 @@ export DEBIAN_FRONTEND=noninteractive
 # --- helpers ---------------------------------------------------------------
 log(){ echo -e "[OKV] $*"; }
 
-need_cmd(){ command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1"; exit 1; }; }
-
 # --- OS detection ----------------------------------------------------------
 source /etc/os-release
 ID="${ID:-debian}"
