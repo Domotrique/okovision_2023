@@ -183,8 +183,8 @@ If this page loads, **the hardest part is done!** 🎉
  
 Open your browser and go to `http://localhost` (or your machine's IP address).
  
-For the full configuration guide, refer to @stawen's official documentation:  
-👉 [okovision.dronek.com/documentation/configuration/setup/](https://okovision.dronek.com/documentation/configuration/setup/)
+For the full configuration guide, here is the official documentation:  
+👉 [https://domotrique.github.io/okovision-2023-doc/](https://domotrique.github.io/okovision-2023-doc/)
  
 ---
  
