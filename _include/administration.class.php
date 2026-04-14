@@ -677,26 +677,50 @@ class administration extends connectDb
      */
     public function login($user, $pass)
     {
-        $user = $this->realEscapeString($user);
-        $pass = sha1($this->realEscapeString($pass));
+        $r = ['response' => false];
 
-        $q = "select count(*) as nb, id, type from oko_user where user='{$user}' and pass='{$pass}' group by id";
+        $userEsc = $this->realEscapeString($user);
+        $q = "SELECT id, type, pass FROM oko_user WHERE user = '{$userEsc}' LIMIT 1";
+        $res = $this->query($q);
 
-        $result = $this->query($q);
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
-
-        $r['response'] = false;
-
-        if ($result) {
-            $res = $result->fetch_object();
-
-            if (1 == $res->nb) {
+        if (!$res || $res->num_rows !== 1) {
+            // User not found
+            return $this->sendResponse($r);
+        }
+        
+        $row = $res->fetch_assoc();
+        $storedHash = $row['pass'];
+        if (password_verify($pass, $storedHash)) {
+            // Password is correct
+            // Check if we need to rehash the password
+            if (password_needs_rehash($storedHash, PASSWORD_DEFAULT)) {
+                $newHash = password_hash($pass, PASSWORD_DEFAULT);
+                $newHashEsc = $this->realEscapeString($newHash);
+                $this->query("UPDATE oko_user SET pass = '{$newHashEsc}' WHERE id = ".(int)$row['id']);
+            }
+            $r['response'] = true;
+        } else {
+            if ($storedHash === sha1($this->realEscapeString($pass))) {
+                // Password matches old SHA1 hash, upgrade to bcrypt
+                $newHash = password_hash($pass, PASSWORD_DEFAULT);
+                $q = "UPDATE oko_user SET pass = '{$newHash}' WHERE id = ".(int)$row['id'];
+                $this->query($q);
                 $r['response'] = true;
-                session::getInstance()->setVar('typeUser', $res->type);
-                session::getInstance()->setVar('logged', true);
-                session::getInstance()->setVar('userId', $res->id);
+            } else {
+                // Password is incorrect
+                return $this->sendResponse($r);
             }
         }
+        
+        if ($r['response']) {
+            if (function_exists('session_regenerate_id')) {
+                @session_regenerate_id(true);
+            }
+            session::getInstance()->setVar('logged', true);
+            session::getInstance()->setVar('typeUser', $row['type']);
+            session::getInstance()->setVar('userId', $row['id']);
+        }
+
         $this->sendResponse($r);
     }
 
@@ -707,6 +731,9 @@ class administration extends connectDb
      */
     public function logout()
     {
+        if (function_exists('session_regenerate_id')) {
+            @session_regenerate_id(true);
+        }
         session::getInstance()->deleteVar('logged');
         session::getInstance()->deleteVar('typeUser');
         session::getInstance()->deleteVar('userId');
@@ -723,38 +750,45 @@ class administration extends connectDb
      */
     public function changePassword($pass, $previousPass)
     {
-        $pass = sha1($this->realEscapeString($pass));
         $userId = (int)session::getInstance()->getVar('userId');
-        $previousPass = sha1($this->realEscapeString($previousPass));
         $r = [];
         $r['response'] = false;
 
-        // Check if previous password is ok
-        $q = "select count(*) as nb from oko_user where id={$userId} and pass='{$previousPass}' group by id";
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+        if ( password_verify($previousPass, $this->getUserPasswordHash($userId)) ) {
+            $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
+            $q = "update oko_user set pass='{$hashedPass}' where id={$userId}";
+            if ($this->query($q)) {
+                $r['response'] = true;
+            }
+        } else {
+            $r['response'] = false;
+            $r['reason'] = 'previousPasswordNotMatch';
+        }
+
+        $this->sendResponse($r);
+    }
+
+    /**
+     * Get user password hash from database.
+     *
+     * @param int $userId
+     *
+     * @return string|null
+     */
+    private function getUserPasswordHash($userId)
+    {
+        $userId = (int)$userId;
+        $q = "select pass from oko_user where id={$userId} LIMIT 1";
 
         $result = $this->query($q);
 
         if ($result) {
             $res = $result->fetch_object();
 
-            if (1 == $res->nb) {
-                // Previous password is correct, update password
-                $q = "update oko_user set pass='{$pass}' where id={$userId}";
-                $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
-
-                if ($this->query($q)) {
-                    $r['response'] = true;
-                }
-            } else {
-                $r['response'] = false;
-                $r['reason'] = 'previousPasswordNotMatch';
-            }
-        } else {
-            $r['response'] = false;
+            return $res->pass;
         }
 
-        $this->sendResponse($r);
+        return null;
     }
 
     /**
