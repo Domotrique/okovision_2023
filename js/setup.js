@@ -67,11 +67,7 @@ $(document).ready(function() {
 				data: $.param(tab),
 				async: false,
 				success: function (a) {
-					if(a.csv) {
-						window.location.replace("adminMatrix.php?csv=" + a.csv);
-					} else {
-						window.location.replace("index.php?setup=1");
-					}
+					window.location.replace("index.php?setup=1");
 				}
 			});
 		} else {
@@ -83,17 +79,15 @@ $(document).ready(function() {
 			}
 		}
 		
-
-
 	});
 
 	$('#test_oko_ip').click(function() {
-
-		var ip = $('#oko_ip').val();
-
+		var $bt = $(this);
 		var tab = {
 			ip: $('#oko_ip').val()
 		};
+
+		$bt.prop('disabled', true).text('Testing…');
 
 		$.ajax({
 			url: 'setup.php?type=ip',
@@ -101,16 +95,27 @@ $(document).ready(function() {
 			data: $.param(tab),
 			async: false,
 			success: function(a) {
-				if (a.response) {
+				if (a.status === 'ok') {
 					$('#ip_ok').val("true");
 					$('#ip_validation').show();
 				}
 				else {
-					$.growlErreur('Communication Error');
 					$('#ip_ok').val("false");
 					$('#ip_validation').hide();
-				}
 
+					if (a.status === 'no_csv') {
+						$.growlErreur('Boiler page /logfiles/pelletronic responds but contains no CSV file');
+					} else if (a.status === 'no_logfiles') {
+						$.growlErreur('This address responds but /logfiles/pelletronic was not found: this is probably not the boiler');
+					} else if (a.status === 'empty_ip') {
+						$.growlErreur('Please enter the boiler IP address');
+					} else {
+						$.growlErreur('Boiler is not responding at this address');
+					}
+				}
+			},
+			complete: function() {
+				$bt.prop('disabled', false).text('Validate Boiler Connection');
 			}
 		});
 	});

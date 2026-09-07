@@ -6,6 +6,15 @@
  */
 include_once 'config.php';
 
+//$publicActions = ['admin.login', 'rendu.getIndicByDay', 'rendu.getGrapheData', /* ... */];
+
+// $route = ($_GET['type'] ?? '') . '.' . ($_GET['action'] ?? '');
+
+// if (!in_array($route, $publicActions, true) && !session::getInstance()->getVar('logged')) {
+//     http_response_code(403);
+//     exit('Forbidden');
+// }
+
 function is_ajax()
 {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' == strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);
@@ -136,10 +145,6 @@ if (is_ajax() && is_valid()) {
                             break;
                         case 'login':
                             $a->login($_POST['user'], $_POST['pass']);
-
-                            break;
-                        case 'fastlogin':
-                            $a->login("admin", "okouser");
 
                             break;
                         case 'logout':

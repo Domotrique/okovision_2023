@@ -25,7 +25,7 @@ INSERT INTO `oko_saisons` (`id`, `saison`, `date_debut`, `date_fin`) VALUES
 DROP TABLE IF EXISTS `oko_dateref`;
 CREATE TABLE IF NOT EXISTS `oko_dateref` (
   `jour` date NOT NULL
-) ENGINE=MYISAM DEFAULT CHARSET=utf8 COMMENT='table de reference des dates, sur 30ans a partir du 1er Septembre 2014';
+) ENGINE=MYISAM DEFAULT CHARSET=utf8 COMMENT='table de reference des dates';
 /*!40000 ALTER TABLE `oko_dateref` ENABLE KEYS */;
 
 

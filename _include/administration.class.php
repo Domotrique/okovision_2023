@@ -28,23 +28,14 @@ class administration extends connectDb
      */
     public function ping($address)
     {
-        $waitTimeoutInSeconds = 1;
+        $check = boiler::check($address);
 
-        $r = [];
-        $tmp = explode(':', $address);
-        $ip = $tmp[0];
-        $port = isset($tmp[1]) ? $tmp[1] : 80;
-
-        if ($fp = @fsockopen($ip, $port, $errCode, $errStr, $waitTimeoutInSeconds)) {
-            // It worked
-            $r['response'] = true;
-            $r['url'] = 'http://'.$address.URL;
-            @fclose($fp);
-        } else {
-            $r['response'] = false;
-        }
-
-        $this->sendResponse($r);
+        $this->sendResponse([
+            'response' => $check['response'],
+            'status'   => $check['status'],
+            'url'      => $check['url'],
+            'files'    => count($check['csv']),
+        ]);
     }
 
     /**
@@ -95,31 +86,10 @@ class administration extends connectDb
      */
     public function getFileFromChaudiere()
     {
-        $r['response'] = true;
+        $html = file_get_contents('http://'.CHAUDIERE.URL);
 
-        $htmlCode = file_get_contents('http://'.CHAUDIERE.URL);
-
-        $dom = new DOMDocument();
-
-        $dom->LoadHTML($htmlCode);
-
-        $links = $dom->GetElementsByTagName('a');
-
-        $t_href = [];
-        foreach ($links as $a) {
-            $href = $a->getAttribute('href');
-
-            if (preg_match('/csv/i', $href)) {
-                array_push(
-                    $t_href,
-                    [
-                        'file' => trim(str_replace(URL.'/', '', $href)),
-                        'url' => 'http://'.CHAUDIERE.$href,
-                    ]
-                );
-            }
-        }
-        $r['listefiles'] = $t_href;
+        $r['response']   = (false !== $html);
+        $r['listefiles'] = (false !== $html) ? boiler::findCsvLinks($html, CHAUDIERE) : [];
 
         $this->sendResponse($r);
     }
@@ -1053,25 +1023,31 @@ class administration extends connectDb
 	function newDump($name)
     {
         $r = [];
-
-        $database = BDD_SCHEMA;
-        $user = BDD_USER;
-        $pass = BDD_PASS;
-        $host = BDD_IP;
-        $dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . "dumps" . DIRECTORY_SEPARATOR . $name . ".sql";
-
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $mysqldump = '"' . $this->getSqlPath() . 'bin\mysqldump.exe"';
-        } else {
-            $mysqldump = "mysqldump";
-        }
-
-        exec("{$mysqldump} --user={$user} --password={$pass} --host={$host} {$database} --no-create-info --skip-add-drop-table --replace --result-file={$dir} 2>&1", $output, $result);
-		
-        if(count($output) > 1){
+        if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $name)) { 
             $r['response'] = false;
         } else {
-            $r['response'] = true;
+            $dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . "dumps" . DIRECTORY_SEPARATOR . $name . ".sql";
+
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $mysqldump = $this->getSqlPath() . 'bin\mysqldump.exe';
+            } else {
+                $mysqldump = "mysqldump";
+            }
+
+            exec(
+                escapeshellarg($mysqldump)
+                . ' --user=' . escapeshellarg(BDD_USER)
+                . ' --password=' . escapeshellarg(BDD_PASS)
+                . ' --host=' . escapeshellarg(BDD_IP)
+                . ' ' . escapeshellarg(BDD_SCHEMA)
+                . ' --no-create-info --skip-add-drop-table --replace'
+                . ' --result-file=' . escapeshellarg($dir)
+                . ' 2>&1',
+                $output,
+                $result
+            );
+ 
+            $r['response'] = (0 === $result);
         }
 		
         $this->sendResponse($r);
@@ -1206,5 +1182,32 @@ class administration extends connectDb
         $r = [];
         $r['response'] = true;
         $this->sendResponse($r);
+    }
+
+    /**
+     * Entry point used by the installer, while nobody is logged in yet.
+     *
+     * The CSV has already been downloaded from the boiler by setup.php, so the
+     * matrix can be built server side, without going through ajax.php.
+     * Idempotent : does nothing if the matrix already exists.
+     *
+     * @return bool true if the matrix has been created
+     */
+    public function initMatriceFromInstall()
+    {
+        if (!file_exists('_tmp/matrice.csv')) {
+            return false;
+        }
+
+        $result = $this->query('select count(*) from oko_capteur');
+
+        if ($result && ($row = $result->fetch_row()) && $row[0] > 1) {
+            return false;
+        }
+
+        $this->initMatriceFromFile();
+        unlink('_tmp/matrice.csv');
+
+        return true;
     }
 }

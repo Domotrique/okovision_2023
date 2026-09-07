@@ -88,9 +88,9 @@ $(document).ready(function () {
 			type: mode,
 			data: $.param(tab),
 			async: typeSync
-		}).error(function(e) {
-			var msg = lang.error.communication + ' : ' + cmd;
-			//console.log(e);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			var detail = jqXHR.responseText || errorThrown || textStatus;
+			var msg = lang.error.communication + ' : ' + cmd + ' — ' + jqXHR.status + ' ' + detail;
 			$.growlErreur(msg);
 		});
 		//console.log(jxhr);

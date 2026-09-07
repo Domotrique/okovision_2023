@@ -50,6 +50,78 @@ class connectDb
         return $con->real_escape_string($s);
     }
 
+    /**
+     * Exécute une requête préparée.
+     *
+     * Le contrat de retour est identique à query() : mysqli_result pour un
+     * SELECT, true pour du DML réussi, false en cas d'échec.
+     *
+     * @param string $sql    requête à placeholders '?'
+     * @param string $types  chaîne bind_param : i (int), d (float), s (string), b (blob)
+     * @param mixed  ...$params valeurs, dans l'ordre d'apparition des '?'
+     *
+     * @return mysqli_result|bool
+     */
+    protected function prepared($sql, $types = '', ...$params)
+    {
+        if (strlen($types) !== count($params)) {
+            $this->log->error('GLOBAL | prepared | nbr d`arguments invalide : types "'.$types.'" pour '.count($params).' paramètre(s) | '.$sql);
+
+            return false;
+        }
+
+        $con = self::getInstance()->getConnection();
+        $stmt = null;
+
+        try {
+            $stmt = $con->prepare($sql);
+
+            if (false === $stmt) {
+                $this->log->error('GLOBAL | prepared | prepare() : '.$con->error.' | '.$sql);
+
+                return false;
+            }
+
+            if ('' !== $types) {
+                $stmt->bind_param($types, ...$params);
+            }
+
+            if (!$stmt->execute()) {
+                $this->log->error('GLOBAL | prepared | execute() : '.$stmt->error.' | '.$sql);
+                $stmt->close();
+
+                return false;
+            }
+
+            $result = $stmt->get_result();
+
+            // get_result() renvoie false pour du DML : ce n'est une erreur
+            // que si errno est non nul.
+            if (false === $result) {
+                $ok = (0 === $stmt->errno);
+
+                if (!$ok) {
+                    $this->log->error('GLOBAL | prepared | get_result() : '.$stmt->error.' | '.$sql);
+                }
+                $stmt->close();
+
+                return $ok;
+            }
+
+            $stmt->close();
+
+            return $result;
+        } catch (mysqli_sql_exception $e) {
+            $this->log->error('GLOBAL | prepared | '.$e->getMessage().' | '.$sql);
+
+            if ($stmt instanceof mysqli_stmt) {
+                @$stmt->close();
+            }
+
+            return false;
+        }
+    }
+
     protected function query($q)
     {
         $con = self::getInstance()->getConnection();

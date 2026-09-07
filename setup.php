@@ -1,10 +1,12 @@
 <?php
 
-    /**
-     * Projet : Okovision - Supervision chaudiere OeKofen
-     * Auteur : Stawen Dronek
-     * Utilisation commerciale interdite sans mon accord.
-     */
+	require_once __DIR__.'/_include/boiler.class.php';
+
+	if (file_exists('config.json') && file_exists('config.php')) {
+		http_response_code(403);
+		header( "refresh:3; url=index.php" );
+		exit('Already installed, redirection to home.');
+	}
 
     function is_ajax()
     {
@@ -31,65 +33,40 @@
 
 	function testPing($address)
     {
-        $waitTimeoutInSeconds = 1;
-		
-        $r = [];
-        $tmp = explode(':', $address['ip']);
-        $ip = $tmp[0];
-        $port = isset($tmp[1]) ? $tmp[1] : 80;
-
-		if (!$ip == "") {
-			if ($fp = @fsockopen($ip, $port, $errCode, $errStr, $waitTimeoutInSeconds)) {
-				// It worked
-				$r['response'] = true;
-				@fclose($fp);
-			} else {
-				$r['response'] = false;
-			}
-		} else {
-			$r['response'] = false;
-		}
+        $r = boiler::check(isset($address['ip']) ? $address['ip'] : '');
 
 		header('Content-type: text/json');
-        echo json_encode($r, JSON_NUMERIC_CHECK);
+		echo json_encode([
+			'response'  => $r['response'],
+			'status'    => $r['status'],
+			'url'       => $r['url'],
+			'csv_count' => count($r['csv']),
+		], JSON_NUMERIC_CHECK);
 
-        exit(23);
+		exit(23);
     }
 
 	function makeInstallation($s)
     {
+		$r = ['csv' => 0];
+		$csvDownloaded = false;
+
 		if ($s['oko_ip_ok'] == "true") {
-			// Retrieve CSV file from boiler for Matrix table creation
-			$r = [];
-			$url = '/logfiles/pelletronic';
-			$htmlCode = file_get_contents('http://'.$s['oko_ip'].$url);
+			$check = boiler::check($s['oko_ip']);
 
-			$dom = new DOMDocument();
+			if ('ok' === $check['status']) {
+				$dir = __DIR__.'/_tmp';
+				if (!is_dir($dir)) {
+					mkdir($dir, 0775, true);
+				}
 
-			$dom->LoadHTML($htmlCode);
+				$csvContent = file_get_contents($check['csv'][0]['url']);
 
-			$links = $dom->GetElementsByTagName('a');
-
-			$t_href = [];
-			foreach ($links as $a) {
-				$href = $a->getAttribute('href');
-
-				if (preg_match('/csv/i', $href)) {
-					$csvFile = 'http://'.$s['oko_ip'].$href;
+				if (false !== $csvContent) {
+					file_put_contents($dir.'/matrice.csv', $csvContent);
+					$csvDownloaded = true;
 				}
 			}
-			
-			$dir = __DIR__ . '/_tmp';
-			if (!is_dir($dir)) {
-				mkdir($dir, 0775, true);
-			}
-			$file_name = $dir . '/matrice.csv';
-			file_put_contents($file_name, file_get_contents($csvFile));
-
-			$r['csv'] = 1;
-
-			header('Content-type: text/json');
-        	echo json_encode($r, JSON_NUMERIC_CHECK);
 		}
 
         if ($s['createDb']) {
@@ -166,7 +143,6 @@
 
         if ($response === false) {
             $msg = sprintf("Erreur cURL (%d): %s", $errno, $error);
-            $this->log->error($msg . ' | url=https://api.github.com/repos/domotrique/okovision_2023/releases/latest | http_code=' . ($info['http_code'] ?? 'N/A'));
             $result['status']  = 'error';
             $result['message'] = "Impossible de contacter le serveur de mise à jour : $error";
             return $result;
@@ -176,7 +152,6 @@
         if ($data === null) {
             $result['status']  = 'error';
             $result['message'] = "Réponse du serveur de mise à jour invalide (non JSON).";
-            $this->log->error($result['message']);
             return $result;
         }
 
@@ -208,6 +183,16 @@
         ];
 
         file_put_contents('config.json', json_encode($param));
+		
+		if ($csvDownloaded) {
+			include_once 'config.php'; // constantes BDD + autoloader
+
+			$a = new administration();
+			$r['csv'] = $a->initMatriceFromInstall() ? 1 : 0;
+		}
+
+		header('Content-type: text/json');
+		echo json_encode($r, JSON_NUMERIC_CHECK);
 
 		exit;
     }

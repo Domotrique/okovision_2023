@@ -6,27 +6,34 @@
 /* global lang, $ */
 
 $(document).ready(function() {
+	var $bt = $(this);
+	var ip = $('#oko_ip').val();
 
-	/*
-	 * Espace Information general
-	 */
+	$bt.prop('disabled', true);
+	$('#url_csv').html('');
 
-	$('#test_oko_ip').click(function() {
-		var ip = $('#oko_ip').val();
+	$.api('GET', 'admin.testIp', {
+		ip: ip
+	}).done(function(json) {
 
-		$.api('GET', 'admin.testIp', {
-			ip: ip
-		}).done(function(json) {
+		if (json.status === 'ok') {
+			$.growlValidate(lang.valid.communication);
+		} else if (json.status === 'no_csv') {
+			$.growlWarning(lang.error.boilerNoCsv);
+		} else if (json.status === 'no_logfiles') {
+			$.growlWarning(lang.error.boilerLogfilesNotFound);
+		} else if (json.status === 'empty_ip') {
+			$.growlWarning(lang.error.ipEmpty);
+		} else {
+			$.growlWarning(lang.error.ipNotPing);
+		}
 
-			if (json.response) {
-				$('#url_csv').html("");
-				$.growlValidate(lang.valid.communication);
-				$('#url_csv').append('<a target="_blank" href="' + json.url + '">' + lang.text.seeFileOnboiler + '</a>');
-			}
-			else {
-				$.growlWarning(lang.error.ipNotPing);
-			}
-		});
+		// le lien reste utile pour diagnostiquer quand la page repond sans csv
+		if (json.url && (json.status === 'ok' || json.status === 'no_csv')) {
+			$('#url_csv').append('<a target="_blank" href="' + json.url + '">' + lang.text.seeFileOnboiler + '</a>');
+		}
+	}).always(function() {
+		$bt.prop('disabled', false);
 	});
 
 	function syncDeleteBtn() {
