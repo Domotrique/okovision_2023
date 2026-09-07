@@ -23,7 +23,7 @@ function is_ajax()
 
 function is_valid()
 {
-    return (0 == strcmp(session::getInstance()->getVar('sid'), $_GET['sid'])) ? true : false;
+    return 0 == strcmp(session::getInstance()->getVar('sid'), $_GET['sid'] ?? '');
 }
 
 if (is_ajax() && is_valid()) {
@@ -114,7 +114,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'makeSyntheseByDay':
-                            $a->makeSyntheseByDay($_GET['date']);
+                            $a->makeSyntheseByDay(input::date($_GET, 'date'));
 
                             break;
                         case 'getDayWithoutSynthese':
@@ -144,7 +144,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'login':
-                            $a->login($_POST['user'], $_POST['pass']);
+                            $a->login(input::str($_POST,'user'), input::raw($_POST,'pass'));
 
                             break;
                         case 'logout':
@@ -152,7 +152,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'changePassword':
-                            $a->changePassword($_POST['pass'], $_POST['previous_pass']);
+                            $a->changePassword(input::raw($_POST,'pass'), input::raw($_POST,'previous_pass'));
 
                             break;
                         case 'getDumps':
@@ -163,12 +163,12 @@ if (is_ajax() && is_valid()) {
                             $a->deleteDump($_POST);
 
                             break;
-                        case 'dumpExist':
-                            $a->dumpExist($_GET['name']);
+                        case 'dumpExist':                            
+                            $a->dumpExist(input::str($_GET,'name'));
 
                             break;
                         case 'newDump':
-                            $a->newDump($_GET['name']);
+                            $a->newDump(input::str($_GET,'name'));
 
                             break;
                         case 'updateDump':
@@ -233,7 +233,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'grapheAssoCapteurExist':
-                            $g->grapheAssoCapteurExist($_GET['graphe'], $_GET['capteur']);
+                            $g->grapheAssoCapteurExist(input::int($_GET, 'graphe'), input::int($_GET, 'capteur'));
 
                             break;
                         case 'addGrapheAsso':
@@ -241,7 +241,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'getGrapheAsso':
-                            $g->getGrapheAsso($_GET['graphe']);
+                            $g->getGrapheAsso(input::int($_GET, 'graphe'));
 
                             break;
                         case 'updateGrapheAsso':
@@ -268,7 +268,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'getGrapheData':
-                            $r->getGrapheData($_GET['id'], $_GET['jour']);
+                            $r->getGrapheData(input::int($_GET, 'id'), input::date($_GET, 'jour'));
 
                             break;
                         case 'getIndicByDay':
@@ -280,7 +280,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'getIndicByMonth':
-                            $r->getIndicByMonth($_GET['month'], $_GET['year']);
+                            $r->getIndicByMonth(input::month($_GET, 'month'), input::year($_GET, 'year'));
 
                             break;
                         case 'getStockStatus':
@@ -292,23 +292,23 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'getHistoByMonth':
-                            $r->getHistoByMonth($_GET['month'], $_GET['year']);
+                            $r->getHistoByMonth(input::month($_GET, 'month'), input::year($_GET, 'year'));
 
                             break;
                         case 'getTotalSaison':
-                            $r->getTotalSaison($_GET['saison']);
+                            $r->getTotalSaison(input::int($_GET,'saison'));
 
                             break;
                         case 'getSyntheseSaison':
-                            $r->getSyntheseSaison($_GET['saison']);
+                            $r->getSyntheseSaison(input::int($_GET,'saison'));
 
                             break;
                         case 'getSyntheseSaisonTable':
-                            $r->getSyntheseSaisonTable($_GET['saison']);
+                            $r->getSyntheseSaisonTable(input::int($_GET,'saison'));
 
                             break;
                         case 'getAnnotationByDay':
-                            $r->getAnnotationByDay($_GET['jour']);
+                            $r->getAnnotationByDay(input::date($_GET, 'jour'));
 
                             break;
                     }
@@ -322,7 +322,7 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'setOkoLogin':
-                            $rt->setOkoLogin($_POST['user'], $_POST['pass']);
+                            $rt->setOkoLogin(input::str($_POST,'user'), input::raw($_POST,'pass'));
 
                             break;
                         case 'getData':
@@ -332,11 +332,11 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'getSensorInfo':
-                            $rt->getSensorInfo($_POST['sensor']);
+                            $rt->getSensorInfo(input::int($_POST,'sensor'));
 
                             break;
                         case 'saveBoilerConfig':
-                            $rt->saveBoilerConfig($_POST['config'], $_POST['description'], $_POST['date']);
+                            $rt->saveBoilerConfig($_POST['config'], input::str($_POST, 'description', '', 150), input::str($_POST, 'date'));
 
                             break;
                         case 'getListConfigBoiler':
@@ -344,11 +344,11 @@ if (is_ajax() && is_valid()) {
 
                             break;
                         case 'deleteConfigBoiler':
-                            $rt->deleteConfigBoiler($_POST['timestamp']);
+                            $rt->deleteConfigBoiler(input::ts($_POST,'timestamp'));
 
                             break;
                         case 'getConfigBoiler':
-                            $rt->getConfigBoiler($_POST['timestamp']);
+                            $rt->getConfigBoiler(input::ts($_POST,'timestamp'));
 
                             break;
                         case 'applyBoilerConfig':

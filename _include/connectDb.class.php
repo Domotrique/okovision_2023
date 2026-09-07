@@ -122,8 +122,50 @@ class connectDb
         }
     }
 
+     /**
+     * Construit un nom de colonne « col_N » depuis oko_capteur.column_oko.
+     *
+     * @param mixed $columnOko
+     *
+     * @return string
+     */
+    protected function colOko($columnOko)
+    {
+        $n = (int) $columnOko;
+
+        if ((string) $n !== trim((string) $columnOko)) {
+            $this->log->error('GLOBAL | colOko | identifiant de colonne inattendu, forcé à '.$n.' (reçu : '.var_export($columnOko, true).')');
+        }
+
+        return 'col_'.$n;
+    }
+
+    /**
+     * Sécurise un littéral numérique qui ne peut pas passer par un placeholder.
+     *
+     * @param mixed $v
+     *
+     * @return string
+     */
+    protected function sqlNum($v)
+    {
+        if (!is_numeric($v)) {
+            $this->log->error('GLOBAL | sqlNum | valeur non numérique forcée à 0 (reçu : '.var_export($v, true).')');
+
+            return '0';
+        }
+
+        return (string) (0 + $v);
+    }
+
     protected function query($q)
     {
+        if (false !== strpos($q, '?')) {
+            $this->log->error('GLOBAL | query | requête à placeholders passée à query() au lieu de prepared() | '.$q);
+
+            return false;
+        }
+        
         $con = self::getInstance()->getConnection();
 
         return $con->query($q);
