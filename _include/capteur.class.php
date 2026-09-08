@@ -45,7 +45,12 @@ class capteur extends connectDb
     {
         $capteur = [];
         if (null != $id) {
-            $result = $this->query('select id, name, position_column_csv, column_oko, original_name, type from oko_capteur where id= '.$id);
+            $q = 'select id, name, position_column_csv, column_oko, original_name, type from oko_capteur where id= ?';
+
+            $result = $this->prepared($q, 'i', $id);
+            if (!$result) {
+                return $capteur;
+            }
             $capteur = $result->fetch_assoc();
         }
 
@@ -75,7 +80,12 @@ class capteur extends connectDb
     public function getByType($type = '')
     {
         if ('' != $type) {
-            $result = $this->query("select id, name, position_column_csv, column_oko, original_name, type from oko_capteur where type = '".$type."';");
+            $q = "select id, name, position_column_csv, column_oko, original_name, type from oko_capteur where type = ?";
+            $result = $this->prepared($q, 's', $type);
+
+            if (!$result) {
+                return;
+            }
 
             return $result->fetch_assoc();
         }
@@ -83,7 +93,6 @@ class capteur extends connectDb
 
     public function getLastColumnOko()
     {
-        //$result = $this->query("select max(column_oko) as num from oko_capteur where type <> 'startCycle';");
         $result = $this->query('select max(column_oko) as num from oko_capteur;');
         $r = $result->fetch_object();
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_capteur | '.$r->num);

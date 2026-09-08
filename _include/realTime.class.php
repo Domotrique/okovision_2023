@@ -117,14 +117,15 @@ class realTime extends connectDb
 
     public function setOkoLogin($user, $pass)
     {
-        $pass = base64_encode($this->realEscapeString($pass));
+        $pass = base64_encode($pass);
         $userId = session::getInstance()->getVar('userId');
         $r['response'] = false;
 
-        $q = "update oko_user set login_boiler='{$user}', pass_boiler='{$pass}' where id={$userId}";
+        $q = "update oko_user set login_boiler= ?, pass_boiler= ? where id= ?";
+        
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        if ($this->query($q)) {
+        if ($this->prepared($q, 'ssi', $user, $pass, $userId)) {
             $o = new okofen();
             $o->boilerDisconnect();
             $r['response'] = true;
@@ -137,11 +138,16 @@ class realTime extends connectDb
     {
         $q = 'select capteur.boiler as boiler, capteur.name as name, capteur.id as id, asso.correction_effect as coeff from oko_asso_capteur_graphe as asso '.
                 'LEFT JOIN oko_capteur as capteur ON capteur.id = asso.oko_capteur_id  '.
-                'WHERE asso.oko_graphe_id='.$id." AND capteur.boiler <> '' ORDER BY asso.position";
+                "WHERE asso.oko_graphe_id= ? AND capteur.boiler <> '' ORDER BY asso.position";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 'i', $id);
+
+        if (!$result) {
+            $this->sendResponse(json_encode(['response' => false]));
+            return;
+        }
 
         $sensor = [];
 
@@ -190,29 +196,24 @@ class realTime extends connectDb
         $utc = ($date->getTimestamp() + $date->getOffset());
 
         $config = json_encode($config);
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$config);
 
-        $config = $this->realEscapeString($config);
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$config);
 
-        $description = $this->realEscapeString($description);
-
-        $q = "INSERT INTO oko_boiler set timestamp={$utc}, description='{$description}', config='{$config}' ;";
+        $q = "INSERT INTO oko_boiler set timestamp= ?, description= ?, config= ?";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($q);
+        $r['response'] = $this->prepared($q, 'iss', $utc, $description, $config);
 
         $this->sendResponse(json_encode($r));
     }
 
     public function deleteConfigBoiler($timestamp)
     {
-        $q = "DELETE FROM oko_boiler where timestamp={$timestamp};";
+        $q = "DELETE FROM oko_boiler where timestamp= ?";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($q);
+        $r['response'] = $this->prepared($q, 'i', $timestamp);
 
         $this->sendResponse(json_encode($r));
     }
@@ -241,20 +242,20 @@ class realTime extends connectDb
 
     public function getConfigBoiler($timestamp)
     {
-        $q = "SELECT config FROM oko_boiler where timestamp={$timestamp}; ";
+        $q = "SELECT config FROM oko_boiler where timestamp= ?";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 'i', $timestamp);
         $r = null;
 
-        if ($result) {
-            $r .= '"response":true';
-            $res = $result->fetch_object();
-            $r .= ',"data":'.$res->config;
+        $res = $result ? $result->fetch_object() : null;
+
+        if ($res) {
+            $r = '"response":true,"data":'.$res->config;
             $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$res->config);
         } else {
-            $r .= '"response":false';
+            $r = '"response":false';
         }
 
         $this->sendResponse('{'.$r.'}');

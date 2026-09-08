@@ -277,14 +277,14 @@ class administration extends connectDb
     {
         //ne pas proposer la date du jour, car forcement incomplete.
         $now = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')));
-
+        
         $q = 'SELECT a.jour as jour FROM oko_historique_full as a '.
                 'LEFT OUTER JOIN oko_resume_day as b ON a.jour = b.jour '.
-                "WHERE b.jour is NULL AND a.jour <> '".$now."'group by a.jour;";
+                "WHERE b.jour is NULL AND a.jour <> ? group by a.jour";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 's', $now);
         $r['data'] = [];
 
         if ($result) {
@@ -352,11 +352,11 @@ class administration extends connectDb
     {
         $r = [];
 
-        $q = "select count(*) from oko_saisons where date_debut = '".$day."'";
+        $q = "select count(*) from oko_saisons where date_debut = ?";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 's', $day);
 
         $r['response'] = false;
 
@@ -384,10 +384,11 @@ class administration extends connectDb
 
         $dates = $this->getDateSaison($s['startDate']);
         //insertion d'une reference au demarrage des cycles de chauffe
-        $query = "INSERT INTO oko_saisons (saison, date_debut, date_fin) VALUES('".$dates['saison']."','".$dates['start']."','".$dates['end']."');";
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $q = "INSERT INTO oko_saisons (saison, date_debut, date_fin) VALUES(?, ?, ?)";
 
-        $r['response'] = $this->query($query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+
+        $r['response'] = $this->prepared($q, 'sss', $dates['saison'], $dates['start'], $dates['end']);
 
         $this->sendResponse($r);
     }
@@ -405,11 +406,11 @@ class administration extends connectDb
 
         $dates = $this->getDateSaison($s['startDate']);
         //insertion d'une reference au demarrage des cycles de chauffe
-        $query = "UPDATE oko_saisons set saison='".$dates['saison']."', date_debut='".$dates['start']."', date_fin='".$dates['end']."' where id=".$s['idSaison'];
+        $q = "UPDATE oko_saisons set saison= ?, date_debut= ?, date_fin= ? where id= ?";
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'sssi', $dates['saison'], $dates['start'], $dates['end'], $s['idSaison']);
 
         $this->sendResponse($r);
     }
@@ -424,9 +425,10 @@ class administration extends connectDb
     public function deleteSaison($s)
     {
         $r = [];
-        $query = 'DELETE FROM oko_saisons where id='.$s['idSaison'];
+        $q = 'DELETE FROM oko_saisons where id= ?';
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'i', $s['idSaison']);
+
         $this->sendResponse($r);
     }
 
@@ -473,19 +475,12 @@ class administration extends connectDb
     public function setEvent($s)
     {
         $r = [];
+                
+        $q = 'INSERT INTO oko_silo_events (event_date, quantity, remaining, price, event_type) VALUES (?, ?, ?, ?, ?)';
 
-        $query = 'INSERT INTO oko_silo_events '
-                .'(event_date, quantity, remaining,  price,  event_type) '
-                .'VALUES '
-                ."('".$this->realEscapeString($s['event_date'])."',"
-                ." '".$this->realEscapeString($s['quantity'])."',"
-                ." '".$this->realEscapeString($s['remaining'])."',"
-                ." '".$this->realEscapeString($s['price'])."',"
-                ." '".$this->realEscapeString($s['event_type'])."')";
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
-
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'siiis', $s['event_date'], $s['quantity'], $s['remaining'], $s['price'], $s['event_type']);
 
         $this->sendResponse($r);
     }
@@ -499,17 +494,11 @@ class administration extends connectDb
     {
         $r = [];
 
-        $query = 'UPDATE oko_silo_events SET '
-                ." event_date='".$this->realEscapeString($s['event_date'])."', "
-                ." quantity='".$this->realEscapeString($s['quantity'])."', "
-                ." remaining='".$this->realEscapeString($s['remaining'])."', "
-                ." price='".$this->realEscapeString($s['price'])."', "
-                ." event_type='".$this->realEscapeString($s['event_type'])."' "
-                .' WHERE id='.$s['idEvent'];
+        $q = "UPDATE oko_silo_events SET event_date= ?, quantity= ?, remaining= ?, price= ?, event_type= ? WHERE id= ?";
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'siiisi', $s['event_date'], $s['quantity'], $s['remaining'], $s['price'], $s['event_type'], $s['idEvent']);
 
         $this->sendResponse($r);
     }
@@ -522,9 +511,10 @@ class administration extends connectDb
     public function deleteEvent($s)
     {
         $r = [];
-        $query = 'DELETE FROM oko_silo_events where id='.$s['idEvent'];
+        $q = 'DELETE FROM oko_silo_events where id= ?';
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'i', $s['idEvent']);
+
         $this->sendResponse($r);
     }
 
@@ -649,9 +639,9 @@ class administration extends connectDb
     {
         $r = ['response' => false];
 
-        $userEsc = $this->realEscapeString($user);
-        $q = "SELECT id, type, pass FROM oko_user WHERE user = '{$userEsc}' LIMIT 1";
-        $res = $this->query($q);
+        $q = "SELECT id, type, pass FROM oko_user WHERE user = ? LIMIT 1";
+
+        $res = $this->prepared($q, 's', $user);
 
         if (!$res || $res->num_rows !== 1) {
             // User not found
@@ -665,16 +655,22 @@ class administration extends connectDb
             // Check if we need to rehash the password
             if (password_needs_rehash($storedHash, PASSWORD_DEFAULT)) {
                 $newHash = password_hash($pass, PASSWORD_DEFAULT);
-                $newHashEsc = $this->realEscapeString($newHash);
-                $this->query("UPDATE oko_user SET pass = '{$newHashEsc}' WHERE id = ".(int)$row['id']);
+
+                $q = "UPDATE oko_user SET pass = ? WHERE id = ?";
+
+                $this->prepared($q, 'si', $newHash, $row['id']);
             }
             $r['response'] = true;
         } else {
             if ($storedHash === sha1($this->realEscapeString($pass))) {
+
                 // Password matches old SHA1 hash, upgrade to bcrypt
                 $newHash = password_hash($pass, PASSWORD_DEFAULT);
-                $q = "UPDATE oko_user SET pass = '{$newHash}' WHERE id = ".(int)$row['id'];
-                $this->query($q);
+
+                $q = "UPDATE oko_user SET pass = ? WHERE id = ?";
+
+                $this->prepared($q, 'si', $newHash, $row['id']);
+
                 $r['response'] = true;
             } else {
                 // Password is incorrect
@@ -726,10 +722,10 @@ class administration extends connectDb
 
         if ( password_verify($previousPass, $this->getUserPasswordHash($userId)) ) {
             $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
-            $q = "update oko_user set pass='{$hashedPass}' where id={$userId}";
-            if ($this->query($q)) {
-                $r['response'] = true;
-            }
+
+            $q = "update oko_user set pass= ? where id= ?";
+
+            $r['response'] = $this->prepared($q, 'si', $hashedPass, $userId);
         } else {
             $r['response'] = false;
             $r['reason'] = 'previousPasswordNotMatch';
@@ -748,9 +744,10 @@ class administration extends connectDb
     private function getUserPasswordHash($userId)
     {
         $userId = (int)$userId;
-        $q = "select pass from oko_user where id={$userId} LIMIT 1";
+        
+        $q = "select pass from oko_user where id= ? LIMIT 1";
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 'i', $userId);
 
         if ($result) {
             $res = $result->fetch_object();
