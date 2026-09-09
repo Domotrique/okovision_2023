@@ -70,7 +70,7 @@ class capteur extends connectDb
     public function getMatrix()
     {
         $r = [];
-        
+
         $result = $this->query("select id, name, position_column_csv, column_oko, original_name, type from oko_capteur where type <> 'startCycle' order by position_column_csv asc;");
         while ($row = $result->fetch_object()) {
             $r[$row->original_name] = $row;

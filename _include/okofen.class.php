@@ -58,9 +58,10 @@ class okofen extends connectDb
         if (empty($dateChoosen)) {
             return false;
         }
-        $sql = "SELECT COUNT(*) FROM oko_historique_full WHERE jour = '{$dateChoosen}' AND heure = '23:59:00'";
+        
+        $q = "SELECT COUNT(*) FROM oko_historique_full WHERE jour = ? AND heure = '23:59:00'";
 
-        $result = $this->query($sql);
+        $result = $this->prepared($q, 's', $dateChoosen);
 
         if ($result) {
             if ($res = $result->fetch_row()) {
@@ -143,7 +144,7 @@ class okofen extends connectDb
                         $st = 1;
                         //creation de la requette pour le comptage des cycle de la chaudiere
                         //Enregistrement de 1 si nous commençons un cycle d'allumage
-                        $query .= ', col_'.$startCycle['column_oko'].'='.$st;
+                        $query .= ', '.$this->colOko($startCycle['column_oko']).'='.$st;
                     }
 
                     //creation de la requette sql pour les capteurs
@@ -180,7 +181,7 @@ class okofen extends connectDb
                             $temp_old = $tmp_current;
                         }
 
-                        $query .= ', col_'.$capteurs[$i]['column_oko'].'='.$this->cvtDec($colCsv[$i]);
+                        $query .= ', '.$this->colOko($capteurs[$i]['column_oko']).'='.$this->cvtDec($colCsv[$i]);
                     }
 					
 					//We detected a reset temperature bug so we ignore this line
@@ -329,10 +330,11 @@ class okofen extends connectDb
 
     private function deleteSyntheseDay($day)
     {
-        $q = "DELETE FROM oko_resume_day where jour = '".$day."'";
+        $q = "DELETE FROM oko_resume_day where jour = ?";
+
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        return $this->query($q);
+        return $this->prepared($q, 's', $day);
     }
 
     /**
@@ -342,9 +344,9 @@ class okofen extends connectDb
      */
     private function isSyntheseDone($day)
     {
-        $sql = "SELECT COUNT(*) FROM oko_resume_day WHERE jour = '{$day}'";
+        $q = "SELECT COUNT(*) FROM oko_resume_day WHERE jour = ?";
 
-        $result = $this->query($sql);
+        $result = $this->prepared($q, 's', $day);
 
         if ($result) {
             if ($res = $result->fetch_row()) {
@@ -357,7 +359,7 @@ class okofen extends connectDb
 
     private function insertSyntheseDay($day)
     {
-        $query = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUES ';
+        $q = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUES ( ?, ?, ?, ?, ?, ?, ?)';
 
         $rendu = new rendu();
         $max = $rendu->getTcMaxByDay($day);
@@ -382,13 +384,11 @@ class okofen extends connectDb
         
         $nbCycle = (null == $cycle->nbCycle) ? 0 : $cycle->nbCycle;
 
-        $query .= "('".$day."', ".$max->tcExtMax.', '.$min->tcExtMin.', '.$consoPellet.', '.$consoEcsPellet.', '.$dju.', '.$nbCycle.' );';
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $result = $this->prepared($q, 'sdddddi', $day, $max->tcExtMax, $min->tcExtMin, $consoPellet, $consoEcsPellet, $dju, $nbCycle);
 
-        $n = $this->query($query);
-
-        if (!$n) {
+        if (!$result) {
             $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | creation synthèse du '.$day.' impossible');
 
             return false;
