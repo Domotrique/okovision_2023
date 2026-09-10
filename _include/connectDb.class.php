@@ -171,20 +171,6 @@ class connectDb
         return $con->query($q);
     }
 
-    protected function multi_query($q)
-    {
-        $con = self::getInstance()->getConnection();
-
-        return $con->multi_query($q);
-    }
-
-    protected function flush_multi_queries()
-    {
-        $con = self::getInstance()->getConnection();
-
-        return $con->next_result() && $con->more_results();
-    }
-
     private static function getInstance()
     {
         if (!self::$_instance) { // If no instance then make one

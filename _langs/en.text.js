@@ -57,7 +57,8 @@ var lang = {
     },
     warning:{
         drop: 'This backup will reset your history to this previous version! (new data will be deleted) Please remove the DROP lines from sql file.',
-        insert: 'This backup will generate duplicates. (change INSERT to REPLACE).'
+        insert: 'This backup will generate duplicates. (change INSERT to REPLACE).',
+        security: 'Some unauthorized files are exposed! Please run install/harden-apache.sh.'
     },
     valid:{
         communication: 'Communication established',

@@ -57,7 +57,8 @@ var lang = {
     },
     warning:{
         drop: 'Cette sauvegarde effacera votre historique récent ! Veuillez supprimer les lignes DROP dans le fichier SQL.',
-        insert: 'Cette sauvegarde va générer des doublons. Veuillez remplacer les INSERT par des REPLACE dans le fichier SQL.'
+        insert: 'Cette sauvegarde va générer des doublons. Veuillez remplacer les INSERT par des REPLACE dans le fichier SQL.',
+        security: 'Certains fichiers non autorisés sont exposés! Veuillez exécuter install/harden-apache.sh.'
     },
     valid:{
         communication: 'Communication établie',

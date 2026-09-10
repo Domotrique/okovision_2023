@@ -1,6 +1,5 @@
 {
     "lang.error.maj.information": "Communication impossible avec le serveur de mise à jour. Allez voir dans les logs pour des informations complémentaires.",
-    "lang.valid.maj.information": "Vous disposez de la dernière version !",
     "lang.text.menu.index": "Accueil",
     "lang.text.menu.historic": "Historique",
     "lang.text.menu.graphic": "Graphiques",
@@ -22,7 +21,7 @@
     "lang.text.menu.rt.config": "Temps Réel Configuration",
     "lang.text.page.about.title": "A propos d'Okovision 2023",
     "lang.text.page.about.information": "<p>Okovision 2023 est un Fork d'une application de Stawen Dronek.<\/p><p>Toute utilisation commerciale est interdite sans son accord.<\/p><p>Pour plus d'informations <a href=\"http:\/\/okovision.dronek.com\" target=\"_blank\">okovision.dronek.com<\/a> et le <a href=\"http:\/\/okovision.dronek.com\/wiki.html\" target=\"_blank\">Wiki<\/a><\/p><p>Si vous constatez des bugs, merci de me les remonter via <a href=\"https:\/\/github.com\/Domotrique\/okovision_2023\/issues\" target=\"_blank\">GitHub<\/a> ou par mail ou via le  <a href=\"http:\/\/forums.futura-sciences.com\/logiciel-software-open-source\/705908-okovision-retours-utilisateurs.html\" target=\"_blank\">forum<\/a> <\/p><p>Contact : <a href=\"mailto:stommz@gmail.com\">stommz@gmail.com<\/a><\/p>",
-    "lang.text.page.about.update": "Mise à jour disponible",
+    "lang.text.page.about.update": "Vérification de la version",
     "lang.text.page.about.update.install": "Installer la mise à jour",
     "lang.text.page.about.update.check": "Vérification en cours......",
     "lang.text.page.about.update.inprogress": "Installation en cours......",
@@ -173,6 +172,8 @@
     "lang.text.graphe.label.conso.ecs": "ECS (Kg)",
     "lang.text.graphe.label.dju": "DJU",
     "lang.text.graphe.label.nbcycle": "NB Cycles",
+    
+    "lang.valid.maj.information": "Vous disposez de la dernière version !",
    
     "lang.capteur.CAPPL:FA[0].L_mittlere_laufzeit": "Temps moyen du brûleur",
     "lang.capteur.CAPPL:FA[0].L_brennerstarts": "Nb démarrage brûleur",

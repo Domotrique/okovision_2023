@@ -117,7 +117,7 @@ class realTime extends connectDb
 
     public function setOkoLogin($user, $pass)
     {
-        $pass = base64_encode($pass);
+        $pass = base64_encode(real_escape_string($pass));
         $userId = session::getInstance()->getVar('userId');
         $r['response'] = false;
 

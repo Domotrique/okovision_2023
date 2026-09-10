@@ -50,18 +50,6 @@ class gstGraphique extends connectDb
         $this->sendResponse($r);
     }
 
-    /*
-
-    // avant
-    $q = 'DELETE FROM oko_saisons where id='.$s['idSaison'];
-    $r['response'] = $this->query($q);
-
-    // après
-    $q = 'DELETE FROM oko_saisons WHERE id = ?';
-    $r['response'] = $this->prepared($q, 'i', $s['idSaison']);
-
-    */
-
     public function grapheNameExist($name)
     {
         $q = "select count(*) from oko_graphe where name = ?";

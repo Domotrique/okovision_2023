@@ -546,6 +546,7 @@ class administration extends connectDb
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
+        $leaks = "";
 
         $update = new AutoUpdate();
         $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
@@ -558,6 +559,13 @@ class administration extends connectDb
             $r['list'] = $update->getVersionsInformationToUpdate();
         } else {
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
+        }
+
+        $leaks = $this->securityCheck($debug = false);
+
+        if ($leaks != "") {
+            $r['security'] = true;
+            $r['leaks'] = $leaks;
         }
 
         //on envoie les stats anonymes
@@ -1269,5 +1277,53 @@ class administration extends connectDb
         }
 
         return false;
+    }
+
+    /**
+     * Check for potential exposed files.
+     * @return string with exposed files separated by <br>
+     */
+    public function securityCheck($debug = false)
+    {
+        if ($debug) {
+            // Test configuration Apache
+            $host   = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
+            $scheme = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) ? 'https' : 'http';
+            $probes = ['var/okv_ingest.json', '_logs/okovision.log', 'config.json'];
+            $leaks  = [];
+
+            foreach ($probes as $p) {
+                $ch = curl_init("$scheme://$host/$p");
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_NOBODY         => true,
+                    CURLOPT_CONNECTTIMEOUT => 3,
+                    CURLOPT_TIMEOUT        => 5,
+                    CURLOPT_SSL_VERIFYPEER => false, // certificat auto-signe frequent en LAN
+                ]);
+                curl_exec($ch);
+                if (200 === (int) curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
+                    $leaks[] = $p;
+                }
+                curl_close($ch);
+            }
+
+            @mkdir(__DIR__ . '/../var', 0700, true);
+            file_put_contents(__DIR__ . '/../var/okv_security.json', json_encode([
+                'checked_at' => time(),
+                'status'     => $leaks ? 'exposed' : 'ok',
+                'leaks'      => $leaks,
+            ]));
+        }
+
+        $r = "";
+
+        if (is_file(__DIR__ . "/../var/okv_security.json")) {
+            $leaks = json_decode(file_get_contents(__DIR__ . "/../var/okv_security.json"), true);
+            if (is_array($leaks) && $leaks['leaks'] != "") {
+                $r = join('<br>', $leaks['leaks']);
+            }
+        }
+        return $r;
     }
 }

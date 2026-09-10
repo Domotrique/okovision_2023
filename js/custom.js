@@ -38,13 +38,14 @@ $(document).ready(function () {
 		});
 	};
 
-	$.growlErreur = function(text) {
+	$.growlErreur = function(text, delay) {
 		$.notify({
 			icon: 'glyphicon glyphicon-exclamation-sign',
 			message: text
 		}, {
 			z_index: 9999,
-			type: 'danger'
+			type: 'danger',
+        	delay: (delay === undefined) ? 5000 : delay
 		});
 	};
 

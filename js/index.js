@@ -477,6 +477,10 @@ $(document).ready(function() {
 				$.growlUpdateAvailable();
 			}
 
+			if (json.security) {
+				$.growlErreur(lang.warning.security + '<br>' + json.leaks, 10000);
+			}
+
 		});
 		loader = true;
 	}, 5000);

@@ -108,6 +108,10 @@ class okofen extends connectDb
         $bugTemp = false;
         unset($ob_capteur);
 
+        if (null == $capteurStatus || null == $startCycle || null == $tc_ext) {
+            return false;
+        }
+
         $file = fopen(CSVFILE, 'r');
         $ln = 0;
         $old_status = 0;
