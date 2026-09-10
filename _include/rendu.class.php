@@ -85,8 +85,8 @@ class rendu extends connectDb
         }
 
         
-        $c = json_decode($this->getConsoByday($jour, $timeStart, $timeEnd));
-        $c_ecs = json_decode($this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater'));
+        $c = $this->getConsoByday($jour, $timeStart, $timeEnd);
+        $c_ecs = $this->getConsoByday($jour, $timeStart, $timeEnd, 'hotwater');
         $min = $this->getTcMinByDay($jour, $timeStart, $timeEnd);
         $max = $this->getTcMaxByDay($jour, $timeStart, $timeEnd);
         
@@ -114,6 +114,7 @@ class rendu extends connectDb
      * @param null|mixed $timeStart
      * @param null|mixed $timeEnd
      * @param mixed      $type
+     * @return object
      *                              Specify type of consommation : default all, or heater (Chauffage) or hotwater (ECS)
      */
     public function getConsoByday($jour, $timeStart = null, $timeEnd = null, $type = null)
@@ -124,7 +125,7 @@ class rendu extends connectDb
         $capteur_vis_pause = $c->getByType('tps_vis_pause');
 
         if (null == $capteur_vis || null == $capteur_vis_pause) {
-            return json_encode(['consoPellet' => null]);
+            return (object) ['consoPellet' => null];
         }
 
         $colVis = $this->colOko($capteur_vis['column_oko']);
@@ -147,7 +148,7 @@ class rendu extends connectDb
         if ('hotwater' == $type) { //just first circuit for now
             $capteur_ecs = $c->getByType('hotwater[0]');
             if (null == $capteur_ecs) {
-                return json_encode(['consoPellet' => null]);
+                return (object) ['consoPellet' => null];
             }
             $usage = ' AND a.'.$this->colOko($capteur_ecs['column_oko']).' = 1';
         }
@@ -161,9 +162,12 @@ class rendu extends connectDb
         $result = $this->prepared($q, $types, ...$params);
 
         if (!$result) {
-            return json_encode(['consoPellet' => null]);
+            return (object) ['consoPellet' => null];
         }
-        return json_encode($result->fetch_object());
+
+        $row = $result->fetch_object();
+
+        return $row ?: (object) ['consoPellet' => null];
     }
 
     /**
@@ -207,7 +211,9 @@ class rendu extends connectDb
             return (object) (['tcExtMax' => null]);
         }
 
-        return $result->fetch_object();
+        $row = $result->fetch_object();
+
+        return $row ?: (object) ['tcExtMax' => null];
     }
 
     public function getTcMinByDay($jour, $timeStart = null, $timeEnd = null)
@@ -242,8 +248,10 @@ class rendu extends connectDb
         if (!$result) {
             return (object) (['tcExtMin' => null]);
         }
+        
+        $row = $result->fetch_object();
 
-        return $result->fetch_object();
+        return $row ?: (object) ['tcExtMin' => null];
     }
 
     public function getDju($tcMax, $tcMin)
@@ -262,7 +270,7 @@ class rendu extends connectDb
         $c = new capteur();
         $capteur = $c->getByType('startCycle');
         if (null == $capteur) {
-            return false;
+            return (object) ['nbCycle' => null];
         }
 
         $cCapteur = $this->colOko($capteur['column_oko']);
@@ -275,7 +283,7 @@ class rendu extends connectDb
         $result = $this->prepared($q, 's', $jour);
 
         if (!$result) {
-            return false;
+            return (object) ['nbCycle' => null];
         }
 
         return $result->fetch_object();

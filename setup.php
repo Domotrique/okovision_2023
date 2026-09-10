@@ -13,6 +13,68 @@
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' == strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);
     }
 
+	function respond(array $payload, int $flags = JSON_NUMERIC_CHECK)
+	{
+		header('Content-type: text/json');
+		echo json_encode($payload, $flags);
+		exit;
+	}
+	
+	function localVersion() {
+		$version = trim(file_get_contents(__DIR__.'/VERSION'));
+
+		if(!$version) {
+			return "0.0.0";
+		} else {
+			return ($version);
+		}
+	}
+  // le bloc cURL actuel, retourne ['version'=>?string, 'error'=>?string]
+	function latestVersion() {
+		//Get latest version number from github
+        $ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_USERAGENT      => 'OkovisionDownloader',
+            CURLOPT_HTTPHEADER     => ['Accept: application/vnd.github+json'],
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS      => 3,
+            CURLOPT_CONNECTTIMEOUT => 8,
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
+        ]);
+
+        $response = curl_exec($ch);
+        $errno    = curl_errno($ch);
+        $error    = curl_error($ch);
+        $info     = curl_getinfo($ch);
+        curl_close($ch);
+
+		$result['error'] = "";
+
+        if ($response === false) {
+            $msg = sprintf("Erreur cURL (%d): %s", $errno, $error);
+			$result['version'] = '0.0.0';
+            $result['error'] = "Impossible de contacter le serveur de mise à jour : $msg";
+        }
+
+        $data = json_decode($response, true);
+        if ($data === null) {
+			$result['version'] = '0.0.0';
+            $result['error'] = "Réponse du serveur de mise à jour invalide (non JSON).";
+        }
+
+        // Vérifie si une release a été trouvée
+        if (isset($data['tag_name'])) {
+            $result['version'] = $data['tag_name'] ?? '0.0.0';
+        } else {
+            $result['version'] = '0.0.0';
+            $result['error'] = "Aucune release trouvée ou erreur d’API.";
+        }
+		
+        return $result;
+	}
+
     function testBddConnection($s)
     {
         mysqli_report(MYSQLI_REPORT_STRICT);
@@ -122,48 +184,16 @@
 
         $configFile = str_replace('###_TOKEN_###', sha1(rand()), $configFile);
 
-		//Get latest version number from github
-        $ch = curl_init("https://api.github.com/repos/domotrique/okovision_2023/releases/latest");
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT      => 'OkovisionDownloader',
-            CURLOPT_HTTPHEADER     => ['Accept: application/vnd.github+json'],
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS      => 3,
-            CURLOPT_CONNECTTIMEOUT => 8,
-            CURLOPT_TIMEOUT        => 20,
-            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
-        ]);
+		$fetched = latestVersion();
 
-        $response = curl_exec($ch);
-        $errno    = curl_errno($ch);
-        $error    = curl_error($ch);
-        $info     = curl_getinfo($ch);
-        curl_close($ch);
+		if ($fetched['error'] == "") {
+			$version = localVersion();
+			$r['warnings'][] = "Serveur de mise à jour injoignable, version locale utilisée ($version) : ".$fetched['error'];
+		} else {
+			$version['version'] = $fetched['version'];
+		}
 
-        if ($response === false) {
-            $msg = sprintf("Erreur cURL (%d): %s", $errno, $error);
-            $result['status']  = 'error';
-            $result['message'] = "Impossible de contacter le serveur de mise à jour : $error";
-            return $result;
-        }
-
-        $data = json_decode($response, true);
-        if ($data === null) {
-            $result['status']  = 'error';
-            $result['message'] = "Réponse du serveur de mise à jour invalide (non JSON).";
-            return $result;
-        }
-
-        // Vérifie si une release a été trouvée
-        if (isset($data['tag_name'])) {
-            $version = $data['tag_name'] ?? '0.0.0';
-        } else {
-            $version = '0.0.0';
-            echo "Aucune release trouvée ou erreur d’API." . PHP_EOL;
-        }
-
-        $configFile = str_replace('###_OKOVISION_VERSION_###', $version, $configFile);
+        $configFile = str_replace('###_OKOVISION_VERSION_###', $version['version'], $configFile);
         $configFile = str_replace('###_ANALYTICS_###', $s['analytics_enabled'], $configFile);
 
         file_put_contents('config.php', $configFile);

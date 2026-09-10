@@ -153,6 +153,7 @@ class okofen extends connectDb
 
                     //creation de la requette sql pour les capteurs
                     //on commence à la deuxieme colonne de la ligne du csv
+                    $bugval = 99;
                     for ($i = 2; $i <= $nbColCsv; ++$i) {
 
                         if ( $tc_ext['position_column_csv'] == $i ) {
@@ -368,14 +369,12 @@ class okofen extends connectDb
         $rendu = new rendu();
         $max = $rendu->getTcMaxByDay($day);
         $min = $rendu->getTcMinByDay($day);
-        $conso = json_decode($rendu->getConsoByday($day));
-        $conso_ecs = json_decode($rendu->getConsoByday($day, null, null, 'hotwater'));
+        $conso = $rendu->getConsoByday($day);
+        $conso_ecs = $rendu->getConsoByday($day, null, null, 'hotwater');
         $cycle = $rendu->getNbCycleByDay($day);
 
         // Test for empty values
-        if (
-            empty($max) || empty($min) || empty($conso) || empty($conso_ecs) || empty($cycle)
-            || !isset($max->tcExtMax) || !isset($min->tcExtMin)
+        if (empty($max) || empty($min) || !isset($max->tcExtMax) || !isset($min->tcExtMin)
         ) {
             $this->log->info('Class '.__CLASS__.' | '.__FUNCTION__.' | Date '.$day.' is empty, synthese not created.');
             return false;

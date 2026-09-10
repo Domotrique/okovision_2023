@@ -167,23 +167,22 @@ if (is_ajax() && is_valid()) {
                         case 'setBoilerMode':
                             if (isset($_GET['mode'], $_GET['way'])) {
                                 $rt->setBoilerMode($_GET['mode']);
-
-                                break;
                             }
+
+                            break;
                         case 'setProgramMode':
                             if (isset($_GET['mode'], $_GET['way'])) {
                                 $rt->setProgramMode($_GET['mode']);
-
-                                break;
                             }
+
+                            break;
                         case 'setHolidayMode':
                             if (isset($_GET['mode'], $_GET['way'])) {
                                 $rt->setHolidayMode($_GET['mode']);
-
-                                break;
                             }
-                    }
 
+                            break;
+                    }
                     break;
             }
     }

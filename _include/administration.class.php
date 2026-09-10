@@ -1160,7 +1160,9 @@ class administration extends connectDb
                 //$this->query($templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysql_error() . '<br /><br />');
                 // Reset temp variable to empty
                 $templine = '';
-                $r['response'] = true;
+                //$r['response'] = true;
+                $r['response'] = false;
+                $r['reason'] = "Not Implemented";
             }
         }
         $this->sendResponse($r);
