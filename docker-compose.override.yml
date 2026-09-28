@@ -1,0 +1,20 @@
+# Surcharges de développement, chargées automatiquement par "docker compose up".
+# Le repo est monté dans le conteneur : les modifications PHP sont visibles sans rebuild.
+# config.php / config.json sont alors créés dans le repo (ignorés par git).
+
+services:
+  db:
+    ports:
+      - "${DB_PORT:-3306}:3306"
+
+  web:
+    build:
+      args:
+        INSTALL_XDEBUG: ${INSTALL_XDEBUG:-0}
+    environment:
+      OKV_CONFIG_DIR: ""
+      OKV_CRON: ${OKV_CRON_DEV:-0}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./:/var/www/okovision

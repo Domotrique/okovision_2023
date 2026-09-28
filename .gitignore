@@ -59,3 +59,6 @@ Web.config
 Okovision_2023.phpproj.user
 var/*
 !var/.gitkeep
+
+# Docker
+.env

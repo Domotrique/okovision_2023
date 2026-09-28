@@ -186,14 +186,15 @@
 
 		$fetched = latestVersion();
 
-		if ($fetched['error'] == "") {
+		if ('' === $fetched['error']) {
+			$version = $fetched['version'];
+		} else {
 			$version = localVersion();
 			$r['warnings'][] = "Serveur de mise à jour injoignable, version locale utilisée ($version) : ".$fetched['error'];
-		} else {
-			$version['version'] = $fetched['version'];
 		}
 
-        $configFile = str_replace('###_OKOVISION_VERSION_###', $version['version'], $configFile);
+		$configFile = str_replace('###_OKOVISION_VERSION_###', $version, $configFile);
+
         $configFile = str_replace('###_ANALYTICS_###', $s['analytics_enabled'], $configFile);
 
         file_put_contents('config.php', $configFile);

@@ -1,0 +1,52 @@
+# Okovision - configuration "prod" (code intégré à l'image, données en volumes)
+#   Prod : docker compose -f docker-compose.yml up -d --build
+#   Dev  : docker compose up -d --build   (charge aussi docker-compose.override.yml)
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Paris}
+      MARIADB_DATABASE: ${DB_NAME:-okovision}
+      MARIADB_USER: ${DB_USER:-okouser}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-okopass}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-change-me-root}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build:
+      context: .
+    image: okovision:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${OKV_PORT:-8080}:80"
+    environment:
+      TZ: ${TZ:-Europe/Paris}
+      OKV_CONFIG_DIR: /data
+      OKV_CRON: "1"
+    volumes:
+      - okv-config:/data
+      - okv-logs:/var/www/okovision/_logs
+      - okv-dumps:/var/www/okovision/dumps
+      - okv-tmp:/var/www/okovision/_tmp
+      - okv-var:/var/www/okovision/var
+
+volumes:
+  db-data:
+  okv-config:
+  okv-logs:
+  okv-dumps:
+  okv-tmp:
+  okv-var:
