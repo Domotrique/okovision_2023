@@ -96,6 +96,8 @@ var lang = {
         deleteGraphe: 'Confirmez-vous la suppresion de',
         updateAsso: "Modification de l'association",
         deleteAsso: "Confirmez-vous la suppresion de l'asso",
+        noGraphe: "Aucun graphique, commencez par en ajouter un.",
+        noAsso: "Aucun capteur dans ce graphique.",
         titreHisto: 'Synthèse mensuelle',
         estimatedEmptyDate: 'Date estimée de silo vide : {0}',
         estimationReliability: "Estimation basée sur l'historique des consommations. Fiabilité : {0}%",

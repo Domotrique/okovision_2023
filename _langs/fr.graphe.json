@@ -1,0 +1,69 @@
+[
+    {
+        "name": "Températures",
+        "capteurs": [
+            { "original_name": ["AT [°C]"], "coeff": "1" },
+            { "original_name": ["HK1 RT Ist[°C]"], "coeff": "1" },
+            { "original_name": ["HK1 RT Soll[°C]"], "coeff": "1" },
+            { "original_name": ["HK1 VL Ist[°C]"], "coeff": "1" },
+            { "original_name": ["HK1 VL Soll[°C]"], "coeff": "1" }
+        ]
+    },
+    {
+        "name": "Chaudière",
+        "capteurs": [
+            { "original_name": ["KT Ist [°C]", "PE1 KT[°C]"], "coeff": "1" },
+            { "original_name": ["KT Soll [°C]", "PE1 KT_SOLL[°C]"], "coeff": "1" },
+            { "original_name": ["BR", "PE1_BR1"], "coeff": "100" },
+            { "original_name": ["HK1 Pumpe"], "coeff": "100" },
+            { "original_name": ["PE1 Motor UW[%]"], "coeff": "1" },
+            { "original_name": ["PE1 Modulation[%]"], "coeff": "1" }
+        ]
+    },
+    {
+        "name": "Eau chaude sanitaire",
+        "capteurs": [
+            { "original_name": ["WW1 EinT Ist[°C]"], "coeff": "1" },
+            { "original_name": ["WW1 Soll[°C]"], "coeff": "1" },
+            { "original_name": ["WW1 AusT Ist[°C]"], "coeff": "1" },
+            { "original_name": ["WW1 Pumpe"], "coeff": "100" },
+            { "original_name": ["SK1 Koll[°C]"], "coeff": "1" },
+            { "original_name": ["SK1 SPUnten[°C]"], "coeff": "1" },
+            { "original_name": ["SK1 Pumpe[%]"], "coeff": "1" }
+        ]
+    },
+    {
+        "name": "Combustion",
+        "capteurs": [
+            { "original_name": ["PE1 FRT Ist[°C]"], "coeff": "1" },
+            { "original_name": ["PE1 FRT Soll[°C]"], "coeff": "1" },
+            { "original_name": ["PE1 Abgastemp[°C]"], "coeff": "1" },
+            { "original_name": ["PE1 Luefterdrehzahl[%]"], "coeff": "1" },
+            { "original_name": ["PE1 Saugzugdrehzahl[%]"], "coeff": "1" },
+            { "original_name": ["PE1 Unterdruck Ist[Pa]", "PE1 Unterdruck Ist[EH]"], "coeff": "1" },
+            { "original_name": ["PE1 Unterdruck Soll[Pa]", "PE1 Unterdruck Soll[EH]"], "coeff": "1" },
+            { "original_name": ["PE1 Einschublaufzeit[zs]"], "coeff": "1" },
+            { "original_name": ["PE1 Pausenzeit[zs]"], "coeff": "1" }
+        ]
+    },
+    {
+        "name": "Ballon tampon",
+        "capteurs": [
+            { "original_name": ["PU1 TPO Ist[°C]"], "coeff": "1" },
+            { "original_name": ["PU1 TPO Soll[°C]"], "coeff": "1" },
+            { "original_name": ["PU1 TPM Ist[°C]"], "coeff": "1" },
+            { "original_name": ["PU1 TPM Soll[°C]"], "coeff": "1" },
+            { "original_name": ["PU1 Pumpe[%]"], "coeff": "1" }
+        ]
+    },
+    {
+        "name": "Chauffage circuit 2",
+        "capteurs": [
+            { "original_name": ["HK2 RT Ist[°C]"], "coeff": "1" },
+            { "original_name": ["HK2 RT Soll[°C]"], "coeff": "1" },
+            { "original_name": ["HK2 VL Ist[°C]"], "coeff": "1" },
+            { "original_name": ["HK2 VL Soll[°C]"], "coeff": "1" },
+            { "original_name": ["HK2 Pumpe"], "coeff": "100" }
+        ]
+    }
+]

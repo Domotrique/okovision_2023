@@ -116,6 +116,9 @@
     "lang.text.page.repport.asso.modale.graphic": "Graphique :",
     "lang.text.page.repport.asso.modale.capteur": "Capteurs :",
     "lang.text.page.repport.asso.modale.coef": "Coefficient de correction :",
+    "lang.text.page.repport.list.title": "Graphiques",
+    "lang.text.page.repport.asso.panel": "Capteurs du graphique",
+    "lang.text.page.repport.hint": "Cliquez sur un graphique pour gérer ses capteurs. Glissez les lignes par la poignée pour changer l'ordre d'affichage.",
     
     "lang.text.page.import.title": "Importation en masse",
     "lang.text.page.import.action": "Tous vos fichiers doivent être déposés dans le repertoire _tmp d'okovision. <br \/>Pour lancer l'import, cliquez sur importer.",

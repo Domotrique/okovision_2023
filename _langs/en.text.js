@@ -96,6 +96,8 @@ var lang = {
         deleteGraphe: 'Do you confirm deletion of ',
         updateAsso: "Modify association",
         deleteAsso: "Do you confirm association deletion",
+        noGraphe: "No chart yet, start by adding one.",
+        noAsso: "No sensor in this chart.",
         titreHisto: 'Monthly summary',
         estimatedEmptyDate: 'Estimated date empty storage tank : {0}',
         estimationReliability: "Estimate based on historical consumption. Reliability : {0}%",

@@ -875,7 +875,97 @@ class administration extends connectDb
             return false;
         }
 
+        //la matrice est creee, un echec sur les graphiques par defaut n'est pas bloquant
+        $this->initDefaultGraphes();
+
         return true;
+    }
+
+    /**
+     * Create default graphs for the index page, just after the matrix creation.
+     *
+     * Graphs are described into _langs/<lang>.graphe.json, sensors are found by their csv name.
+     * Sensor not present in csv file is ignored, a graph without any sensor is not created.
+     * Does nothing if a graph already exists.
+     *
+     * @see administration::initMatriceFromFile()
+     *
+     * @return bool
+     */
+    private function initDefaultGraphes()
+    {
+        $result = $this->query('select count(*) from oko_graphe');
+
+        if (!$result || $result->fetch_row()[0] > 0) {
+            return false;
+        }
+
+        $file = '_langs/'.session::getInstance()->getLang().'.graphe.json';
+        $graphes = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
+
+        if (!is_array($graphes)) {
+            $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | fichier illisible | '.$file);
+
+            return false;
+        }
+
+        $capteurs = [];
+        $result = $this->query('select id, original_name from oko_capteur where position_column_csv <> -1');
+        while ($result && $row = $result->fetch_object()) {
+            $capteurs[$row->original_name] = $row->id;
+        }
+
+        $ok = true;
+        $positionGraphe = 1;
+
+        foreach ($graphes as $graphe) {
+            $rows = [];
+            $values = [];
+            $position = 1;
+
+            foreach ($graphe['capteurs'] as $c) {
+                //on prend le premier nom connu dans la matrice
+                foreach ($c['original_name'] as $title) {
+                    if (isset($capteurs[$title])) {
+                        $rows[] = '(?, ?, ?, ?)';
+                        array_push($values, $capteurs[$title], $position, $c['coeff']);
+                        ++$position;
+
+                        break;
+                    }
+                }
+            }
+
+            if (0 === count($rows)) {
+                continue;
+            }
+
+            if (!$this->prepared('INSERT INTO oko_graphe (name, position) VALUES (?, ?)', 'si', $graphe['name'], $positionGraphe)) {
+                $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | echec INSERT oko_graphe | '.$graphe['name']);
+                $ok = false;
+
+                continue;
+            }
+
+            $idGraphe = (int) $this->query('select LAST_INSERT_ID()')->fetch_row()[0];
+
+            //on intercale l'id du graphe devant chaque triplet capteur, position, coeff
+            $params = [];
+            foreach (array_chunk($values, 3) as $v) {
+                array_push($params, $idGraphe, ...$v);
+            }
+
+            $q = 'INSERT INTO oko_asso_capteur_graphe (oko_graphe_id, oko_capteur_id, position, correction_effect) VALUES '
+                    .implode(', ', $rows);
+
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$graphe['name'].' | '.count($rows).' capteur(s)');
+
+            $ok = $this->prepared($q, str_repeat('iiis', count($rows)), ...$params) && $ok;
+
+            ++$positionGraphe;
+        }
+
+        return $ok;
     }
 
     /**

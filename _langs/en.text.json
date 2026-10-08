@@ -117,6 +117,9 @@
     "lang.text.page.repport.asso.modale.graphic": "Charts :",
     "lang.text.page.repport.asso.modale.capteur": "Sensors :",
     "lang.text.page.repport.asso.modale.coef": "Multiplier :",
+    "lang.text.page.repport.list.title": "Charts",
+    "lang.text.page.repport.asso.panel": "Chart sensors",
+    "lang.text.page.repport.hint": "Click a chart to manage its sensors. Drag rows by the handle to change the display order.",
     
     "lang.text.page.import.title": "Large scale import",
     "lang.text.page.import.action": "All your files must be placed on okovision _tmp directory. <br \/>To start import, click on import.",
