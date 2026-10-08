@@ -424,6 +424,8 @@ class okofen extends connectDb
             CURLOPT_USERAGENT => 'Okovision Agent',
             CURLOPT_POST => 1,
             CURLOPT_COOKIEJAR => $this->_cookies,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_POSTFIELDS => http_build_query([
                 'username' => $boiler->login,
                 'password' => $pass,
@@ -462,6 +464,8 @@ class okofen extends connectDb
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL => $this->_loginUrl.'?action='.$action,
             CURLOPT_POST => 1,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
                 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',

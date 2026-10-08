@@ -548,6 +548,8 @@ class administration extends connectDb
         $r['information'] = '';
         $leaks = "";
 
+        session_write_close();
+
         $update = new AutoUpdate();
         $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
         $updateResult = $update->checkUpdate();
