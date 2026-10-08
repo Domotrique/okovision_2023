@@ -172,6 +172,10 @@ $(document).ready(function () {
 		});
 	});
 	
+	if (typeof mustChangePass !== 'undefined' && mustChangePass) {
+		$('#password-modal').modal({backdrop: 'static', keyboard: false});
+	}
+	
 	$("#btChangePass").click(function(e){
 		e.preventDefault();
 
@@ -195,6 +199,8 @@ $(document).ready(function () {
 						} else if (!json.response) {
 							if (json.reason === 'previousPasswordNotMatch') {
 								$.growlErreur(lang.error.previousPassNotMatch);
+							} else if (json.reason === 'passTooWeak') {
+								$.growlErreur(lang.error.passTooWeak);
 							} else {
 								$.growlErreur(lang.error.passNotChanged);
 							}

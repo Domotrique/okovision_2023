@@ -37,6 +37,7 @@ var lang = {
         getSyntheseSaison: "Problème lors de la récupération de la synthèse de la saison",
         bddFail: "Echec de connexion à la base de données",
         passNotChanged: "Mot de passe inchangé !",
+        passTooWeak: "Le nouveau mot de passe doit faire au moins 8 caractères et être différent de l'ancien.",
         passNotTheSame: "Les deux champs ne sont pas identiques.",
         previousPassNotMatch: "Le mot de passe actuel ne correspond pas.",
         userPassIncorrect: "User/password incorrect",

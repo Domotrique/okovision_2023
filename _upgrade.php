@@ -59,6 +59,8 @@ $t = new timeExec();
         ensure_define_text($content, 'OKV_ANALYTICS_ENDPOINT', "'https://analytics.okostats.ovh/'");
     }
 
+    ensure_define_text($content, 'OKV_SECRET_KEY', "'" . bin2hex(random_bytes(32)) . "'");
+
     // Test configuration Apache
     $host   = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
     $scheme = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) ? 'https' : 'http';

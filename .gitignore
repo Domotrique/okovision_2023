@@ -48,6 +48,7 @@ matrice.csv
 test*
 _tmp/*
 php.ini
+!docker/php.ini
 .c9/
 dumps/*
 

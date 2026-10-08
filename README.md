@@ -217,7 +217,7 @@ For the full configuration guide, here is the official documentation:
 | MySQL      | `okouser` | `okopass` |
 | OkoVision  | `admin`   | `okouser` |
  
-> ⚠️ Make sure to change these credentials after installation in a production environment.
+> ⚠️ Password will have to be changed at first login.
  
 ---
  

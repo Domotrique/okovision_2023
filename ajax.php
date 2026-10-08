@@ -27,6 +27,14 @@ function is_valid()
 }
 
 if (is_ajax() && is_valid()) {
+    // On vérifie si l'utilisateur doit changer son mot de passe
+    $route = ($_GET['type'] ?? '').'.'.($_GET['action'] ?? '');
+    if (session::getInstance()->getVar('mustChangePass') && !in_array($route, ['admin.changePassword', 'admin.logout'], true)) {
+        header('Content-type: text/json; charset=utf-8');
+        echo '{"response": false,"mustChangePass": true}';
+        exit;
+    }
+
     if (isset($_GET['type'], $_GET['action'])) {
         /*
         * TODO

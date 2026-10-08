@@ -117,9 +117,17 @@ class realTime extends connectDb
 
     public function setOkoLogin($user, $pass)
     {
-        $pass = base64_encode(real_escape_string($pass));
-        $userId = session::getInstance()->getVar('userId');
         $r['response'] = false;
+        
+        $pass = strlen($pass) <= 128 ? secret::encrypt($pass) : null;
+
+        if (null === $pass) {
+            $this->sendResponse(json_encode($r));
+
+            return;
+        }
+
+        $userId = session::getInstance()->getVar('userId');
 
         $q = "update oko_user set login_boiler= ?, pass_boiler= ? where id= ?";
         

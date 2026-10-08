@@ -406,9 +406,13 @@ class okofen extends connectDb
      */
     private function curlConnect()
     {
+        $this->migrateBoilerSecrets();
+
         $q = "select login_boiler as login, pass_boiler as pass from oko_user where user='admin';";
         $result = $this->query($q);
         $boiler = $result->fetch_object();
+
+        $pass = secret::isEncrypted($boiler->pass) ? secret::decrypt($boiler->pass) : (string) base64_decode((string) $boiler->pass);
 
         $code = false;
         $curl = curl_init();
@@ -422,7 +426,7 @@ class okofen extends connectDb
             CURLOPT_COOKIEJAR => $this->_cookies,
             CURLOPT_POSTFIELDS => http_build_query([
                 'username' => $boiler->login,
-                'password' => base64_decode($boiler->pass),
+                'password' => $pass,
                 'language' => 'en',
                 'submit' => 'Login',
             ]),

@@ -180,6 +180,25 @@ class connectDb
         return self::$_instance;
     }
 
+    protected function migrateBoilerSecrets()
+    {
+        $res = $this->query("SELECT id, pass_boiler FROM oko_user WHERE pass_boiler IS NOT NULL AND pass_boiler <> '' AND pass_boiler NOT LIKE 'enc:v1:%'");
+        if (!$res) {
+            return;
+        }
+
+        while ($u = $res->fetch_object()) {
+            $enc = secret::encrypt((string) base64_decode($u->pass_boiler));
+            if (null === $enc) {
+                $this->log->error('GLOBAL | migrateBoilerSecrets | clé indisponible (sodium ou config.php non inscriptible)');
+
+                return;
+            }
+            $this->prepared('UPDATE oko_user SET pass_boiler = ? WHERE id = ?', 'si', $enc, $u->id);
+        }
+    }
+
+
     private function connect()
     {
         $this->db = new mysqli($this->_ip, $this->_user, $this->_pass, $this->_schema);

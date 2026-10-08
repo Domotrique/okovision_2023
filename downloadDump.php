@@ -8,7 +8,7 @@ include_once 'config.php';
 if (0 !== strcmp(session::getInstance()->getVar('sid'), $_GET['sid'] ?? '')) {
     header('Location: /errors/403.php'); exit;
 }
-if (!session::getInstance()->getVar('logged')) {
+if (!session::getInstance()->getVar('logged') || session::getInstance()->getVar('mustChangePass')) {
     header('Location: /errors/401.php'); exit;
 }
 

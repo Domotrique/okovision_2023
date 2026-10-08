@@ -10433,7 +10433,7 @@ CREATE TABLE `oko_user` (
 --
 
 INSERT INTO `oko_user` (`id`, `user`, `pass`, `type`, `login_boiler`, `pass_boiler`) VALUES
-(1, 'admin', 'f7d9dc01f68181089e660e85c3fc91497ad0a3b5', 'admin', 'oekofen', 'dGlzb2U0cmU=');
+(1, 'admin', '$2y$10$Mv47wv13c75mRJd83buVQesf1oLneM4hzy04EuYXGEoj4y6o/qTUO', 'admin', 'oekofen', NULL);
 
 --
 -- Index pour les tables exportées

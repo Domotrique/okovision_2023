@@ -6,6 +6,10 @@
      header('Location: /errors/401.php');
      exit();
  }
+ if (session::getInstance()->getVar('mustChangePass') && 'index.php' != $page) {
+    header('Location: index.php');
+    exit();
+}
 ?>
 <!DOCTYPE html> 
 <html lang="fr">
@@ -17,6 +21,7 @@
     <title>OkoVision 2023</title>
     <script type="text/javascript">
             var sessionToken = "<?php echo session::getInstance()->getVar('sid'); ?>";		
+            var mustChangePass = <?php echo session::getInstance()->getVar('mustChangePass') ? 'true' : 'false'; ?>;
    </script>
    <script src="js/jquery/jquery.min.js"></script>
    <script src="js/bootstrap/bootstrap.min.js"></script>

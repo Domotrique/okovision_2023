@@ -687,6 +687,12 @@ class administration extends connectDb
         }
         
         if ($r['response']) {
+            //On force le changement de mot de passe si c'est le mot de passe par defaut
+            $mustChange = hash_equals('okouser', (string) $pass);
+            session::getInstance()->setVar('mustChangePass', $mustChange);
+            $r['mustChangePass'] = $mustChange;
+            $this->migrateBoilerSecrets();
+
             if (function_exists('session_regenerate_id')) {
                 @session_regenerate_id(true);
             }
@@ -711,6 +717,7 @@ class administration extends connectDb
         session::getInstance()->deleteVar('logged');
         session::getInstance()->deleteVar('typeUser');
         session::getInstance()->deleteVar('userId');
+        session::getInstance()->deleteVar('mustChangePass');
         $r['response'] = true;
         $this->sendResponse($r);
     }
@@ -719,8 +726,6 @@ class administration extends connectDb
      * Function changing password.
      *
      * @param mixed $pass
-     *
-     * @return json
      */
     public function changePassword($pass, $previousPass)
     {
@@ -728,12 +733,21 @@ class administration extends connectDb
         $r = [];
         $r['response'] = false;
 
+        if (strlen($pass) < 8 || 'okouser' === $pass || $pass === $previousPass) {
+            $r['reason'] = 'passTooWeak';
+
+            return $this->sendResponse($r);
+        }
+
         if ( password_verify($previousPass, $this->getUserPasswordHash($userId)) ) {
             $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
 
             $q = "update oko_user set pass= ? where id= ?";
 
             $r['response'] = $this->prepared($q, 'si', $hashedPass, $userId);
+            if ($r['response']) {
+                session::getInstance()->deleteVar('mustChangePass');
+            }
         } else {
             $r['response'] = false;
             $r['reason'] = 'previousPasswordNotMatch';

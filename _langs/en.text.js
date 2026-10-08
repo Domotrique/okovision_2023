@@ -37,6 +37,7 @@ var lang = {
         getSyntheseSaison: "Retrieving summary of the season problem",
         bddFail: "Database connection failed",
         passNotChanged: "Password unchanged !",
+        passTooWeak: "The new password must be at least 8 characters long and different from the previous one.",
         passNotTheSame: "The two fields are not identical.",
         previousPassNotMatch: "The current password does not match.",
         userPassIncorrect: "User/password incorrect",

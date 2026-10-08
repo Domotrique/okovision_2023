@@ -146,6 +146,9 @@
 			    <h2>Changer mon mot de passe</h2>
             </div>
             <div class="modal-body">
+                <?php if (session::getInstance()->getVar('mustChangePass')) { ?>
+                    <p class="alert alert-warning">Vous utilisez le mot de passe par défaut : choisissez-en un nouveau (8 caractères minimum) pour continuer.</p>
+                <?php } ?>
                 <form id="formChangePass" class="form">
                     <p>
                         <label for="inputPassCurrent" class="sr-only">Mot de passe actuel</label>

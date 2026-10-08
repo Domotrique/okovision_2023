@@ -154,7 +154,17 @@
         // execute multi query
         $mysqli->multi_query(file_get_contents('install/install.sql'));
         while ($mysqli->next_result()) {
-        } // flush multi_queries
+        }
+
+		// On chiffre le mot de passe du compte de la chaudière dans la BDD, pour plus de sécurité
+		require_once '_include/secret.class.php';
+		$secretKey = secret::generateKey();
+
+		$stmt = $mysqli->prepare("UPDATE oko_user SET pass_boiler = ? WHERE user = 'admin'");
+		$boilerPass = secret::encrypt('oekofen', $secretKey);
+		$stmt->bind_param('s', $boilerPass);
+		$stmt->execute();
+		$stmt->close();
 
         // init de la table des dates de reference
         $start_day = mktime(0, 0, 0, 9, 1, 2023); //1er septembre 2023
@@ -179,10 +189,9 @@
         $configFile = str_replace('###_BDD_USER_###', $s['db_user'], $configFile);
         $configFile = str_replace('###_BDD_PASS_###', $s['db_password'], $configFile);
         $configFile = str_replace('###_BDD_SCHEMA_###', $s['db_schema'], $configFile);
-
         $configFile = str_replace('###_CONTEXT_###', getcwd(), $configFile);
-
         $configFile = str_replace('###_TOKEN_###', sha1(rand()), $configFile);
+		$configFile = str_replace('###_SECRET_KEY_###', $secretKey, $configFile);
 
 		$fetched = latestVersion();
 
