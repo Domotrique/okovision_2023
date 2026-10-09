@@ -43,7 +43,6 @@
                 <th class="col-md-3"><?php echo session::getInstance()->getLabel('lang.text.page.sqldump.title') ?></th>
                 <th class="col-md-3"><?php echo session::getInstance()->getLabel('lang.text.page.sqldump.date') ?></th>
                 <th class="col-md-3"></th>
-                
             </tr>
         </thead>
     
@@ -66,12 +65,10 @@
                         <input type="text" id="typeModal">
                     </div>
                     <form>
-
                         <div class="form-group">
                             <label for="recipient-name" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.sqldump.modal.name') ?></label>
                             <input type="text" class="form-control" id="dumpName" value="<?php echo date("Ymd") . '_dump'; ?>">
                         </div>
-                        
                     </form>
                 </div>
                 <div class="modal-footer">

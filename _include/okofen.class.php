@@ -58,9 +58,10 @@ class okofen extends connectDb
         if (empty($dateChoosen)) {
             return false;
         }
-        $sql = "SELECT COUNT(*) FROM oko_historique_full WHERE jour = '{$dateChoosen}' AND heure = '23:59:00'";
+        
+        $q = "SELECT COUNT(*) FROM oko_historique_full WHERE jour = ? AND heure = '23:59:00'";
 
-        $result = $this->query($sql);
+        $result = $this->prepared($q, 's', $dateChoosen);
 
         if ($result) {
             if ($res = $result->fetch_row()) {
@@ -107,6 +108,10 @@ class okofen extends connectDb
         $bugTemp = false;
         unset($ob_capteur);
 
+        if (null == $capteurStatus || null == $startCycle || null == $tc_ext) {
+            return false;
+        }
+
         $file = fopen(CSVFILE, 'r');
         $ln = 0;
         $old_status = 0;
@@ -143,11 +148,12 @@ class okofen extends connectDb
                         $st = 1;
                         //creation de la requette pour le comptage des cycle de la chaudiere
                         //Enregistrement de 1 si nous commençons un cycle d'allumage
-                        $query .= ', col_'.$startCycle['column_oko'].'='.$st;
+                        $query .= ', '.$this->colOko($startCycle['column_oko']).'='.$st;
                     }
 
                     //creation de la requette sql pour les capteurs
                     //on commence à la deuxieme colonne de la ligne du csv
+                    $bugval = 99;
                     for ($i = 2; $i <= $nbColCsv; ++$i) {
 
                         if ( $tc_ext['position_column_csv'] == $i ) {
@@ -180,7 +186,7 @@ class okofen extends connectDb
                             $temp_old = $tmp_current;
                         }
 
-                        $query .= ', col_'.$capteurs[$i]['column_oko'].'='.$this->cvtDec($colCsv[$i]);
+                        $query .= ', '.$this->colOko($capteurs[$i]['column_oko']).'='.$this->cvtDec($colCsv[$i]);
                     }
 					
 					//We detected a reset temperature bug so we ignore this line
@@ -329,10 +335,11 @@ class okofen extends connectDb
 
     private function deleteSyntheseDay($day)
     {
-        $q = "DELETE FROM oko_resume_day where jour = '".$day."'";
+        $q = "DELETE FROM oko_resume_day where jour = ?";
+
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        return $this->query($q);
+        return $this->prepared($q, 's', $day);
     }
 
     /**
@@ -342,9 +349,9 @@ class okofen extends connectDb
      */
     private function isSyntheseDone($day)
     {
-        $sql = "SELECT COUNT(*) FROM oko_resume_day WHERE jour = '{$day}'";
+        $q = "SELECT COUNT(*) FROM oko_resume_day WHERE jour = ?";
 
-        $result = $this->query($sql);
+        $result = $this->prepared($q, 's', $day);
 
         if ($result) {
             if ($res = $result->fetch_row()) {
@@ -357,19 +364,17 @@ class okofen extends connectDb
 
     private function insertSyntheseDay($day)
     {
-        $query = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUES ';
+        $q = 'INSERT INTO oko_resume_day ( jour, tc_ext_max, tc_ext_min, conso_kg, conso_ecs_kg, dju, nb_cycle ) VALUES ( ?, ?, ?, ?, ?, ?, ?)';
 
         $rendu = new rendu();
         $max = $rendu->getTcMaxByDay($day);
         $min = $rendu->getTcMinByDay($day);
-        $conso = json_decode($rendu->getConsoByday($day));
-        $conso_ecs = json_decode($rendu->getConsoByday($day, null, null, 'hotwater'));
+        $conso = $rendu->getConsoByday($day);
+        $conso_ecs = $rendu->getConsoByday($day, null, null, 'hotwater');
         $cycle = $rendu->getNbCycleByDay($day);
 
         // Test for empty values
-        if (
-            empty($max) || empty($min) || empty($conso) || empty($conso_ecs) || empty($cycle)
-            || !isset($max->tcExtMax) || !isset($min->tcExtMin)
+        if (empty($max) || empty($min) || !isset($max->tcExtMax) || !isset($min->tcExtMin)
         ) {
             $this->log->info('Class '.__CLASS__.' | '.__FUNCTION__.' | Date '.$day.' is empty, synthese not created.');
             return false;
@@ -382,13 +387,11 @@ class okofen extends connectDb
         
         $nbCycle = (null == $cycle->nbCycle) ? 0 : $cycle->nbCycle;
 
-        $query .= "('".$day."', ".$max->tcExtMax.', '.$min->tcExtMin.', '.$consoPellet.', '.$consoEcsPellet.', '.$dju.', '.$nbCycle.' );';
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $result = $this->prepared($q, 'sdddddi', $day, $max->tcExtMax, $min->tcExtMin, $consoPellet, $consoEcsPellet, $dju, $nbCycle);
 
-        $n = $this->query($query);
-
-        if (!$n) {
+        if (!$result) {
             $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | creation synthèse du '.$day.' impossible');
 
             return false;
@@ -403,9 +406,13 @@ class okofen extends connectDb
      */
     private function curlConnect()
     {
+        $this->migrateBoilerSecrets();
+
         $q = "select login_boiler as login, pass_boiler as pass from oko_user where user='admin';";
         $result = $this->query($q);
         $boiler = $result->fetch_object();
+
+        $pass = secret::isEncrypted($boiler->pass) ? secret::decrypt($boiler->pass) : (string) base64_decode((string) $boiler->pass);
 
         $code = false;
         $curl = curl_init();
@@ -417,9 +424,11 @@ class okofen extends connectDb
             CURLOPT_USERAGENT => 'Okovision Agent',
             CURLOPT_POST => 1,
             CURLOPT_COOKIEJAR => $this->_cookies,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_POSTFIELDS => http_build_query([
                 'username' => $boiler->login,
-                'password' => base64_decode($boiler->pass),
+                'password' => $pass,
                 'language' => 'en',
                 'submit' => 'Login',
             ]),
@@ -455,6 +464,8 @@ class okofen extends connectDb
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL => $this->_loginUrl.'?action='.$action,
             CURLOPT_POST => 1,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
                 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',

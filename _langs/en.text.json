@@ -23,7 +23,7 @@
     "lang.text.menu.rt.config": "Real Time Configuration",
     "lang.text.page.about.title": "About Okovision 2023",
     "lang.text.page.about.information": "<p>Okovision 2023 is a Fork from an app developped by Stawen Dronek.<\/p><p>Any commercial use is absolutely forbiden without his agreement.<\/p><p>For more information <a href=\"http:\/\/okovision.dronek.com\" target=\"_blank\">okovision.dronek.com<\/a> and the <a href=\"http:\/\/okovision.dronek.com\/wiki.html\" target=\"_blank\">Wiki<\/a><\/p><p>If you see any bugs, please report them through <a href=\"https:\/\/github.com\/Domotrique\/okovision_2023\/issues\" target=\"_blank\">GitHub<\/a>, through email, or through the  <a href=\"http:\/\/forums.futura-sciences.com\/logiciel-software-open-source\/705908-okovision-retours-utilisateurs.html\" target=\"_blank\">forum<\/a> <\/p><p>Contact : <a href=\"mailto:stommz@gmail.com\">stommz@gmail.com<\/a><\/p>",
-    "lang.text.page.about.update": "Update available",
+    "lang.text.page.about.update": "Update check",
     "lang.text.page.about.update.install": "Install the update",
     "lang.text.page.about.update.check": "Check in progress......",
     "lang.text.page.about.update.inprogress": "Loading installation......",
@@ -117,6 +117,9 @@
     "lang.text.page.repport.asso.modale.graphic": "Charts :",
     "lang.text.page.repport.asso.modale.capteur": "Sensors :",
     "lang.text.page.repport.asso.modale.coef": "Multiplier :",
+    "lang.text.page.repport.list.title": "Charts",
+    "lang.text.page.repport.asso.panel": "Chart sensors",
+    "lang.text.page.repport.hint": "Click a chart to manage its sensors. Drag rows by the handle to change the display order.",
     
     "lang.text.page.import.title": "Large scale import",
     "lang.text.page.import.action": "All your files must be placed on okovision _tmp directory. <br \/>To start import, click on import.",

@@ -127,3 +127,22 @@ div .vertical-align{
 .change:hover{
   color: white;
 }
+
+/* gstrapport : graphiques et capteurs associés */
+.gst-rapport > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.gst-rapport .drag-handle {
+  width: 30px;
+  cursor: move;
+  color: #999;
+}
+
+#listeGraphique > tbody > tr[id] {
+  cursor: pointer;
+}
+
+.gst-coeff {
+  max-width: 90px;
+}

@@ -80,8 +80,11 @@ DEFINE('DUMP_FOLDER',CONTEXT.'/dumps');
 DEFINE('CSV_DECIMAL',',');
 DEFINE('CSV_SEPARATEUR',';');
 DEFINE('BDD_DECIMAL','.');
+
 //UNIQUE TOKEN ID
 DEFINE('TOKEN','###_TOKEN_###');
+DEFINE('OKV_SECRET_KEY','###_SECRET_KEY_###');
+
 //NEWPARAMUPDATE
 //VERSION
 DEFINE('REPO_VERSION_API','https://api.github.com/repos/domotrique/okovision_2023/releases/latest');

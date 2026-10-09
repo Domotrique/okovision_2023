@@ -48,6 +48,7 @@ matrice.csv
 test*
 _tmp/*
 php.ini
+!docker/php.ini
 .c9/
 dumps/*
 
@@ -57,5 +58,8 @@ Web.config
 .vs/*
 .vscode/*
 Okovision_2023.phpproj.user
-var/okv_analytics.json
-var/okv_ingest.json
+var/*
+!var/.gitkeep
+
+# Docker
+.env

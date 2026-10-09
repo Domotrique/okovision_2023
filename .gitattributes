@@ -51,3 +51,8 @@ tmp/* linguist-generated=true
 
 # ================================
 * text=auto
+
+# Scripts et fichiers lus dans les conteneurs Linux : toujours en LF
+*.sh text eol=lf
+docker/crontab text eol=lf
+Dockerfile text eol=lf

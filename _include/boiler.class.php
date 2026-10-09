@@ -63,6 +63,7 @@ class boiler
                 'http_code' => 0, 
                 'csv' => []
             ];
+            return $r;
         }
 
         $csv = self::findCsvLinks($html, $address);

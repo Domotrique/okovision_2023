@@ -1,0 +1,5 @@
+# Récupère les CSV de la chaudière toutes les heures à hh:22 (cf. install/Okovision_2023_for_Linux.sh)
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+22 * * * * www-data cd /var/www/okovision && php -f cron.php >> /var/www/okovision/_logs/cron.log 2>&1

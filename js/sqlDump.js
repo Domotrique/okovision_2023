@@ -20,26 +20,21 @@ $(document).ready(function() {
 				$("#availableDumps > tbody").html("");
 
 				$.each(json.data, function(key, val) {
-					//console.log(val);
-					//$('#select_graphe').append('<option value="' + val.id + '">' + val.name + '</option>');
 					$('#availableDumps > tbody:last').append('<tr id=' + val.dumpname + '> \
-				   											<td>' + val.dumpname + '</td>\
-				                                        	<td>' + val.date + '</td>\
-				                                        	<td> \
-																<a class="btn btn-default btn-sm" href="/dumps/' + val.dumpname + '" title="' + lang.text.downloadDump + '"> \
-																	<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> \
-																</a> \
-				                                        		<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_sqldump" title="' + lang.text.renameDump + '"> \
-                                                                	<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> \
-                                                                </button> \
-                                                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.deleteDumpTitle + '"> \
-                                                                	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
-                                                                </button> \
-																<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.importDumpTitle + '" disabled> \
-																	<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> \
-																</button> \
-				                                        	</td>\
-				                                        </tr>');
+						<td>' + val.dumpname + '</td>\
+						<td>' + val.date + '</td>\
+						<td> \
+							<a class="btn btn-default btn-sm" href="downloadDump.php?sid=' + sessionToken + '&dump=' + encodeURIComponent(val.dumpname) + '" title="' + lang.text.downloadDump + '"> \
+								<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> \
+							</a> \
+							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_sqldump" title="' + lang.text.renameDump + '"> \
+								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> \
+							</button> \
+							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete" title="' + lang.text.deleteDumpTitle + '"> \
+								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
+							</button> \
+						</td>\
+					</tr>');
 				});
 
 

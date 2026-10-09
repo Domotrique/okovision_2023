@@ -60,6 +60,28 @@ sudo wget https://raw.githubusercontent.com/Domotrique/okovision_2023/master/ins
  
 ---
  
+## Docker
+ 
+The repository ships a `Dockerfile` (Apache + PHP 8.2 + cron) and a Compose stack with MariaDB.
+ 
+```bash
+cp .env.example .env        # then change the passwords
+docker compose -f docker-compose.yml up -d --build   # production
+```
+ 
+Open `http://localhost:8080` and fill in the setup page with:
+ 
+| Field                 | Value                                  |
+|-----------------------|----------------------------------------|
+| MySQL Server Address  | `db`                                   |
+| User / Password       | `DB_USER` / `DB_PASSWORD` from `.env`  |
+| Name                  | `DB_NAME` from `.env` (default `okovision`) |
+ 
+- The hourly `cron.php` job runs inside the `web` container (log: `_logs/cron.log`). Run it manually with `docker compose exec -u www-data web php -f cron.php`.
+- In production, `config.php`/`config.json`, logs, dumps and the database are stored in named volumes. Update by pulling the repo and rebuilding the image; the in-app auto-update only writes into the container and is lost when it is recreated.
+ 
+---
+ 
 ## Manual Installation (Linux)
  
 ### 1. Base tools
@@ -195,7 +217,7 @@ For the full configuration guide, here is the official documentation:
 | MySQL      | `okouser` | `okopass` |
 | OkoVision  | `admin`   | `okouser` |
  
-> ⚠️ Make sure to change these credentials after installation in a production environment.
+> ⚠️ Password will have to be changed at first login.
  
 ---
  

@@ -425,6 +425,12 @@ $(document).ready(function() {
 		if (loader) $(".se-pre-con").fadeOut();
 	});
 
+	// Changement de mot de passe force : ajax.php refuse toutes les autres routes
+	if (typeof mustChangePass !== 'undefined' && mustChangePass) {
+		$(".se-pre-con").fadeOut();
+		return;
+	}
+
 	/**************************************
 	 **** Creation de la structure de la page 
 	 ************************************/
@@ -475,6 +481,10 @@ $(document).ready(function() {
 
 			if (json.newVersion) {
 				$.growlUpdateAvailable();
+			}
+
+			if (json.security) {
+				$.growlErreur(lang.warning.security + '<br>' + json.leaks, 10000);
 			}
 
 		});

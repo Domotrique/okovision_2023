@@ -100,8 +100,8 @@ class analytics
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS      => 3,
-            CURLOPT_CONNECTTIMEOUT => 8,
-            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT        => 5,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
         ]);
@@ -143,6 +143,12 @@ class analytics
             return null;
         }
 
+        // Annuler si dernier echec il y a moins d'une heure
+        if (!empty($data['register_failed_at']) && (time() - $data['register_failed_at'] < 3600)) {
+            self::log('INFO', 'register skipped, last failure less than 1 hour ago');
+            return null;
+        }
+
         // Envoyer la requête d’enregistrement
         [$http, $resp] = self::httpJsonPost(
             rtrim(OKV_ANALYTICS_ENDPOINT, '/') . '/register',
@@ -152,6 +158,7 @@ class analytics
         // Échec HTTP
         if ($http !== 200 && $http !== 201) {
             self::log('WARN', 'register failed', ['http' => $http, 'body' => substr((string)$resp, 0, 200)]);
+            self::saveIngestData(['register_failed_at' => time()]);
             return null;
         }
 

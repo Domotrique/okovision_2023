@@ -122,25 +122,53 @@ class connectDb
         }
     }
 
+     /**
+     * Construit un nom de colonne « col_N » depuis oko_capteur.column_oko.
+     *
+     * @param mixed $columnOko
+     *
+     * @return string
+     */
+    protected function colOko($columnOko)
+    {
+        $n = (int) $columnOko;
+
+        if ((string) $n !== trim((string) $columnOko)) {
+            $this->log->error('GLOBAL | colOko | identifiant de colonne inattendu, forcé à '.$n.' (reçu : '.var_export($columnOko, true).')');
+        }
+
+        return 'col_'.$n;
+    }
+
+    /**
+     * Sécurise un littéral numérique qui ne peut pas passer par un placeholder.
+     *
+     * @param mixed $v
+     *
+     * @return string
+     */
+    protected function sqlNum($v)
+    {
+        if (!is_numeric($v)) {
+            $this->log->error('GLOBAL | sqlNum | valeur non numérique forcée à 0 (reçu : '.var_export($v, true).')');
+
+            return '0';
+        }
+
+        return (string) (0 + $v);
+    }
+
     protected function query($q)
     {
+        if (false !== strpos($q, '?')) {
+            $this->log->error('GLOBAL | query | requête à placeholders passée à query() au lieu de prepared() | '.$q);
+
+            return false;
+        }
+        
         $con = self::getInstance()->getConnection();
 
         return $con->query($q);
-    }
-
-    protected function multi_query($q)
-    {
-        $con = self::getInstance()->getConnection();
-
-        return $con->multi_query($q);
-    }
-
-    protected function flush_multi_queries()
-    {
-        $con = self::getInstance()->getConnection();
-
-        return $con->next_result() && $con->more_results();
     }
 
     private static function getInstance()
@@ -151,6 +179,25 @@ class connectDb
 
         return self::$_instance;
     }
+
+    protected function migrateBoilerSecrets()
+    {
+        $res = $this->query("SELECT id, pass_boiler FROM oko_user WHERE pass_boiler IS NOT NULL AND pass_boiler <> '' AND pass_boiler NOT LIKE 'enc:v1:%'");
+        if (!$res) {
+            return;
+        }
+
+        while ($u = $res->fetch_object()) {
+            $enc = secret::encrypt((string) base64_decode($u->pass_boiler));
+            if (null === $enc) {
+                $this->log->error('GLOBAL | migrateBoilerSecrets | clé indisponible (sodium ou config.php non inscriptible)');
+
+                return;
+            }
+            $this->prepared('UPDATE oko_user SET pass_boiler = ? WHERE id = ?', 'si', $enc, $u->id);
+        }
+    }
+
 
     private function connect()
     {

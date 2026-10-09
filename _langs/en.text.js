@@ -37,6 +37,7 @@ var lang = {
         getSyntheseSaison: "Retrieving summary of the season problem",
         bddFail: "Database connection failed",
         passNotChanged: "Password unchanged !",
+        passTooWeak: "The new password must be at least 8 characters long and different from the previous one.",
         passNotTheSame: "The two fields are not identical.",
         previousPassNotMatch: "The current password does not match.",
         userPassIncorrect: "User/password incorrect",
@@ -57,7 +58,8 @@ var lang = {
     },
     warning:{
         drop: 'This backup will reset your history to this previous version! (new data will be deleted) Please remove the DROP lines from sql file.',
-        insert: 'This backup will generate duplicates. (change INSERT to REPLACE).'
+        insert: 'This backup will generate duplicates. (change INSERT to REPLACE).',
+        security: 'Some unauthorized files are exposed! Please run install/harden-apache.sh.'
     },
     valid:{
         communication: 'Communication established',
@@ -94,6 +96,8 @@ var lang = {
         deleteGraphe: 'Do you confirm deletion of ',
         updateAsso: "Modify association",
         deleteAsso: "Do you confirm association deletion",
+        noGraphe: "No chart yet, start by adding one.",
+        noAsso: "No sensor in this chart.",
         titreHisto: 'Monthly summary',
         estimatedEmptyDate: 'Estimated date empty storage tank : {0}',
         estimationReliability: "Estimate based on historical consumption. Reliability : {0}%",

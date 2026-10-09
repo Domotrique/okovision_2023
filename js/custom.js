@@ -38,13 +38,14 @@ $(document).ready(function () {
 		});
 	};
 
-	$.growlErreur = function(text) {
+	$.growlErreur = function(text, delay) {
 		$.notify({
 			icon: 'glyphicon glyphicon-exclamation-sign',
 			message: text
 		}, {
 			z_index: 9999,
-			type: 'danger'
+			type: 'danger',
+        	delay: (delay === undefined) ? 5000 : delay
 		});
 	};
 
@@ -171,6 +172,10 @@ $(document).ready(function () {
 		});
 	});
 	
+	if (typeof mustChangePass !== 'undefined' && mustChangePass) {
+		$('#password-modal').modal({backdrop: 'static', keyboard: false});
+	}
+	
 	$("#btChangePass").click(function(e){
 		e.preventDefault();
 
@@ -194,6 +199,8 @@ $(document).ready(function () {
 						} else if (!json.response) {
 							if (json.reason === 'previousPasswordNotMatch') {
 								$.growlErreur(lang.error.previousPassNotMatch);
+							} else if (json.reason === 'passTooWeak') {
+								$.growlErreur(lang.error.passTooWeak);
 							} else {
 								$.growlErreur(lang.error.passNotChanged);
 							}

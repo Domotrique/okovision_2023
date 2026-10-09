@@ -1,0 +1,21 @@
+.git
+.gitignore
+.gitattributes
+.vscode
+.vs
+.env
+.env.*
+Dockerfile
+docker-compose*.yml
+install/Screenshots
+
+# Fichiers générés à l'exécution
+config.php
+config.json
+_tmp
+var
+_logs/*.log
+dumps/*
+!dumps/Dumps.txt
+*.csv
+*.zip

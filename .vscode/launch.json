@@ -9,7 +9,10 @@
             "type": "php",
             "request": "launch",
             "stopOnEntry": false,
-            "port": 9003
+            "port": 9003,
+            "pathMappings": {
+                "/var/www/okovision": "${workspaceFolder}"
+            }
         },
         {
             "name": "Launch currently open script",

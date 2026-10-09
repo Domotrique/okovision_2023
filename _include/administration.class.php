@@ -277,14 +277,14 @@ class administration extends connectDb
     {
         //ne pas proposer la date du jour, car forcement incomplete.
         $now = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')));
-
+        
         $q = 'SELECT a.jour as jour FROM oko_historique_full as a '.
                 'LEFT OUTER JOIN oko_resume_day as b ON a.jour = b.jour '.
-                "WHERE b.jour is NULL AND a.jour <> '".$now."'group by a.jour;";
+                "WHERE b.jour is NULL AND a.jour <> ? group by a.jour";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 's', $now);
         $r['data'] = [];
 
         if ($result) {
@@ -352,11 +352,11 @@ class administration extends connectDb
     {
         $r = [];
 
-        $q = "select count(*) from oko_saisons where date_debut = '".$day."'";
+        $q = "select count(*) from oko_saisons where date_debut = ?";
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 's', $day);
 
         $r['response'] = false;
 
@@ -384,10 +384,11 @@ class administration extends connectDb
 
         $dates = $this->getDateSaison($s['startDate']);
         //insertion d'une reference au demarrage des cycles de chauffe
-        $query = "INSERT INTO oko_saisons (saison, date_debut, date_fin) VALUES('".$dates['saison']."','".$dates['start']."','".$dates['end']."');";
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $q = "INSERT INTO oko_saisons (saison, date_debut, date_fin) VALUES(?, ?, ?)";
 
-        $r['response'] = $this->query($query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
+
+        $r['response'] = $this->prepared($q, 'sss', $dates['saison'], $dates['start'], $dates['end']);
 
         $this->sendResponse($r);
     }
@@ -405,11 +406,11 @@ class administration extends connectDb
 
         $dates = $this->getDateSaison($s['startDate']);
         //insertion d'une reference au demarrage des cycles de chauffe
-        $query = "UPDATE oko_saisons set saison='".$dates['saison']."', date_debut='".$dates['start']."', date_fin='".$dates['end']."' where id=".$s['idSaison'];
+        $q = "UPDATE oko_saisons set saison= ?, date_debut= ?, date_fin= ? where id= ?";
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'sssi', $dates['saison'], $dates['start'], $dates['end'], $s['idSaison']);
 
         $this->sendResponse($r);
     }
@@ -424,9 +425,10 @@ class administration extends connectDb
     public function deleteSaison($s)
     {
         $r = [];
-        $query = 'DELETE FROM oko_saisons where id='.$s['idSaison'];
+        $q = 'DELETE FROM oko_saisons where id= ?';
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'i', $s['idSaison']);
+
         $this->sendResponse($r);
     }
 
@@ -473,19 +475,12 @@ class administration extends connectDb
     public function setEvent($s)
     {
         $r = [];
+                
+        $q = 'INSERT INTO oko_silo_events (event_date, quantity, remaining, price, event_type) VALUES (?, ?, ?, ?, ?)';
 
-        $query = 'INSERT INTO oko_silo_events '
-                .'(event_date, quantity, remaining,  price,  event_type) '
-                .'VALUES '
-                ."('".$this->realEscapeString($s['event_date'])."',"
-                ." '".$this->realEscapeString($s['quantity'])."',"
-                ." '".$this->realEscapeString($s['remaining'])."',"
-                ." '".$this->realEscapeString($s['price'])."',"
-                ." '".$this->realEscapeString($s['event_type'])."')";
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
-
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'siiis', $s['event_date'], $s['quantity'], $s['remaining'], $s['price'], $s['event_type']);
 
         $this->sendResponse($r);
     }
@@ -499,17 +494,11 @@ class administration extends connectDb
     {
         $r = [];
 
-        $query = 'UPDATE oko_silo_events SET '
-                ." event_date='".$this->realEscapeString($s['event_date'])."', "
-                ." quantity='".$this->realEscapeString($s['quantity'])."', "
-                ." remaining='".$this->realEscapeString($s['remaining'])."', "
-                ." price='".$this->realEscapeString($s['price'])."', "
-                ." event_type='".$this->realEscapeString($s['event_type'])."' "
-                .' WHERE id='.$s['idEvent'];
+        $q = "UPDATE oko_silo_events SET event_date= ?, quantity= ?, remaining= ?, price= ?, event_type= ? WHERE id= ?";
 
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$query);
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$q);
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'siiisi', $s['event_date'], $s['quantity'], $s['remaining'], $s['price'], $s['event_type'], $s['idEvent']);
 
         $this->sendResponse($r);
     }
@@ -522,9 +511,10 @@ class administration extends connectDb
     public function deleteEvent($s)
     {
         $r = [];
-        $query = 'DELETE FROM oko_silo_events where id='.$s['idEvent'];
+        $q = 'DELETE FROM oko_silo_events where id= ?';
 
-        $r['response'] = $this->query($query);
+        $r['response'] = $this->prepared($q, 'i', $s['idEvent']);
+
         $this->sendResponse($r);
     }
 
@@ -556,6 +546,9 @@ class administration extends connectDb
         $r = [];
         $r['newVersion'] = false;
         $r['information'] = '';
+        $leaks = "";
+
+        session_write_close();
 
         $update = new AutoUpdate();
         $update->setCurrentVersion(currentVersion: defined('OKOVISION_VERSION') ? OKOVISION_VERSION : '0.0.0');
@@ -568,6 +561,13 @@ class administration extends connectDb
             $r['list'] = $update->getVersionsInformationToUpdate();
         } else {
             $r['information'] = session::getInstance()->getLabel('lang.valid.maj.information');
+        }
+
+        $leaks = $this->securityCheck($debug = false);
+
+        if ($leaks != "") {
+            $r['security'] = true;
+            $r['leaks'] = $leaks;
         }
 
         //on envoie les stats anonymes
@@ -649,9 +649,9 @@ class administration extends connectDb
     {
         $r = ['response' => false];
 
-        $userEsc = $this->realEscapeString($user);
-        $q = "SELECT id, type, pass FROM oko_user WHERE user = '{$userEsc}' LIMIT 1";
-        $res = $this->query($q);
+        $q = "SELECT id, type, pass FROM oko_user WHERE user = ? LIMIT 1";
+
+        $res = $this->prepared($q, 's', $user);
 
         if (!$res || $res->num_rows !== 1) {
             // User not found
@@ -665,16 +665,22 @@ class administration extends connectDb
             // Check if we need to rehash the password
             if (password_needs_rehash($storedHash, PASSWORD_DEFAULT)) {
                 $newHash = password_hash($pass, PASSWORD_DEFAULT);
-                $newHashEsc = $this->realEscapeString($newHash);
-                $this->query("UPDATE oko_user SET pass = '{$newHashEsc}' WHERE id = ".(int)$row['id']);
+
+                $q = "UPDATE oko_user SET pass = ? WHERE id = ?";
+
+                $this->prepared($q, 'si', $newHash, $row['id']);
             }
             $r['response'] = true;
         } else {
             if ($storedHash === sha1($this->realEscapeString($pass))) {
+
                 // Password matches old SHA1 hash, upgrade to bcrypt
                 $newHash = password_hash($pass, PASSWORD_DEFAULT);
-                $q = "UPDATE oko_user SET pass = '{$newHash}' WHERE id = ".(int)$row['id'];
-                $this->query($q);
+
+                $q = "UPDATE oko_user SET pass = ? WHERE id = ?";
+
+                $this->prepared($q, 'si', $newHash, $row['id']);
+
                 $r['response'] = true;
             } else {
                 // Password is incorrect
@@ -683,6 +689,12 @@ class administration extends connectDb
         }
         
         if ($r['response']) {
+            //On force le changement de mot de passe si c'est le mot de passe par defaut
+            $mustChange = hash_equals('okouser', (string) $pass);
+            session::getInstance()->setVar('mustChangePass', $mustChange);
+            $r['mustChangePass'] = $mustChange;
+            $this->migrateBoilerSecrets();
+
             if (function_exists('session_regenerate_id')) {
                 @session_regenerate_id(true);
             }
@@ -707,6 +719,7 @@ class administration extends connectDb
         session::getInstance()->deleteVar('logged');
         session::getInstance()->deleteVar('typeUser');
         session::getInstance()->deleteVar('userId');
+        session::getInstance()->deleteVar('mustChangePass');
         $r['response'] = true;
         $this->sendResponse($r);
     }
@@ -715,8 +728,6 @@ class administration extends connectDb
      * Function changing password.
      *
      * @param mixed $pass
-     *
-     * @return json
      */
     public function changePassword($pass, $previousPass)
     {
@@ -724,11 +735,20 @@ class administration extends connectDb
         $r = [];
         $r['response'] = false;
 
+        if (strlen($pass) < 8 || 'okouser' === $pass || $pass === $previousPass) {
+            $r['reason'] = 'passTooWeak';
+
+            return $this->sendResponse($r);
+        }
+
         if ( password_verify($previousPass, $this->getUserPasswordHash($userId)) ) {
             $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
-            $q = "update oko_user set pass='{$hashedPass}' where id={$userId}";
-            if ($this->query($q)) {
-                $r['response'] = true;
+
+            $q = "update oko_user set pass= ? where id= ?";
+
+            $r['response'] = $this->prepared($q, 'si', $hashedPass, $userId);
+            if ($r['response']) {
+                session::getInstance()->deleteVar('mustChangePass');
             }
         } else {
             $r['response'] = false;
@@ -748,9 +768,10 @@ class administration extends connectDb
     private function getUserPasswordHash($userId)
     {
         $userId = (int)$userId;
-        $q = "select pass from oko_user where id={$userId} LIMIT 1";
+        
+        $q = "select pass from oko_user where id= ? LIMIT 1";
 
-        $result = $this->query($q);
+        $result = $this->prepared($q, 'i', $userId);
 
         if ($result) {
             $res = $result->fetch_object();
@@ -779,6 +800,8 @@ class administration extends connectDb
      * It's update table oko_capteur. ths method add for each sensor is csv name, Real Time Name, position into csv file
      *
      * @see administration::uploadCsv()
+     *
+     * @return bool
      */
     private function initMatriceFromFile()
     {
@@ -793,9 +816,12 @@ class administration extends connectDb
 
         $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | CSV First Line | '.$line);
 
-        $query = '';
         $positionOko = 2;
         $column = explode(CSV_SEPARATEUR, $line);
+
+        $addColumns = [];   // clauses ADD COLUMN
+        $rows = [];
+        $values = [];
 
         foreach ($column as $position => $t) {
             //set only capteur not day and hour
@@ -812,38 +838,142 @@ class administration extends connectDb
                     $boiler = '';
                 }
 
-                $addColumn = "ALTER TABLE oko_historique_full ADD COLUMN col_{$positionOko} DECIMAL(6,2) NULL DEFAULT NULL;";
-                $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create oko_capteur | '.$addColumn);
+                $addColumns[] = 'ADD COLUMN '.$this->colOko($positionOko).' DECIMAL(6,2) NULL DEFAULT NULL';
 
-                $query .= $addColumn;
-
-                $q = "INSERT INTO oko_capteur(name,position_column_csv,column_oko, original_name,type,boiler) VALUE ('{$name}',{$position},{$positionOko},'{$title}','{$type}','{$boiler}');";
+                $rows[] = '(?, ?, ?, ?, ?, ?)';
+                array_push($values, $name, $position, $positionOko, $title, $type, $boiler);
 
                 ++$positionOko;
-
-                $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create oko_capteur | '.$q);
-                $query .= $q;
             }
         }
         //insertion d'une reference au demarrage des cycles de chauffe
         $nbColumnCsv = count($column);
 
-        $addColumn = "ALTER TABLE oko_historique_full ADD COLUMN col_{$positionOko} DECIMAL(6,2) NULL DEFAULT NULL;";
-        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create oko_capteur | '.$addColumn);
+        $addColumns[] = 'ADD COLUMN '.$this->colOko($positionOko).' DECIMAL(6,2) NULL DEFAULT NULL';
 
-        $query .= $addColumn;
+        $rows[] = '(?, ?, ?, ?, ?, ?)';
+        array_push($values, 'Start Cycle', $nbColumnCsv, $positionOko, 'Start Cycle', 'startCycle', '');
 
-        $query .= "INSERT INTO oko_capteur(name,position_column_csv,column_oko,original_name,type) VALUES ('Start Cycle',{$nbColumnCsv},{$positionOko},'Start Cycle','startCycle');";
+        $alter = 'ALTER TABLE oko_historique_full '.implode(', ', $addColumns);
 
-        $result = $this->multi_query($query);
-        while ($this->flush_multi_queries()) {
-        } // flush multi_queries
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Alter oko_historique_full | '.$alter);
+
+        if (!$this->query($alter)) {
+            $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | echec ALTER oko_historique_full');
+
+            return false;
+        }
+
+        $q = 'INSERT INTO oko_capteur (name, position_column_csv, column_oko, original_name, type, boiler) VALUES '
+                .implode(', ', $rows);
+
+        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Insert oko_capteur | '.count($rows).' capteur(s)');
+
+        if (!$this->prepared($q, str_repeat('siisss', count($rows)), ...$values)) {
+            $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | echec INSERT oko_capteur');
+
+            return false;
+        }
+
+        //la matrice est creee, un echec sur les graphiques par defaut n'est pas bloquant
+        $this->initDefaultGraphes();
+
+        return true;
+    }
+
+    /**
+     * Create default graphs for the index page, just after the matrix creation.
+     *
+     * Graphs are described into _langs/<lang>.graphe.json, sensors are found by their csv name.
+     * Sensor not present in csv file is ignored, a graph without any sensor is not created.
+     * Does nothing if a graph already exists.
+     *
+     * @see administration::initMatriceFromFile()
+     *
+     * @return bool
+     */
+    private function initDefaultGraphes()
+    {
+        $result = $this->query('select count(*) from oko_graphe');
+
+        if (!$result || $result->fetch_row()[0] > 0) {
+            return false;
+        }
+
+        $file = '_langs/'.session::getInstance()->getLang().'.graphe.json';
+        $graphes = file_exists($file) ? json_decode(file_get_contents($file), true) : null;
+
+        if (!is_array($graphes)) {
+            $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | fichier illisible | '.$file);
+
+            return false;
+        }
+
+        $capteurs = [];
+        $result = $this->query('select id, original_name from oko_capteur where position_column_csv <> -1');
+        while ($result && $row = $result->fetch_object()) {
+            $capteurs[$row->original_name] = $row->id;
+        }
+
+        $ok = true;
+        $positionGraphe = 1;
+
+        foreach ($graphes as $graphe) {
+            $rows = [];
+            $values = [];
+            $position = 1;
+
+            foreach ($graphe['capteurs'] as $c) {
+                //on prend le premier nom connu dans la matrice
+                foreach ($c['original_name'] as $title) {
+                    if (isset($capteurs[$title])) {
+                        $rows[] = '(?, ?, ?, ?)';
+                        array_push($values, $capteurs[$title], $position, $c['coeff']);
+                        ++$position;
+
+                        break;
+                    }
+                }
+            }
+
+            if (0 === count($rows)) {
+                continue;
+            }
+
+            if (!$this->prepared('INSERT INTO oko_graphe (name, position) VALUES (?, ?)', 'si', $graphe['name'], $positionGraphe)) {
+                $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | echec INSERT oko_graphe | '.$graphe['name']);
+                $ok = false;
+
+                continue;
+            }
+
+            $idGraphe = (int) $this->query('select LAST_INSERT_ID()')->fetch_row()[0];
+
+            //on intercale l'id du graphe devant chaque triplet capteur, position, coeff
+            $params = [];
+            foreach (array_chunk($values, 3) as $v) {
+                array_push($params, $idGraphe, ...$v);
+            }
+
+            $q = 'INSERT INTO oko_asso_capteur_graphe (oko_graphe_id, oko_capteur_id, position, correction_effect) VALUES '
+                    .implode(', ', $rows);
+
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | '.$graphe['name'].' | '.count($rows).' capteur(s)');
+
+            $ok = $this->prepared($q, str_repeat('iiis', count($rows)), ...$params) && $ok;
+
+            ++$positionGraphe;
+        }
+
+        return $ok;
     }
 
     /**
      * Update into oko_capteur all capteur in csv file from okofen.
      *
      * @see administration::uploadCsv()
+     *
+     * @return bool
      */
     private function updateMatriceFromFile()
     {
@@ -862,10 +992,13 @@ class administration extends connectDb
         $capteursCsv = [];
         $lastColumnOko = $c->getLastColumnOko();
 
-        $query = '';
+        $addColumns = [];
+        $rows = [];
+        $values = [];
+        $moved = [];
+        $retyped = [];
 
         $column = explode(CSV_SEPARATEUR, $line);
-        //$capteursCsv = array_slice(array_flip($column),2);
 
         //on deroule la liste des capteurs dans le csv
         //cela va tester le deplacement d'un capteur par rapport à la bdd ou l'ajout d'un capteur
@@ -876,23 +1009,22 @@ class administration extends connectDb
 
                 $capteursCsv[$title] = $position;
 
-                $q = "";
-
                 //on test si le capteur etait deja connu dans la base oko_capteur
                 if (array_key_exists($title, $capteurs)) {
+
+                    $id = (int) $capteurs[$title]->id;
+
                     //on verifie si la position du capteur a changé, si oui, maj de la bdd
                     if ($capteurs[$title]->position_column_csv != $position) {
-                        $q = 'UPDATE oko_capteur set position_column_csv='.$position.' where id='.$capteurs[$title]->id.';';
-                        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_capteur | '.$q);
+                        $moved[$id] = $position;
                     }
                     
                     //On vérifie s'il s'agit d'une MAJ des types
                     if (isset($dico[$title]) && $capteurs[$title]->type != $dico[$title]['type']) {
-                        $q = 'UPDATE oko_capteur set type="'.$dico[$title]['type'].'" where id='.$capteurs[$title]->id.';';
-                        $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_type | '.$q);
+                        $retyped[$id] = $dico[$title]['type'];
                     }
                 } else {
-                    //capteur pas connu dans la base, on le met en fin de table  oko_capteur
+                    //capteur pas connu dans la base, on le met en fin de table oko_capteur
                     if (isset($dico[$title])) {
                         $name = $dico[$title]['name'];
                         $type = $dico[$title]['type'];
@@ -904,38 +1036,77 @@ class administration extends connectDb
                     }
                     ++$lastColumnOko;
 
-                    $addColumn = "ALTER TABLE oko_historique_full ADD COLUMN col_{$lastColumnOko} DECIMAL(6,2) NULL DEFAULT NULL;";
-                    $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create New oko_capteur | '.$addColumn);
-                    $query .= $addColumn;
+                    $addColumns[] = 'ADD COLUMN '.$this->colOko($lastColumnOko).' DECIMAL(6,2) NULL DEFAULT NULL';
 
-                    $q = "INSERT INTO oko_capteur(name,position_column_csv,column_oko, original_name,type,boiler) VALUE ('{$name}',{$position},{$lastColumnOko},'{$title}','{$type}','{$boiler}');";
-
-                    $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create New oko_capteur | '.$q);
+                    $rows[] = '(?, ?, ?, ?, ?, ?)';
+                    array_push($values, $name, $position, $lastColumnOko, $title, $type, $boiler);
                 }
-
-                $query .= $q;
             }
         }
+
         //on test maintenant le retrait d'un capteur dans le csv par rapport à la base oko_capteur
-        $forbidenCapteurs = array_diff_key($capteurs, $capteursCsv);
+        $disabled = [];
 
-        foreach ($forbidenCapteurs as $t => $position) {
+        foreach (array_diff_key($capteurs, $capteursCsv) as $capteur) {
             //si le capteur n'est plus present dans le csv, on met a jour la table en lui mettant -1 dans sa position_csv
-            $title = trim($t);
-            $q = 'UPDATE oko_capteur set position_column_csv=-1 where id='.$capteurs[$title]->id.';';
-            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Disable oko_capteur | '.$q);
+            $disabled[] = (int) $capteur->id;
+        }
 
-            $query .= $q;
+        $ok = true;
+
+        //un seul ALTER pour tous les nouveaux capteurs : une seule reconstruction de table
+        if ($addColumns) {
+            $alter = 'ALTER TABLE oko_historique_full '.implode(', ', $addColumns);
+
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Alter oko_historique_full | '.$alter);
+
+            if (!$this->query($alter)) {
+                $this->log->error('Class '.__CLASS__.' | '.__FUNCTION__.' | echec ALTER oko_historique_full');
+
+                return false;
+            }
+        }
+
+        //un seul INSERT multi-lignes pour les nouveaux capteurs
+        if ($rows) {
+            $q = 'INSERT INTO oko_capteur (name, position_column_csv, column_oko, original_name, type, boiler) VALUES '
+                    .implode(', ', $rows);
+
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Create New oko_capteur | '.count($rows).' capteur(s)');
+
+            $ok = $this->prepared($q, str_repeat('siisss', count($rows)), ...$values) && $ok;
+        }
+
+        //deplacements de colonne dans le csv
+        foreach ($moved as $id => $position) {
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_capteur | id '.$id.' -> position '.$position);
+
+            $ok = $this->prepared('UPDATE oko_capteur set position_column_csv = ? where id = ?', 'ii', $position, $id) && $ok;
+        }
+
+        //changements de type depuis le dico
+        foreach ($retyped as $id => $type) {
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Update oko_type | id '.$id.' -> '.$type);
+
+            $ok = $this->prepared('UPDATE oko_capteur set type = ? where id = ?', 'si', $type, $id) && $ok;
+        }
+
+        //capteurs disparus du csv : un seul UPDATE ... IN (...)
+        if ($disabled) {
+            $q = 'UPDATE oko_capteur set position_column_csv = -1 where id IN ('
+                    .implode(', ', array_fill(0, count($disabled), '?')).')';
+
+            $this->log->debug('Class '.__CLASS__.' | '.__FUNCTION__.' | Disable oko_capteur | '.count($disabled).' capteur(s)');
+
+            $ok = $this->prepared($q, str_repeat('i', count($disabled)), ...$disabled) && $ok;
         }
 
         //on met a jour le startCycle
         $nbColumnCsv = count($column);
-        $q = "UPDATE oko_capteur set position_column_csv={$nbColumnCsv} where type = 'startCycle';";
-        $query .= $q;
 
-        $result = $this->multi_query($query);
-        while ($this->flush_multi_queries()) {
-        } // flush multi_queries
+        $ok = $this->prepared("UPDATE oko_capteur set position_column_csv = ? where type = 'startCycle'", 'i', $nbColumnCsv) && $ok;
+
+        return $ok;
     }
 
     /**
@@ -1095,7 +1266,9 @@ class administration extends connectDb
                 //$this->query($templine) or print('Error performing query \'<strong>' . $templine . '\': ' . mysql_error() . '<br /><br />');
                 // Reset temp variable to empty
                 $templine = '';
-                $r['response'] = true;
+                //$r['response'] = true;
+                $r['response'] = false;
+                $r['reason'] = "Not Implemented";
             }
         }
         $this->sendResponse($r);
@@ -1205,9 +1378,60 @@ class administration extends connectDb
             return false;
         }
 
-        $this->initMatriceFromFile();
-        unlink('_tmp/matrice.csv');
+        if ($this->initMatriceFromFile()) {
+            unlink('_tmp/matrice.csv');
 
-        return true;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check for potential exposed files.
+     * @return string with exposed files separated by <br>
+     */
+    public function securityCheck($debug = false)
+    {
+        if ($debug) {
+            // Test configuration Apache
+            $host   = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
+            $scheme = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS']) ? 'https' : 'http';
+            $probes = ['var/okv_ingest.json', '_logs/okovision.log', 'config.json'];
+            $leaks  = [];
+
+            foreach ($probes as $p) {
+                $ch = curl_init("$scheme://$host/$p");
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_NOBODY         => true,
+                    CURLOPT_CONNECTTIMEOUT => 3,
+                    CURLOPT_TIMEOUT        => 5,
+                    CURLOPT_SSL_VERIFYPEER => false, // certificat auto-signe frequent en LAN
+                ]);
+                curl_exec($ch);
+                if (200 === (int) curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
+                    $leaks[] = $p;
+                }
+                curl_close($ch);
+            }
+
+            @mkdir(__DIR__ . '/../var', 0700, true);
+            file_put_contents(__DIR__ . '/../var/okv_security.json', json_encode([
+                'checked_at' => time(),
+                'status'     => $leaks ? 'exposed' : 'ok',
+                'leaks'      => $leaks,
+            ]));
+        }
+
+        $r = "";
+
+        if (is_file(__DIR__ . "/../var/okv_security.json")) {
+            $leaks = json_decode(file_get_contents(__DIR__ . "/../var/okv_security.json"), true);
+            if (is_array($leaks) && $leaks['leaks'] != "") {
+                $r = join('<br>', $leaks['leaks']);
+            }
+        }
+        return $r;
     }
 }

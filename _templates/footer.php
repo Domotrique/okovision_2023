@@ -8,5 +8,5 @@
 	<script src="js/highstock/highstock.js"></script>
 	<script src="js/lodash.js"></script>
 	
-	<script src="_langs/<?php echo session::getInstance()->getLang(); ?>.text.js"></script>
+	<script src="_langs/<?php echo session::getInstance()->getLang(); ?>.text.js?v=<?php echo filemtime(__DIR__.'/../_langs/'.session::getInstance()->getLang().'.text.js'); ?>"></script>
 	<script src="js/custom.js"></script> 

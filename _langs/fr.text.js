@@ -37,6 +37,7 @@ var lang = {
         getSyntheseSaison: "Problème lors de la récupération de la synthèse de la saison",
         bddFail: "Echec de connexion à la base de données",
         passNotChanged: "Mot de passe inchangé !",
+        passTooWeak: "Le nouveau mot de passe doit faire au moins 8 caractères et être différent de l'ancien.",
         passNotTheSame: "Les deux champs ne sont pas identiques.",
         previousPassNotMatch: "Le mot de passe actuel ne correspond pas.",
         userPassIncorrect: "User/password incorrect",
@@ -57,7 +58,8 @@ var lang = {
     },
     warning:{
         drop: 'Cette sauvegarde effacera votre historique récent ! Veuillez supprimer les lignes DROP dans le fichier SQL.',
-        insert: 'Cette sauvegarde va générer des doublons. Veuillez remplacer les INSERT par des REPLACE dans le fichier SQL.'
+        insert: 'Cette sauvegarde va générer des doublons. Veuillez remplacer les INSERT par des REPLACE dans le fichier SQL.',
+        security: 'Certains fichiers non autorisés sont exposés! Veuillez exécuter install/harden-apache.sh.'
     },
     valid:{
         communication: 'Communication établie',
@@ -94,6 +96,8 @@ var lang = {
         deleteGraphe: 'Confirmez-vous la suppresion de',
         updateAsso: "Modification de l'association",
         deleteAsso: "Confirmez-vous la suppresion de l'asso",
+        noGraphe: "Aucun graphique, commencez par en ajouter un.",
+        noAsso: "Aucun capteur dans ce graphique.",
         titreHisto: 'Synthèse mensuelle',
         estimatedEmptyDate: 'Date estimée de silo vide : {0}',
         estimationReliability: "Estimation basée sur l'historique des consommations. Fiabilité : {0}%",

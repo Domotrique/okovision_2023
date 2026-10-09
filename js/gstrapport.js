@@ -6,419 +6,413 @@
 /* global lang */
 $(document).ready(function() {
 
-    function initModalAddGraphe() {
-        $('#modal_graphique').on('show.bs.modal', function() {
-            $(this).find('#name').val("");
-            $(this).find('#typeModal').val("add");
-            $(this).find('#graphiqueTitre').html(lang.text.addGraphe);
+    var selectedId = null; //graphique affiché dans le panneau de droite
+    var capteurs = []; //tous les capteurs de la matrice
+    var editId = null; //graphique en cours de renommage, null pour une création
+    var pendingDelete = null; //suppression en attente de confirmation
 
-            $.api('GET', 'graphique.getLastGraphePosition').done(function(json) {
+    var handle = '<td class="drag-handle"><span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span></td>';
 
-                var newPosition = (json.data.lastPosition === null) ? 1 : parseInt(json.data.lastPosition) + 1;
-                $('#modal_graphique').find('#position').val(newPosition);
+    function button(cls, icon) {
+        return '<button type="button" class="btn btn-default btn-xs ' + cls + '"><span class="glyphicon glyphicon-' + icon + '" aria-hidden="true"></span></button>';
+    }
 
-            }).error(function() {
-                $.growlErreur(lang.error.position);
+    function emptyRow(colspan, text) {
+        return $('<tr class="gst-empty"></tr>').append($('<td class="text-muted"></td>').attr('colspan', colspan).text(text));
+    }
+
+    //position (base 1) d'une ligne parmi les lignes de données de son tableau
+    function positionOf(tr) {
+        return tr.parent().children('tr[id]').index(tr) + 1;
+    }
+
+    function parseCoeff(value) {
+        var coeff = $.trim(String(value)).replace(',', '.');
+
+        return $.isNumeric(coeff) ? coeff : null;
+    }
+
+    /************************************************
+     * ************ Graphiques **********************
+     * *********************************************/
+    function refreshTableGraphe(selectName) {
+        $.api('GET', 'graphique.getGraphe').done(function(json) {
+                var tbody = $("#listeGraphique > tbody").empty();
+                var found = false;
+                var data = json.data || [];
+
+                $.each(data, function(key, val) {
+                    if (selectName !== undefined && String(val.name) === selectName) {
+                        selectedId = val.id;
+                    }
+                });
+
+                $.each(data, function(key, val) {
+                    found = found || String(val.id) === String(selectedId);
+
+                    var tr = $('<tr></tr>').attr('id', val.id).append(handle);
+                    tr.append($('<td class="gst-name"></td>').text(val.name));
+                    tr.append('<td class="text-right text-nowrap">' + button('editGraphe', 'edit') + ' ' + button('deleteGraphe', 'trash') + '</td>');
+                    tbody.append(tr);
+                });
+
+                if (!found) {
+                    selectedId = data.length ? data[0].id : null;
+                }
+                if (!data.length) {
+                    tbody.append(emptyRow(3, lang.text.noGraphe));
+                }
+
+                refreshTableAsso();
+            })
+            .fail(function() {
+                $.growlErreur(lang.error.getGraphe);
             });
-
-        });
     }
 
-    function initModalUpdateGraphe(row) {
-        $('#modal_graphique').on('show.bs.modal', function() {
+    function openModalGraphe(row) {
+        var name = row ? row.find('.gst-name').text() : '';
 
-            var name = row.find("td:nth-child(2)").text();
-            $(this).find('#name').val(name);
-            $(this).find('#typeModal').val("edit");
-            $(this).find('#grapheId').val(row.attr("id"));
-            $(this).find('#graphiqueTitre').html(lang.text.updateGraphe + " " + name);
-        });
+        editId = row ? row.attr('id') : null;
+        $('#graphiqueTitre').text(row ? lang.text.updateGraphe + ' ' + name : lang.text.addGraphe);
+        $('#name').val(name);
+        $('#modal_graphique').modal('show');
     }
 
-    function initModalDeleteGraphe(row) {
-        $('#confirm-delete').on('show.bs.modal', function() {
-            $(this).find('.modal-title').html(lang.text.deleteGraphe + " " + row.find("td:nth-child(2)").text() + "?");
-            $(this).find('#deleteid').val(row.attr("id"));
-            $(this).find('#typeModal').val('Grph');
-        });
-    }
-
-    function initModalAddAsso() {
-        $('#modal_asso').on('show.bs.modal', function() {
-
-            $(this).find('#typeModal').val("add");
-            $('#select_graphe option[value=' + $('#select_graphique').val() + ']').attr("selected", "selected");
-            $('#select_capteur').prop("disabled", false);
-            $('#select_capteur').find('option').removeAttr("selected");
-            //console.log($('#listeAsso tbody > tr').length);
-            $('#modal_asso').find('#position').val($('#listeAsso tbody > tr').length + 1)
-            $('#coeff').val("1");
-        });
-    }
-
-    function initModalUpdateAsso(row) {
-        $('#modal_asso').on('show.bs.modal', function() {
-
-            $(this).find('#typeModal').val("edit");
-            $(this).find('#assoTitre').html(lang.text.updateAsso);
-            $('#select_graphe option[value=' + $('#select_graphique').val() + ']').attr("selected", "selected");
-            $('#select_capteur option[value=' + row.attr("id") + ']').attr("selected", "selected");
-
-            $('#select_capteur').attr('disabled', 'disabled');
-            $('#coeff').val(row.find("td:nth-child(3)").text());
-
-        });
-    }
-
-    function initModalDeleteAsso(row) {
-        var name = $('#select_graphique option:selected').text() + " - " + row.find("td:nth-child(2)").text();
-
-        $('#confirm-delete').on('show.bs.modal', function() {
-            $(this).find('.modal-title').html(lang.text.deleteAsso + " " + name + "?");
-            $(this).find('#deleteid').val(row.attr("id")); //id du capteur
-            $(this).find('#typeModal').val('Asso');
-        });
-    }
-
-    function addGraphe() {
-        var tab = {
-            name: $('#modal_graphique').find('#name').val(),
-            position: $('#modal_graphique').find('#position').val()
-        };
+    function addGraphe(name) {
         $.api('GET', 'graphique.grapheNameExist', {
-            name: tab.name
+            name: name
         }).done(function(json) {
 
-            if (!json.exist) {
-                //so le groupe n'existe pas, on enregistre
+            if (json.exist) {
+                $.growlWarning(lang.error.grapehAlreadyExist);
+                return;
+            }
+
+            $.api('GET', 'graphique.getLastGraphePosition').done(function(json) {
+                var tab = {
+                    name: name,
+                    position: (json.data.lastPosition === null) ? 1 : parseInt(json.data.lastPosition) + 1
+                };
+
                 $.api('POST', 'graphique.addGraphe', tab).done(function(json) {
 
                     $('#modal_graphique').modal('hide');
                     if (json.response) {
                         $.growlValidate(lang.valid.save);
-                        setTimeout(refreshTableGraphe(), 1000);
+                        //le nouveau graphique est sélectionné, prêt à recevoir ses capteurs
+                        refreshTableGraphe(name);
                     }
                     else {
                         $.growlErreur(lang.error.save);
                     }
                 });
-
-            }
-            else {
-                $.growlWarning(lang.error.grapehAlreadyExist);
-            }
+            }).fail(function() {
+                $.growlErreur(lang.error.position);
+            });
         });
     }
 
-    function updateGraphe() {
-        var tab = {
-            id: $('#modal_graphique').find('#grapheId').val(),
-            name: $('#modal_graphique').find('#name').val()
-        };
-        //test si le groupe adrress n'est pas déja utilisé
-        $.api('POST', 'graphique.updateGraphe', tab).done(function(json) {
+    function updateGraphe(name) {
+        $.api('POST', 'graphique.updateGraphe', {
+            id: editId,
+            name: name
+        }).done(function(json) {
 
             $('#modal_graphique').modal('hide');
             if (json.response) {
                 $.growlValidate(lang.valid.update);
-                setTimeout(refreshTableGraphe(), 1000);
+                refreshTableGraphe();
             }
             else {
                 $.growlErreur(lang.error.save);
             }
         });
-
     }
 
-    function deleteGraphe() {
-        var tab = {
-            id: $('#confirm-delete').find('#deleteid').val()
-        };
-
-        $.api('POST', 'graphique.deleteGraphe', tab).done(function(json) {
+    function deleteGraphe(id) {
+        $.api('POST', 'graphique.deleteGraphe', {
+            id: id
+        }).done(function(json) {
 
             $('#confirm-delete').modal('hide');
             if (json.response === true) {
                 $.growlValidate(lang.valid.delete);
-                setTimeout(refreshTableGraphe(), 1000);
+                refreshTableGraphe();
             }
             else {
-                $.growlErreur(lang.error.deleteGraphe + " " + tab.name);
+                $.growlErreur(lang.error.deleteGraphe);
             }
         });
     }
 
-    function addAsso() {
-        var tab = {
-            id_graphe: $('#modal_asso').find('#select_graphe').val(),
-            id_capteur: $('#modal_asso').find('#select_capteur').val(),
-            position: $('#modal_asso').find('#position').val(),
-            coeff: $('#modal_asso').find('#coeff').val()
+    /************************************************
+     * ************ Capteurs du graphique ***********
+     * *********************************************/
+    function refreshSelectCapteur(used) {
+        var select = $('#select_capteur').empty();
 
-        };
-        //test si le groupe adrress n'est pas déja utilisé
-        $.api('GET', 'graphique.grapheAssoCapteurExist', {
-            graphe: tab.id_graphe,
-            capteur: tab.id_capteur
-        }).done(function(json) {
-
-            if (!json.exist) {
-                //so l'asso n'existe pas, on enregistre
-                $.api('POST', 'graphique.addGrapheAsso', tab).done(function(json) {
-
-                    $('#modal_asso').modal('hide');
-                    if (json.response) {
-                        $.growlValidate(lang.valid.save);
-                        setTimeout(refreshTableAsso(), 1000);
-                    }
-                    else {
-                        $.growlErreur(lang.error.save);
-                    }
-                });
-            }
-            else {
-                $.growlWarning(lang.error.assoAlreadyExist);
+        $.each(capteurs, function(key, val) {
+            //on ne propose que les capteurs absents du graphique
+            if ($.inArray(String(val.id), used) === -1) {
+                select.append($('<option></option>').val(val.id).text(val.name));
             }
         });
-    }
 
-    function updateAsso() {
-        var tab = {
-            id_graphe: $('#modal_asso').find('#select_graphe').val(),
-            id_capteur: $('#modal_asso').find('#select_capteur').val(),
-            coeff: $('#modal_asso').find('#coeff').val()
-        };
-        if (!$.isNumeric(tab.coeff)) {
-            $.growlErreur(lang.error.coeffMustBeNumber);
-            return;
-        }
-
-        $.api('POST', 'graphique.updateGrapheAsso', tab).done(function(json) {
-
-            $('#modal_asso').modal('hide');
-            if (json.response) {
-                $.growlValidate(lang.valid.update);
-                setTimeout(refreshTableAsso(), 1000);
-            }
-            else {
-                $.growlErreur(lang.error.update);
-            }
-
-        });
-    }
-
-    function deleteAssoGraphe() {
-        var tab = {
-            id_capteur: $('#confirm-delete').find('#deleteid').val(),
-            id_graphe: $('#select_graphique').val()
-        };
-        $.api('POST', 'graphique.deleteAssoGraphe', tab).done(function(json) {
-
-            $('#confirm-delete').modal('hide');
-            if (json.response) {
-                $.growlValidate(lang.valid.delete);
-                setTimeout(refreshTableAsso(), 1000);
-            }
-            else {
-                $.growlErreur(lang.error.deleteAsso);
-            }
-
-        });
-    }
-
-    function refreshTableGraphe() {
-        $("#listeGraphique> tbody").html("");
-        //liste deroulante dans la page
-        $('#select_graphique').find('option').remove();
-        //listen deroulante fenetre modal add /edit
-        $('#select_graphe').find('option').remove();
-
-        $.api('GET', 'graphique.getGraphe').done(function(json) {
-
-                $.each(json.data, function(key, val) {
-
-                    $('#listeGraphique > tbody:last').append('<tr id="' + val.id + '">  <td> \
-                                                            <span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span> \
-    																</td> \
-                	                                                <td>' + val.name + '</td>  \
-                	                                                <td>       \
-                	                                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_graphique"> \
-                                                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> \
-                                                                        </button> \
-                                                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete"> \
-                                                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
-                                                                        </button> \
-                                                                    </td></tr>');
-                    //on rempli les listes box pour le tableau d'asso
-                    $('#select_graphique').append('<option value="' + val.id + '">' + val.name + '</option>');
-                    $('#select_graphe').append('<option value="' + val.id + '">' + val.name + '</option>');
-
-                });
-                refreshTableAsso();
-            })
-            .error(function() {
-                $.growlErreur(lang.error.getGraphe);
-            });
+        var disabled = selectedId === null || select.children().length === 0;
+        $('#formAddAsso').find('select, input, button').prop('disabled', disabled);
     }
 
     function refreshTableAsso() {
-        $("#listeAsso > tbody").html("");
+        var tbody = $("#listeAsso > tbody").empty();
+        var selectedRow = $('#listeGraphique tr[id="' + selectedId + '"]');
+
+        $('#listeGraphique tr').removeClass('info');
+        selectedRow.addClass('info');
+        $('#grapheSelectedName').text(selectedId === null ? '' : ': ' + selectedRow.find('.gst-name').text());
+
+        if (selectedId === null) {
+            tbody.append(emptyRow(4, lang.text.noGraphe));
+            refreshSelectCapteur([]);
+            return;
+        }
 
         $.api('GET', 'graphique.getGrapheAsso', {
-                graphe: $('#select_graphique').val()
+                graphe: selectedId
             }).done(function(json) {
+                var used = [];
 
-                $.each(json.data, function(key, val) {
-                    //console.log(val.group_addr);
-                    $('#listeAsso > tbody:last').append('<tr id="' + val.id + '">  <td> \
-    																	 <span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span> \
-                                                                    </td> \
-                	                                                <td>' + val.name + '</td>  \
-                	                                                <td>' + val.coeff + '</td>  \
-                	                                                <td>       \
-                	                                                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal_asso"> \
-                                                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> \
-                                                                        </button> \
-                                                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm-delete"> \
-                                                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> \
-                                                                        </button> \
-                                                                    </td></tr>');
+                $.each(json.data || [], function(key, val) {
+                    //capteur supprimé de la matrice
+                    if (val.id === null) {
+                        return;
+                    }
+                    used.push(String(val.id));
 
+                    var tr = $('<tr></tr>').attr('id', val.id).append(handle);
+                    tr.append($('<td class="gst-name"></td>').text(val.name));
+                    tr.append($('<td></td>').append($('<input type="text" class="form-control input-sm gst-coeff">').val(val.coeff).data('saved', val.coeff)));
+                    tr.append('<td class="text-right">' + button('deleteAsso', 'trash') + '</td>');
+                    tbody.append(tr);
                 });
+
+                if (!used.length) {
+                    tbody.append(emptyRow(4, lang.text.noAsso));
+                }
+
+                refreshSelectCapteur(used);
             })
-            .error(function() {
+            .fail(function() {
                 $.growlErreur(lang.error.getAsso);
             });
     }
 
+    function addAsso() {
+        var tab = {
+            id_graphe: selectedId,
+            id_capteur: $('#select_capteur').val(),
+            position: $('#listeAsso > tbody > tr[id]').length + 1,
+            coeff: parseCoeff($('#coeff').val())
+        };
+
+        if (tab.id_graphe === null || !tab.id_capteur) {
+            return;
+        }
+        if (tab.coeff === null) {
+            $.growlErreur(lang.error.coeffMustBeNumber);
+            return;
+        }
+
+        $.api('POST', 'graphique.addGrapheAsso', tab).done(function(json) {
+
+            if (json.response) {
+                $.growlValidate(lang.valid.save);
+                $('#coeff').val("1");
+                refreshTableAsso();
+            }
+            else {
+                $.growlErreur(lang.error.save);
+            }
+        });
+    }
+
+    function updateAsso(input) {
+        var coeff = parseCoeff(input.val());
+
+        if (coeff === null) {
+            $.growlErreur(lang.error.coeffMustBeNumber);
+            input.val(input.data('saved'));
+            return;
+        }
+
+        $.api('POST', 'graphique.updateGrapheAsso', {
+            id_graphe: selectedId,
+            id_capteur: input.closest('tr').attr('id'),
+            coeff: coeff
+        }).done(function(json) {
+
+            if (json.response) {
+                $.growlValidate(lang.valid.update);
+                input.val(coeff).data('saved', coeff);
+            }
+            else {
+                $.growlErreur(lang.error.update);
+                input.val(input.data('saved'));
+            }
+        });
+    }
+
+    function deleteAssoGraphe(idCapteur) {
+        $.api('POST', 'graphique.deleteAssoGraphe', {
+            id_capteur: idCapteur,
+            id_graphe: selectedId
+        }).done(function(json) {
+
+            $('#confirm-delete').modal('hide');
+            if (json.response) {
+                $.growlValidate(lang.valid.delete);
+                refreshTableAsso();
+            }
+            else {
+                $.growlErreur(lang.error.deleteAsso);
+            }
+        });
+    }
+
+    function confirmDelete(title, action) {
+        pendingDelete = action;
+        $('#deleteTitre').text(title);
+        $('#confirm-delete').modal('show');
+    }
 
     /************************************************
      * ************ Evenements **********************
      * *********************************************/
-    //obligé d'utiliser "on()" car les boutons sont ajoutés apres le chargement de la page
-    $("body").on("click", ".btn", function() {
-
-        if ($(this).is("#openModalAddGraphique")) {
-            initModalAddGraphe();
-        }
-        if ($(this).is("#openModalAsso")) {
-            initModalAddAsso();
-        }
-
-        if ($(this).is("#addGraphique")) {
-            if ($("#modal_graphique").find('#typeModal').val() == "add") {
-                addGraphe();
-            }
-            if ($("#modal_graphique").find('#typeModal').val() == "edit") {
-                updateGraphe();
-            }
-        }
-
-        if ($(this).is("#addAsso")) {
-            if ($("#modal_asso").find('#typeModal').val() == "add") {
-                addAsso();
-            }
-            if ($("#modal_asso").find('#typeModal').val() == "edit") {
-                updateAsso();
-            }
-        }
-
-        if ($(this).children().is(".glyphicon-edit") && $(this).closest('table').is("#listeGraphique")) { //;
-            initModalUpdateGraphe($(this).closest("tr"));
-        }
-        if ($(this).children().is(".glyphicon-trash") && $(this).closest('table').is("#listeGraphique")) {
-            initModalDeleteGraphe($(this).closest("tr"));
-        }
-        if ($(this).children().is(".glyphicon-edit") && $(this).closest('table').is("#listeAsso")) { //;
-            initModalUpdateAsso($(this).closest("tr"));
-        }
-        if ($(this).children().is(".glyphicon-trash") && $(this).closest('table').is("#listeAsso")) {
-            initModalDeleteAsso($(this).closest("tr"));
-        }
-        if ($(this).is('#deleteConfirm')) {
-            if ($('#confirm-delete').find('#typeModal').val() == 'Grph') {
-                deleteGraphe();
-            }
-            if ($('#confirm-delete').find('#typeModal').val() == 'Asso') {
-                deleteAssoGraphe();
-            }
-
-        }
-
-
-
-
+    $('#openModalAddGraphique').click(function() {
+        openModalGraphe(null);
     });
 
-    refreshTableGraphe();
-
-
-    $('#select_graphique').change(function() {
-        refreshTableAsso();
+    $('#modal_graphique').on('shown.bs.modal', function() {
+        $('#name').focus();
     });
 
-    $.api('GET', 'graphique.getCapteurs').done(function(json) {
+    $('#formGraphique').submit(function(e) {
+        e.preventDefault();
 
-        if (json.response) {
-            $('#select_capteur').find('option').remove();
+        var name = $.trim($('#name').val());
+        if (name === '') {
+            return;
+        }
 
-            $.each(json.data, function(key, val) {
-
-                $('#select_capteur').append('<option value="' + val.id + '">' + val.name + '</option>');
-                $('#select_graphe').attr('disabled', 'disabled');
-            });
+        if (editId === null) {
+            addGraphe(name);
         }
         else {
-            $.growlErreur(lang.error.getSensor);
+            updateGraphe(name);
+        }
+    });
+
+    //obligé d'utiliser "on()" car les lignes sont ajoutées apres le chargement de la page
+    $('#listeGraphique').on('click', 'tr[id]', function(e) {
+        var row = $(this);
+
+        if ($(e.target).closest('.editGraphe').length) {
+            openModalGraphe(row);
+        }
+        else if ($(e.target).closest('.deleteGraphe').length) {
+            confirmDelete(lang.text.deleteGraphe + ' ' + row.find('.gst-name').text() + ' ?', function() {
+                deleteGraphe(row.attr('id'));
+            });
+        }
+        else if (String(selectedId) !== row.attr('id')) {
+            selectedId = row.attr('id');
+            refreshTableAsso();
+        }
+    });
+
+    $('#listeAsso').on('click', '.deleteAsso', function() {
+        var row = $(this).closest('tr');
+        var name = $.trim($('#grapheSelectedName').text().replace(/^:/, '')) + ' - ' + row.find('.gst-name').text();
+
+        confirmDelete(lang.text.deleteAsso + ' ' + name + ' ?', function() {
+            deleteAssoGraphe(row.attr('id'));
+        });
+    });
+
+    $('#listeAsso').on('change', '.gst-coeff', function() {
+        updateAsso($(this));
+    });
+
+    $('#listeAsso').on('keydown', '.gst-coeff', function(e) {
+        if (e.which === 13) {
+            $(this).blur();
+        }
+    });
+
+    $('#formAddAsso').submit(function(e) {
+        e.preventDefault();
+        addAsso();
+    });
+
+    $('#deleteConfirm').click(function() {
+        if (pendingDelete) {
+            pendingDelete();
+            pendingDelete = null;
         }
     });
 
     var currentPosition;
-    $('table tbody').sortable({
+    $('#listeGraphique > tbody, #listeAsso > tbody').sortable({
+        items: 'tr[id]',
+        handle: '.drag-handle',
         opacity: 0.75,
         helper: fixWidthHelper,
-        start: function( event, ui ) {
-            //console.log(ui.item.context.rowIndex);
-            currentPosition = ui.item.context.rowIndex;
+        start: function(event, ui) {
+            currentPosition = positionOf(ui.item);
         },
-        update: function( event, ui ) {
-            
-            if ($(this).closest('table').is("#listeGraphique") ){
-                
-                $.api('POST', 'graphique.updateGraphePosition', {id_graphe: ui.item.context.id, current: currentPosition, position: ui.item.context.rowIndex}).done(function(json) {
+        update: function(event, ui) {
+            var isGraphe = $(this).closest('table').is("#listeGraphique");
+            var tab = {
+                id_graphe: isGraphe ? ui.item.attr('id') : selectedId,
+                current: currentPosition,
+                position: positionOf(ui.item)
+            };
 
-                    if (json.response) {
-                        $.growlValidate(lang.valid.update);
-                    }
-                    else {
-                        $.growlErreur(lang.error.update);
-                    }
-                });
-                
-                //console.log(ui.item.context.rowIndex);
-                
+            if (!isGraphe) {
+                tab.id_capteur = ui.item.attr('id');
             }
-            if ($(this).closest('table').is("#listeAsso") ){
-                //console.log('listeAsso::'+row);
-                $.api('POST', 'graphique.updateGrapheAssoPosition', {id_graphe: $('#select_graphique').val(), id_capteur: ui.item.context.id, current: currentPosition, position: ui.item.context.rowIndex}).done(function(json) {
 
-                    if (json.response) {
-                        $.growlValidate(lang.valid.update);
-                    }
-                    else {
-                        $.growlErreur(lang.error.update);
-                    }
-                });
-            }
-            
+            $.api('POST', isGraphe ? 'graphique.updateGraphePosition' : 'graphique.updateGrapheAssoPosition', tab).done(function(json) {
+
+                if (json.response) {
+                    $.growlValidate(lang.valid.update);
+                }
+                else {
+                    $.growlErreur(lang.error.update);
+                    refreshTableGraphe();
+                }
+            });
         }
-    }).disableSelection();
-        
+    });
+
     function fixWidthHelper(e, ui) {
         ui.children().each(function() {
             $(this).width($(this).width());
         });
         return ui;
     }
+
+    //les capteurs sont chargés avant les graphiques pour alimenter la liste d'ajout
+    $.api('GET', 'graphique.getCapteurs').done(function(json) {
+
+        if (json.response) {
+            capteurs = json.data;
+        }
+        else {
+            $.growlErreur(lang.error.getSensor);
+        }
+    }).always(function() {
+        refreshTableGraphe();
+    });
 
 });

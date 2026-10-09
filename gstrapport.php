@@ -13,147 +13,102 @@ include_once '_templates/menu.php';
 		<div class="page-header">
 			<h3> <small><?php echo session::getInstance()->getLabel('lang.text.page.repport.title'); ?></small></h3>
 		</div>
-	
-		<div class="col-md-12">
-			<button type="button" class="btn btn-xs btn-default" id="openModalAddGraphique" data-toggle="modal" data-target="#modal_graphique">
-				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.repport.add'); ?>
-			</button>
-		</div> 
-	
-		<table id="listeGraphique" class="table table-hover">
-			<thead>
-				<tr>
-					<th class="col-md-2"><?php echo session::getInstance()->getLabel('lang.text.page.repport.table.position'); ?></th>
-					<th class="col-md-8"><?php echo session::getInstance()->getLabel('lang.text.page.repport.table.name'); ?></th>
-					<th class="col-md-2"></th>
-				</tr>
-			</thead>
-	
-			<tbody>
-			</tbody>
-	
-		</table>
-	
-		<p>&nbsp;</p>
-		<div class="page-header">
-			<h3> <small><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.title'); ?></small></h3>
+
+		<p class="text-muted"><?php echo session::getInstance()->getLabel('lang.text.page.repport.hint'); ?></p>
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="panel panel-default">
+					<div class="panel-heading clearfix">
+						<button type="button" class="btn btn-xs btn-default pull-right" id="openModalAddGraphique">
+							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.repport.add'); ?>
+						</button>
+						<strong><?php echo session::getInstance()->getLabel('lang.text.page.repport.list.title'); ?></strong>
+					</div>
+
+					<table id="listeGraphique" class="table table-hover gst-rapport">
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<strong><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.panel'); ?></strong>
+						<span id="grapheSelectedName"></span>
+					</div>
+
+					<table id="listeAsso" class="table table-hover gst-rapport">
+						<thead>
+							<tr>
+								<th class="col-md-1"></th>
+								<th class="col-md-7"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.table.name'); ?></th>
+								<th class="col-md-3"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.table.coef'); ?></th>
+								<th class="col-md-1"></th>
+							</tr>
+						</thead>
+
+						<tbody>
+						</tbody>
+					</table>
+
+					<div class="panel-footer">
+						<form class="form-inline" id="formAddAsso">
+							<div class="form-group">
+								<label for="select_capteur" class="sr-only"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.capteur'); ?></label>
+								<select class="form-control input-sm" id="select_capteur">
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="coeff" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.coef'); ?></label>
+								<input type="text" class="form-control input-sm gst-coeff" id="coeff" placeholder="ex : 0,25" value="1">
+							</div>
+							<button type="submit" class="btn btn-default btn-sm" id="addAsso">
+								<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.add'); ?>
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="col-md-6" align="left">
-			<button type="button" class="btn btn-xs btn-default" id="openModalAsso" data-toggle="modal" data-target="#modal_asso">
-				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.add'); ?>
-			</button>
-		</div>
-		<div class="col-md-6" align="right"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.filter'); ?>
-			<select id="select_graphique">
-			</select>
-		</div>
-	
-	
-		<table id="listeAsso" class="table table-hover">
-			<thead>
-				<tr>
-					<th class="col-md-2"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.table.position'); ?></th>
-					<th class="col-md-5"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.table.name'); ?></th>
-					<th class="col-md-3"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.table.coef'); ?></th>
-					<th class="col-md-2"></th>
-				</tr>
-			</thead>
-	
-			<tbody>
-			</tbody>
-	
-		</table>
-	
-		<div class="modal fade" id="modal_graphique" tabindex="-1" role="dialog" aria-labelledby="graphiqueLabel" aria-hidden="true">
+
+		<div class="modal fade" id="modal_graphique" tabindex="-1" role="dialog" aria-labelledby="graphiqueTitre" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-						</button>
-						<h4 class="modal-title" id="graphiqueTitre"></h4>
-					</div>
-					<div class="modal-body">
-						<div class="hidden">
-							<input type="text" id="typeModal">
-							<input type="text" id="grapheId">
-							<input type="text" id="position">
+					<form id="formGraphique">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="graphiqueTitre"></h4>
 						</div>
-						<form>
-	
+						<div class="modal-body">
 							<div class="form-group">
-								<label for="recipient-name" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.repport.modale.title'); ?></label>
+								<label for="name" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.repport.modale.title'); ?></label>
 								<input type="text" class="form-control" id="name">
 							</div>
-	
-						</form>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
-							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-						</button>
-						<button type="button" id="addGraphique" class="btn btn-default btn-sm">
-							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	
-	
-		<div class="modal fade" id="modal_asso" tabindex="-1" role="dialog" aria-labelledby="assoLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-						</button>
-						<h4 class="modal-title" id="assoTitre"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.title'); ?></h4>
-					</div>
-					<div class="modal-body">
-						<div class="hidden">
-							<input type="text" id="typeModal">
-							<input type="text" id="position">
 						</div>
-						<form>
-							<div class="form-group" id="divgroupe">
-								<label for="message-text" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.graphic'); ?></label>
-									<select class="form-control" id="select_graphe">
-								</select>
-							</div>
-							<div class="form-group" id="divcapteur">
-								<label for="message-text" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.capteur'); ?></label>
-									<select class="form-control" id="select_capteur">
-								</select>
-							</div>
-							<div class="form-group">
-								<label for="recipient-name" class="control-label"><?php echo session::getInstance()->getLabel('lang.text.page.repport.asso.modale.coef'); ?></label>
-								<input type="text" class="form-control" id="coeff" placeholder="ex : 0,25" value="1">
-							</div>
-						</form>
-					</div>
-	
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
-							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-						</button>
-						<button type="button" id="addAsso" class="btn btn-default btn-sm">
-							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-						</button>
-					</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">
+								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+							</button>
+							<button type="submit" id="addGraphique" class="btn btn-default btn-sm">
+								<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+							</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
-	
-		<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteLabel" aria-hidden="true">
+
+		<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="deleteTitre" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
 						</button>
 						<h4 class="modal-title" id="deleteTitre"></h4>
-					</div>
-					<div class="hidden">
-						<input type="text" id="deleteid">
-						<input type="text" id="typeModal">
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo session::getInstance()->getLabel('lang.text.modal.cancel'); ?></button>
@@ -162,11 +117,12 @@ include_once '_templates/menu.php';
 				</div>
 			</div>
 		</div>
+	</div>
 
 
 	<?php include __DIR__.'/_templates/footer.php'; ?>
 	<!--appel des scripts personnels de la page -->
-	<script src="js/gstrapport.js"></script>
+	<script src="js/gstrapport.js?v=<?php echo filemtime(__DIR__.'/js/gstrapport.js'); ?>"></script>
 	</body>
 
 </html>
