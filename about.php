@@ -26,6 +26,10 @@ if (!file_exists('config.php')) {
 		<?php echo session::getInstance()->getLabel('lang.text.page.about.information'); ?>
 		
 	</div>
+	<div class="alert alert-info" role="note">
+		<strong>Granulink</strong>, la nouvelle solution appelée à prendre la suite d'OkoVision, est en bêta.
+		<a href="https://granulink.okostats.ovh/aide" target="_blank" rel="noopener" class="alert-link">Découvrez la bêta et donnez votre avis.</a>
+	</div>
 	<div>TOKEN API : <?php echo substr(TOKEN, 0, 12); ?></div>
 	<div class="page-header">
 		<h2><?php echo session::getInstance()->getLabel('lang.text.page.about.update'); ?></h2>

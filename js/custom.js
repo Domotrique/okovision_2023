@@ -218,3 +218,14 @@ $(document).ready(function () {
 		}
 	});
 });
+
+(function () {
+  var KEY = 'granulink_banner_dismissed';
+  var banner = document.getElementById('granulink-banner');
+  try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+  banner.style.display = 'flex';
+  document.getElementById('granulink-close').addEventListener('click', function () {
+    banner.style.display = 'none';
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+  });
+})();
