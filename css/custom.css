@@ -146,3 +146,28 @@ div .vertical-align{
 .gst-coeff {
   max-width: 90px;
 }
+
+#granulink-banner {
+  position: relative; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-top: 64px; margin-bottom: 16px; padding: 10px 40px 10px 14px;
+  border: 1px solid #ead8b2; border-left: 4px solid #d5a348; border-radius: 4px;
+  background: #fbf8f1; color: #514a3d; font-size: 14px;
+}
+#granulink-banner .gl-message {
+  flex: 1 1 280px;
+}
+#granulink-banner .gl-btn {
+  padding: 5px 10px; border: 1px solid #c99a42; border-radius: 4px;
+  color: #765719; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+#granulink-banner .gl-btn:hover,
+#granulink-banner .gl-btn:focus {
+  background: #f2e7d0; color: #5b4314; text-decoration: none;
+}
+#granulink-close {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; color: #766f62; font-size: 22px; line-height: 1; cursor: pointer;
+}
+@media (max-width: 767px) {
+  #granulink-banner { margin-top: 60px; }
+}

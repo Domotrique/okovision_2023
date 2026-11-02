@@ -37,4 +37,9 @@
 	</head>
 
   <body role="document">
+    <div id="granulink-banner" class="container" role="status" aria-live="polite" aria-label="Annonce Granulink" style="display:none">
+        <span class="gl-message"><span class="glyphicon glyphicon-leaf" aria-hidden="true"></span> <strong>Granulink</strong>, une nouvelle solution pour prendre la suite d'OkoVision, est en bêta.</span>
+        <a href="https://granulink.okostats.ovh/aide" target="_blank" rel="noopener" class="gl-btn">Découvrir</a>
+        <button type="button" id="granulink-close" aria-label="Fermer le bandeau">&times;</button>
+    </div>
   
